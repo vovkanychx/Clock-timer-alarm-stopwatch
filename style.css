@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+*{
+    box-sizing: border-box;
+}
+body{
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+}
+img{
+    width: 100%;
+}
+
+/* CLOCK */
+
+.clock{
+    padding: 20px;
+    text-align: center;
+    height: fit-content;
+    width: 100%;
+    background: antiquewhite;
+    color: #222222;
+    font-size: 32px;
+}
+
+/* STOPWATCH */
+
+.stopwatch{
+    padding: 20px;
+    text-align: center;
+    height: fit-content;
+    width: 100%;
+    background: cadetblue;
+    color: #ffeeb3;
+    font-size: 32px;
+}
+.stopwatch-clock{
+    margin-bottom: 20px;
+}
+.stopwatch button{
+    background: #ffeeb3;
+    color: #222222;
+    cursor: pointer;
+}
+#start, #reset{
+    font-family: "Roboto", sans-serif;
+    position: relative;
+    font-size: 14px;
+    letter-spacing: 1.2px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    outline: none;
+    border: none;
+    --buttonStopwatchStart: #0c5600;
+    --buttonStopwatchStartActive: #073300;
+    --buttonStopwatchStop: #610000;
+    --buttonStopwatchStopActive: #350000;
+    --buttonStopWatchReset: #2c2c2c;
+    --buttonStopWatchResetClick: #444444;
+    transition: all .1s ease-in-out;
+}
+#start::before, #reset::before{
+    position: absolute;
+    content: "";
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 3px solid;
+    transition: all .1s ease-in-out;
+}
+#start{
+    background-color: var(--buttonStopwatchStart);
+    color: #20f000;
+}
+#start::before{
+    border-color: var(--buttonStopwatchStart);
+}
+#start.stop{
+    background-color: var(--buttonStopwatchStop);
+    color: #ff1111;
+}
+#start.stop::before{
+    border-color: var(--buttonStopwatchStop);  
+}
+#start:active{
+    background-color: var(--buttonStopwatchStartActive);
+}
+#start:active::before{
+    border-color: var(--buttonStopwatchStartActive);
+}
+#start.stop:active{
+    background-color: var(--buttonStopwatchStopActive)
+}
+#start.stop:active::before{
+    border-color: var(--buttonStopwatchStopActive);
+}
+#reset{
+    background-color: var(--buttonStopWatchReset);
+    color: #c9c9c9;
+}
+#reset:before{
+    border-color: var(--buttonStopWatchReset);
+}
+#reset.reset-click{
+    background-color: var(--buttonStopWatchResetClick);
+}
+#reset.reset-click::before{
+    border-color: var(--buttonStopWatchResetClick);
+}
+#reset:active{
+    background-color: #242424;
+}
+#reset:active::before{
+    border-color: #242424;
+}
+#reset.reset-click:active{
+    background-color: var(--buttonStopWatchReset);
+}
+#reset.reset-click:active::before{
+    border-color: var(--buttonStopWatchReset);
+}
+.laps{
+    list-style: none;
+    padding: 0;
+    font-size: 20px;
+}
