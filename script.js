@@ -77,30 +77,32 @@ function stopWatch() {
                         for(var i = 0; li = document.querySelector(".laps li"); i++) {
                             li.parentNode.removeChild(li);
                         }
+                        document.querySelector(".laps").appendChild(document.createElement("li")).innerHTML = "00:00,00";
                     } else {
+                        
                         document.querySelector(".laps").appendChild(document.createElement("li")).innerHTML = m + ":" + s + "," + ms;
-                    } 
-                    convertStringToInteger();
-                    // for(var i = 0; li = document.querySelector(".laps li"); i++) {
-                        // return console.log(Math.max(m),Math.max(s),Math.max(ms))
-                    // }
-                    function convertStringToInteger () {
-                        secondLastLap        = document.querySelector(".laps").lastChild.previousSibling.innerHTML;
-                        lastLap              = document.querySelector(".laps").lastChild.innerHTML;
-                        minSecondLastLap     = parseInt(secondLastLap.slice(0, 2), 10);
-                        secSecondLastLap     = parseInt(secondLastLap.slice(3, 5), 10);
-                        millsecSecondLastLap = parseInt(secondLastLap.slice(6, 8), 10);
-                        minLastLap           = parseInt(lastLap.slice(0, 2), 10);
-                        secLastLap           = parseInt(lastLap.slice(3, 5), 10);
-                        millsecLastLap       = parseInt(lastLap.slice(6, 8), 10);
-                        console.log(Math.abs((m - minSecondLastLap)) + ":" + Math.abs((s - secSecondLastLap)) + "," + Math.abs((ms - millsecSecondLastLap)))
+
+                        for(var i = 0; li = document.querySelector(".laps li"); i++) {
+                            return convertStringToInteger();
+                        }
+
+                        function convertStringToInteger () {
+                            secondLastLap        = document.querySelector(".laps").lastChild.previousSibling.innerHTML;
+                            lastLap              = document.querySelector(".laps").lastChild.innerHTML;
+                            minSecondLastLap     = parseInt(secondLastLap.slice(0, 2), 10);
+                            secSecondLastLap     = parseInt(secondLastLap.slice(3, 5), 10);
+                            millsecSecondLastLap = parseInt(secondLastLap.slice(6, 8), 10);
+                            minLastLap           = parseInt(lastLap.slice(0, 2), 10);
+                            secLastLap           = parseInt(lastLap.slice(3, 5), 10);
+                            millsecLastLap       = parseInt(lastLap.slice(6, 8), 10);
+                            console.log(Math.abs((m - minSecondLastLap)) + ":" + Math.abs((s - secSecondLastLap)) + "," + Math.abs((ms - millsecSecondLastLap)))
+                        }
+
                     }
                 }
             };
         };
     });
-
-    
 
     startButton.onclick = function () { 
         clearInterval(stopWatchInterval);

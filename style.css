@@ -130,3 +130,6 @@ img{
     padding: 0;
     font-size: 20px;
 }
+.laps li:first-child{
+    display: none;
+}
