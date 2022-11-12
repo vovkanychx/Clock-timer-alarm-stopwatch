@@ -7,6 +7,9 @@ body{
     margin: 0;
     padding: 0;
     font-family: monospace;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     --buttonStopwatchStart: #0c5600;
     --buttonStopwatchStartActive: #073300;
     --buttonStopwatchStop: #610000;
@@ -19,6 +22,9 @@ img{
 }
 button{
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .clock, .stopwatch, .timer{
     padding: 20px;
@@ -63,9 +69,13 @@ button{
 .stopwatch{
     background: #5f9ea0;
     color: #ffeeb3;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
 }
 .stopwatch-clock{
     margin-bottom: 60px;
+    width: 100%;
 }
 #start{
     background-color: var(--buttonStopwatchStart);
@@ -118,7 +128,8 @@ button{
 #reset.reset-click:active::before{
     border-color: var(--buttonStopWatchReset);
 }
-ul{
+ul.laps{
+    width: 100%;
     border-top: 1px solid #000;
 }
 .laps{
@@ -132,14 +143,16 @@ ul{
 .laps li{
     border-bottom: 1px solid #000;
     padding: 10px 0;
-    text-align: right;
+    display: flex;
+    justify-content: space-between;
 }
 .laps li span{
-    float: left;
     font-family: "Roboto", sans-serif;
 }
 
 /* TIMER */
 .timer{
     background: #90ee90;
+    display: flex;
+    justify-content: space-around;
 }
