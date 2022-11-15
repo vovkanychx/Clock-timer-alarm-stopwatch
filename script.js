@@ -276,24 +276,24 @@ $(document).ready(function(){
 $('#hours').on('wheel', (function(e) {
     e.preventDefault();
     if (e.originalEvent.deltaY < 0) {
-      $(this).slick('slickNext');
-    } else {
       $(this).slick('slickPrev');
+    } else {
+      $(this).slick('slickNext');
     }
 }));
 $('#minutes').on('wheel', (function(e) {
     e.preventDefault();
     if (e.originalEvent.deltaY < 0) {
-      $(this).slick('slickNext');
-    } else {
       $(this).slick('slickPrev');
+    } else {
+      $(this).slick('slickNext');
     }
 }));
 $('#seconds').on('wheel', (function(e) {
     e.preventDefault();
     if (e.originalEvent.deltaY < 0) {
-      $(this).slick('slickNext');
-    } else {
       $(this).slick('slickPrev');
+    } else {
+      $(this).slick('slickNext');
     }
 }));
