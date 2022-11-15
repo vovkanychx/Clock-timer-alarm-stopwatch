@@ -1,5 +1,6 @@
 document.querySelector(".clock").onload = clock();
 document.querySelector(".stopwatch").onload = stopWatch();
+document.querySelector(".timer").onload = timer();
 
 function clock() {
     const date       = new Date();
@@ -149,4 +150,150 @@ function stopWatch() {
     }
 }
 
+function timer () {
+    hoursList   = document.getElementById("hours");
+    minutesList = document.getElementById("minutes");
+    secondsList = document.getElementById("seconds");
+    showHour    = document.querySelector(".timer-clock .hour");
+    showMinute  = document.querySelector(".timer-clock .minute");
+    space       = " ";
+    //create hours select options
+    for(let i = 0; i < 24; i++ ) {
+        hoursList.appendChild(document.createElement("div"));
+        hoursList.lastChild.innerHTML = i + space;
+    }
+    hoursList.appendChild(document.createElement("div"));
+    //create minutes and seconds select options
+    for(let i = 0; i < 60; i++ ) {
+        minutesList.appendChild(document.createElement("div"));
+        minutesList.lastChild.innerHTML = i + space;
+        secondsList.appendChild(document.createElement("div"));
+        secondsList.lastChild.innerHTML = i + space;    
+    }
+    //show selected hours and minutes on digital clock when started timer
+    showHour.innerHTML = "00";
+    showMinute.innerHTML = "00";
+    for (let i = 0; i < document.querySelectorAll("#hours div").length; i++) {
+        document.querySelectorAll("#hours div")[i].addEventListener("click", function() {
+            selectedHour = parseInt(document.querySelectorAll("#hours div")[i].innerText);
+            if (selectedHour < 10) {
+                showHour.innerHTML = "0" + selectedHour;
+            } else {
+                showHour.innerHTML = selectedHour;
+            }
+        });
+    }
+    for (let i = 0; i < document.querySelectorAll("#minutes div").length; i++) {
+        document.querySelectorAll("#minutes div")[i].addEventListener("click", function() {
+            selectedMinute = parseInt(document.querySelectorAll("#minutes div")[i].innerText);
+            if (selectedMinute < 10) {
+                showMinute.innerHTML = "0" + selectedMinute;
+            } else {
+                showMinute.innerHTML = selectedMinute;
+            }
+        });
+    }
 
+    //height of list (have to be 9 items visible)
+    // listsHeight = hoursList.firstChild.offsetHeight * 4 + "px";
+    // document.querySelector(".timer").getElementsByClassName('wrapper')[1].style.minHeight = listsHeight;
+    // document.querySelector(".timer").getElementsByClassName('wrapper')[1].style.height    = listsHeight;
+    // document.querySelector(".timer").getElementsByClassName('wrapper')[1].style.maxHeight = listsHeight;
+
+    
+    // document.getElementById("hours").addEventListener("wheel", function () {
+    // x = parseInt(window.getComputedStyle(hoursList).getPropertyValue("top"));
+    // y = hoursList.firstChild.offsetHeight;
+    // hoursList.style.top = (x + y) + "px";
+    // console.log(hoursList.style.top)
+    // });
+    // document.getElementById("hours").addEventListener("wheel", function () {
+    // x = parseInt(window.getComputedStyle(hoursList).getPropertyValue("top"));
+    // y = hoursList.firstChild.offsetHeight;
+    // hoursList.style.top = (x - y) + "px";
+    // console.log(hoursList.style.top)
+    // });
+
+    // var lastScrollTop = 0;
+    // // element should be replaced with the actual target element on which you have applied scroll, use window in case of no target element.
+    // hoursList.addEventListener("wheel", function(){ // or window.addEventListener("scroll"....
+    // var st = window.pageYOffset || hoursList.scrollTop; // Credits: "https://github.com/qeremy/so/blob/master/so.dom.js#L426"
+    // if (st > lastScrollTop){ //scrolldown
+        
+    //     x = parseInt(parseInt(window.getComputedStyle(hoursList).getPropertyValue("transform").split(", ")[5]));
+    //     y = hoursList.firstChild.offsetHeight;
+    //     hoursList.style.transform = `translateY(${x + y}px)`
+    // } else { //scrollup
+    //     x = parseInt(parseInt(window.getComputedStyle(hoursList).getPropertyValue("transform").split(", ")[5]));
+    //     y = hoursList.firstChild.offsetHeight;
+    //     hoursList.style.transform = `translateY(${x - y}px)`;
+    // }
+    // lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
+    // }, false);
+}
+
+$(document).ready(function(){
+    $('#hours').slick({
+        vertical: true,
+        verticalSwiping: true,
+        centerMode: true,
+        infinite: false,
+        swipe: true,
+        draggable: true,
+        touchThreshold: 5,
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        arrows: false,
+        dots: false,
+        swipeToSlide: true,
+        speed: 10
+    });
+    $('#minutes').slick({
+        vertical: true,
+        verticalSwiping: true,
+        centerMode: true,
+        infinite: false,
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        arrows: false,
+        dots: false,
+        swipeToSlide: true,
+        speed: 10
+    });
+    $('#seconds').slick({
+        vertical: true,
+        verticalSwiping: true,
+        centerMode: true,
+        infinite: false,
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        arrows: false,
+        dots: false,
+        swipeToSlide: true,
+        speed: 10
+    });
+});
+$('#hours').on('wheel', (function(e) {
+    e.preventDefault();
+    if (e.originalEvent.deltaY < 0) {
+      $(this).slick('slickNext');
+    } else {
+      $(this).slick('slickPrev');
+    }
+}));
+$('#minutes').on('wheel', (function(e) {
+    e.preventDefault();
+    if (e.originalEvent.deltaY < 0) {
+      $(this).slick('slickNext');
+    } else {
+      $(this).slick('slickPrev');
+    }
+}));
+$('#seconds').on('wheel', (function(e) {
+    e.preventDefault();
+    if (e.originalEvent.deltaY < 0) {
+      $(this).slick('slickNext');
+    } else {
+      $(this).slick('slickPrev');
+    }
+}));

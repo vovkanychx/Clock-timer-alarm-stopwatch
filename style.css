@@ -33,7 +33,7 @@ button{
     width: 100%;
     font-size: 32px;
 }
-#start, #reset, #pause{
+#start, #reset, #start-pause, #cancel{
     font-family: "Roboto", sans-serif;
     position: relative;
     font-size: 14px;
@@ -45,7 +45,7 @@ button{
     border: none;
     transition: all .1s ease-in-out;
 }
-#start::before, #reset::before, #pause::before{
+#start::before, #reset::before, #start-pause::before, #cancel::before{
     position: absolute;
     content: "";
     top: 50%;
@@ -153,6 +153,50 @@ ul.laps{
 /* TIMER */
 .timer{
     background: #90ee90;
+}
+.timer .wrapper{
+    width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+.timer-clock{
+    width: 35vw;
+    height: 35vw;
+    border: 5px solid red;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.timer-clock::before{
+    content: "";
+    position: absolute;
+    width: calc(50vw - 10px);
+    height: calc(50vh - 10px);
+    /* border: 5px solid blue; */
+    border-radius: 50%;
+}
+    /* background: linear-gradient(to bottom, #ccc 37px, transparent 37px, transparent); */
+.wrapper:last-child{
+    justify-content: space-between;
+}
+.box{
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    font-size: 18px;
+}
+.box-wrap.one, .box-wrap.two, .box-wrap.three{
+    width: 33.33%;
+}
+.selected{
+    background: #ccc;
+    width: 90%;
+    height: 30px;
+    position: absolute;
+    left: 5%;
+    top: 45px;
 }
