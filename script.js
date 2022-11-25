@@ -3,10 +3,10 @@ document.querySelector(".stopwatch").onload = stopWatch();
 document.querySelector(".timer").onload = timer();
 
 function clock() {
-    const date       = new Date();
-    let hours        = date.getHours();
-    let minutes      = date.getMinutes();
-    let seconds      = date.getSeconds();
+    const date  = new Date();
+    let hours   = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
 
     hours   = checkTime(hours);
     minutes = checkTime(minutes);
@@ -124,26 +124,12 @@ function stopWatch() {
                         lapCount = (Number(listLaps.getElementsByTagName("li").length) - 1);
                         listLaps.lastChild.innerHTML =
                         "<span>" + "Lap: " + lapCount + "</span>" +  m + ":" + s + "," + ms;
-                        // for (let i = 0; li = document.querySelector(".laps li"); i++) {     //resetbutton clicked so delete all previously created laps
-                        //     function convertStringToInteger () {
-                        //         secondLastLap        = document.querySelector(".laps").lastChild.previousSibling.textContent;
-                        //         lastLap              = document.querySelector(".laps").lastChild.textContent;
-                        //         minSecondLastLap     = parseInt(secondLastLap.slice(0, 2), 10);
-                        //         secSecondLastLap     = parseInt(secondLastLap.slice(3, 5), 10);
-                        //         millsecSecondLastLap = parseInt(secondLastLap.slice(6, 8), 10);
-                        //         minLastLap           = parseInt(lastLap.slice(0, 2), 10);
-                        //         secLastLap           = parseInt(lastLap.slice(3, 5), 10);
-                        //         millsecLastLap       = parseInt(lastLap.slice(6, 8), 10);
-                        //         console.log(lastLap)
-                                
-                        //     }
-                        //     return convertStringToInteger();
-                        // }
                     }   
                 }
             }
         }
     });
+
     startButton.onclick = function () { 
         clearInterval(stopWatchInterval);
         startButton.classList.toggle("stop")
@@ -151,149 +137,96 @@ function stopWatch() {
 }
 
 function timer () {
-    hoursList   = document.getElementById("hours");
-    minutesList = document.getElementById("minutes");
-    secondsList = document.getElementById("seconds");
-    showHour    = document.querySelector(".timer-clock .hour");
-    showMinute  = document.querySelector(".timer-clock .minute");
-    space       = " ";
-    //create hours select options
-    for(let i = 0; i < 24; i++ ) {
-        hoursList.appendChild(document.createElement("div"));
-        hoursList.lastChild.innerHTML = i + space;
+    hoursList    = document.getElementById("hours");
+    minutesList  = document.getElementById("minutes");
+    secondsList  = document.getElementById("seconds");
+    showHour     = document.querySelector(".timer-clock .hour");
+    showMinute   = document.querySelector(".timer-clock .minute");
+    startButton  = document.getElementById("start-pause");
+    cancelButton = document.getElementById("cancel");
+
+    document.querySelector(".container").onwheel = function() { return false; } // disable window scroll when scrolling on container
+
+    //create list select options (list items 0-23h 0-59m/s)
+    function createListItems(list, lastItem) {
+        for(let i = 0; i < lastItem; i++ ) {
+            list.appendChild(document.createElement("div"));
+            list.lastChild.innerHTML = i + " ";
+        }
     }
-    hoursList.appendChild(document.createElement("div"));
-    //create minutes and seconds select options
-    for(let i = 0; i < 60; i++ ) {
-        minutesList.appendChild(document.createElement("div"));
-        minutesList.lastChild.innerHTML = i + space;
-        secondsList.appendChild(document.createElement("div"));
-        secondsList.lastChild.innerHTML = i + space;    
+
+    function scrollClick (active, list, showDigital) {
+        active = 0;
+        list.getElementsByTagName("div")[Math.abs(active)].classList.add("active"); //first elements are active (00:00,00)
+        list.addEventListener('wheel', (e) => {
+            e.preventDefault(); //disable scrolling
+            if (e.deltaY < 0) { //if scrolling up
+                if (active <= parseInt(list.firstElementChild.textContent)) { //stop scrolling if it's top
+                    return
+                } else {
+                    list.getElementsByTagName("div")[Math.abs(active - 1)].scrollIntoView({behavior: "smooth", block: "center"})
+                    --active;
+                    list.getElementsByTagName("div")[Math.abs(active + 1)].classList.remove("active");
+                    list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
+                }
+            } 
+            else if (e.deltaY > 0) { //if scrolling down
+                if (active >= parseInt(list.lastElementChild.textContent)) { //stop scrolling if it's bottom
+                    return
+                } else {
+                    list.getElementsByTagName("div")[Math.abs(active + 1)].scrollIntoView({behavior: "smooth", block: "center"})
+                    active++;
+                    list.getElementsByTagName("div")[Math.abs(active - 1)].classList.remove("active");
+                    list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
+                }
+            }
+            showSelected();
+        });
+
+        for (let i = 0; i < list.getElementsByTagName("div").length; i++){
+            list.getElementsByTagName("div")[i].onclick = function () { //move to option if clicked
+                list.querySelectorAll("div").forEach(el => { //if clicked remove any current active class
+                    el.classList.remove("active");
+                });
+                active = i; //new assign so we can scroll and click without having an error
+                list.getElementsByTagName("div")[Math.abs(active)].scrollIntoView({behavior: "smooth", block: "center"});
+                list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
+                showSelected();
+            }
+        }
+        
+        function showSelected() { //show selected hours and minutes on digital clock
+            var selected = parseInt(list.getElementsByTagName("div")[active].textContent);
+            if (selected < 10) {
+                showDigital.innerText = "0" + selected;
+            } else {
+                showDigital.innerText = selected;
+            }
+        }
     }
-    //show selected hours and minutes on digital clock when started timer
+
+    function startTimer() {
+        
+    }
+    //show selected hours and minutes on digital clock as default/start position
     showHour.innerHTML = "00";
     showMinute.innerHTML = "00";
-    for (let i = 0; i < document.querySelectorAll("#hours div").length; i++) {
-        document.querySelectorAll("#hours div")[i].addEventListener("click", function() {
-            selectedHour = parseInt(document.querySelectorAll("#hours div")[i].innerText);
-            if (selectedHour < 10) {
-                showHour.innerHTML = "0" + selectedHour;
-            } else {
-                showHour.innerHTML = selectedHour;
-            }
-        });
-    }
-    for (let i = 0; i < document.querySelectorAll("#minutes div").length; i++) {
-        document.querySelectorAll("#minutes div")[i].addEventListener("click", function() {
-            selectedMinute = parseInt(document.querySelectorAll("#minutes div")[i].innerText);
-            if (selectedMinute < 10) {
-                showMinute.innerHTML = "0" + selectedMinute;
-            } else {
-                showMinute.innerHTML = selectedMinute;
-            }
-        });
-    }
 
-    //height of list (have to be 9 items visible)
-    // listsHeight = hoursList.firstChild.offsetHeight * 4 + "px";
-    // document.querySelector(".timer").getElementsByClassName('wrapper')[1].style.minHeight = listsHeight;
-    // document.querySelector(".timer").getElementsByClassName('wrapper')[1].style.height    = listsHeight;
-    // document.querySelector(".timer").getElementsByClassName('wrapper')[1].style.maxHeight = listsHeight;
-
-    
-    // document.getElementById("hours").addEventListener("wheel", function () {
-    // x = parseInt(window.getComputedStyle(hoursList).getPropertyValue("top"));
-    // y = hoursList.firstChild.offsetHeight;
-    // hoursList.style.top = (x + y) + "px";
-    // console.log(hoursList.style.top)
-    // });
-    // document.getElementById("hours").addEventListener("wheel", function () {
-    // x = parseInt(window.getComputedStyle(hoursList).getPropertyValue("top"));
-    // y = hoursList.firstChild.offsetHeight;
-    // hoursList.style.top = (x - y) + "px";
-    // console.log(hoursList.style.top)
-    // });
-
-    // var lastScrollTop = 0;
-    // // element should be replaced with the actual target element on which you have applied scroll, use window in case of no target element.
-    // hoursList.addEventListener("wheel", function(){ // or window.addEventListener("scroll"....
-    // var st = window.pageYOffset || hoursList.scrollTop; // Credits: "https://github.com/qeremy/so/blob/master/so.dom.js#L426"
-    // if (st > lastScrollTop){ //scrolldown
-        
-    //     x = parseInt(parseInt(window.getComputedStyle(hoursList).getPropertyValue("transform").split(", ")[5]));
-    //     y = hoursList.firstChild.offsetHeight;
-    //     hoursList.style.transform = `translateY(${x + y}px)`
-    // } else { //scrollup
-    //     x = parseInt(parseInt(window.getComputedStyle(hoursList).getPropertyValue("transform").split(", ")[5]));
-    //     y = hoursList.firstChild.offsetHeight;
-    //     hoursList.style.transform = `translateY(${x - y}px)`;
-    // }
-    // lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
-    // }, false);
+    createListItems(hoursList, 24), createListItems(minutesList, 60), createListItems(secondsList, 60);
+    scrollClick(0, hoursList, showHour), scrollClick(0, minutesList, showMinute), scrollClick(0, secondsList, 0);
+    startTimer();
 }
 
-$(document).ready(function(){
-    $('#hours').slick({
-        vertical: true,
-        verticalSwiping: true,
-        centerMode: true,
-        infinite: false,
-        swipe: true,
-        draggable: true,
-        touchThreshold: 5,
-        slidesToShow: 3,
-        slidesToScroll: 1,
-        arrows: false,
-        dots: false,
-        swipeToSlide: true,
-        speed: 10
-    });
-    $('#minutes').slick({
-        vertical: true,
-        verticalSwiping: true,
-        centerMode: true,
-        infinite: false,
-        slidesToShow: 3,
-        slidesToScroll: 1,
-        arrows: false,
-        dots: false,
-        swipeToSlide: true,
-        speed: 10
-    });
-    $('#seconds').slick({
-        vertical: true,
-        verticalSwiping: true,
-        centerMode: true,
-        infinite: false,
-        slidesToShow: 3,
-        slidesToScroll: 1,
-        arrows: false,
-        dots: false,
-        swipeToSlide: true,
-        speed: 10
-    });
-});
-$('#hours').on('wheel', (function(e) {
-    e.preventDefault();
-    if (e.originalEvent.deltaY < 0) {
-      $(this).slick('slickPrev');
-    } else {
-      $(this).slick('slickNext');
-    }
-}));
-$('#minutes').on('wheel', (function(e) {
-    e.preventDefault();
-    if (e.originalEvent.deltaY < 0) {
-      $(this).slick('slickPrev');
-    } else {
-      $(this).slick('slickNext');
-    }
-}));
-$('#seconds').on('wheel', (function(e) {
-    e.preventDefault();
-    if (e.originalEvent.deltaY < 0) {
-      $(this).slick('slickPrev');
-    } else {
-      $(this).slick('slickNext');
-    }
-}));
+
+// function alarm() {
+//     const date  = new Date();
+//     let hours   = date.getHours();
+//     let minutes = date.getMinutes();
+//     let seconds = date.getSeconds();
+
+//     startButton.addEventListener("click", function () {
+//         console.log(hours + parseInt(hoursList.getElementsByClassName("active")[0].textContent))
+//         console.log(parseInt(minutesList.getElementsByClassName("active")[0].textContent))
+//         console.log(parseInt(secondsList.getElementsByClassName("active")[0].textContent))
+//     })
+// }

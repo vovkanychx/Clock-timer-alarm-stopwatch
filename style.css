@@ -153,13 +153,10 @@ ul.laps{
 /* TIMER */
 .timer{
     background: #90ee90;
+    font-family: "Roboto", sans-serif;
+    line-height: 1;
 }
-.timer .wrapper{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 40px;
-}
+
 .timer-clock{
     width: 35vw;
     height: 35vw;
@@ -169,34 +166,155 @@ ul.laps{
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0 auto 20px;
 }
 .timer-clock::before{
     content: "";
     position: absolute;
     width: calc(50vw - 10px);
     height: calc(50vh - 10px);
-    /* border: 5px solid blue; */
     border-radius: 50%;
 }
-    /* background: linear-gradient(to bottom, #ccc 37px, transparent 37px, transparent); */
-.wrapper:last-child{
-    justify-content: space-between;
-}
-.box{
+
+.container{
+    --divHeight: 40px;
+    --containerHeight: 300px;
     position: relative;
-    display: flex;
-    justify-content: space-between;
-    text-align: center;
-    font-size: 18px;
+    user-select: none;
+    background-color: #010101;
+    color: #fff;
+    overflow: hidden;
+    padding: 0 5%;
 }
-.box-wrap.one, .box-wrap.two, .box-wrap.three{
+.wrap{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     width: 33.33%;
 }
-.selected{
-    background: #ccc;
-    width: 90%;
-    height: 30px;
+.shadow{
+    background-color: transparent;
     position: absolute;
-    left: 5%;
-    top: 45px;
+    width: 100%;
+    left: 0;
+    z-index: 1;
+}
+.shadow.top{
+    box-shadow: 0px 0px 40px 40px #010101;
+    height: 5px;
+    top: 0;
+    background-color: #010101;
+}
+.shadow.bottom{
+    box-shadow: 0px 0px 40px 40px #010101;
+    height: 5px;
+    bottom: 0;
+    background-color: #010101;
+}
+.selected{
+    position: absolute;
+    width: 90%;
+    min-height: var(--divHeight);
+    height: var(--divHeight);
+    max-height: var(--divHeight);
+    left: 0;
+    right: 0;
+    top: calc((var(--containerHeight) / 2) - (var(--divHeight) / 2));
+    margin: 0 auto;
+    background: #ffffff17;
+    border-radius: 7px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+}
+.box{
+    display: flex;
+    justify-content: space-between;
+    min-height: var(--containerHeight);
+    height: var(--containerHeight);
+    max-height: var(--containerHeight);
+}
+.box p{
+    margin: 0;
+    align-self: center;
+    min-height: var(--divHeight);
+    height: var(--divHeight);
+    max-height: var(--divHeight);
+    font-size: 20px;
+    line-height: var(--divHeight);
+}
+.scroll{
+    background-color: transparent;
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-snap-stop: always;
+    scroll-snap-align: start;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    font-size: 16px;
+}
+.scroll::-webkit-scrollbar{ 
+    display: none;
+}
+.scroll div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--divHeight);
+    height: var(--divHeight);
+    max-height: var(--divHeight);
+    min-width: var(--divHeight);
+    width: var(--divHeight);
+    max-width: var(--divHeight);
+    background-color: transparent;
+    scroll-snap-align: center;
+    transition: opacity 200ms ease-in-out;
+}
+.scroll div:first-of-type{
+    margin-top: calc((var(--containerHeight) / 2) - (var(--divHeight) / 2));
+}
+.scroll div:last-of-type{
+    margin-bottom: calc((var(--containerHeight) / 2) - (var(--divHeight) / 2));
+}
+.active{
+    font-size: 24px;
+    opacity: 0.8;
+}
+.active ~ div {
+    font-size: 22px;
+}
+.active ~ div ~ div {
+    font-size: 20px;
+}
+.active ~ div ~ div ~ div {
+    font-size: 18px;
+}
+.active ~ div ~ div ~ div ~ div{
+    font-size: 16px;
+}
+.scroll div:has(+ .active){
+    font-size: 22px;
+}
+.scroll div:has(+ div + .active){
+    font-size: 20px;
+}
+.scroll div:has(+ div + div + .active){
+    font-size: 18px;
+}
+.scroll div:has(+ div + div  + div + .active){
+    font-size: 16px;
+    /* transform: perspective(3px) rotateX(5deg); USE SKEWX!!!! */
+}
+.scroll div:not(.active){
+    opacity: 0.5;
+}
+
+.timer-buttons{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    justify-content: space-between;
+    margin-top: 40px;
 }

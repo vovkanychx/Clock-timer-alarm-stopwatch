@@ -17,24 +17,29 @@
         <ul class="laps"><li></li></ul>
     </div>
     <div class="timer">
-        <div class="wrapper">
-            <div class="timer-clock">
-                <span class="hour"></span>:<span class="minute"></span>
-            </div>
+        <div class="timer-clock">
+            <span class="hour"></span>:<span class="minute"></span>
         </div>
-        <div class="box">
+        <div class="container">
+            <div class="shadow top"></div>
+            <div class="shadow bottom"></div>
             <div class="selected"></div>
-            <div class="box-wrap one">
-                <div id="hours"></div>
-            </div>
-            <div class="box-wrap two">
-                <div id="minutes"></div>
-            </div>
-            <div class="box-wrap three">
-                <div id="seconds"></div>
+            <div class="box">
+                <div class="wrap">
+                    <div id="hours" class="scroll"></div>
+                    <p>hours</p>
+                </div>
+                <div class="wrap">
+                    <div id="minutes" class="scroll"></div>
+                    <p>mins</p>
+                </div>
+                <div class="wrap">
+                    <div id="seconds" class="scroll"></div>
+                    <p>secs</p>
+                </div>
             </div>
         </div>
-        <div class="wrapper">
+        <div class="timer-buttons">
             <button id="start-pause">Start</button>
             <button id="cancel">Cancel</button>
         </div>
