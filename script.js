@@ -2,11 +2,16 @@ document.querySelector(".clock").onload = clock();
 document.querySelector(".stopwatch").onload = stopWatch();
 document.querySelector(".timer").onload = timer();
 
+function checkTime(i) { //add a zero to have 2 digits in clock
+    if (i < 10) {i = "0" + i}; 
+    return i;
+}
+
 function clock() {
     const date  = new Date();
-    let hours   = date.getHours();
-    let minutes = date.getMinutes();
-    let seconds = date.getSeconds();
+    hours   = date.getHours();
+    minutes = date.getMinutes();
+    seconds = date.getSeconds();
 
     hours   = checkTime(hours);
     minutes = checkTime(minutes);
@@ -14,11 +19,6 @@ function clock() {
 
     document.querySelector(".clock").innerHTML =  hours + ":" + minutes + ":" + seconds;
     setTimeout(clock, 1000);
-
-    function checkTime(i) {
-        if (i < 10) {i = "0" + i}; //add a zero to have 2 digits in clock
-        return i;
-    }
 }
 
 function stopWatch() {
@@ -27,11 +27,11 @@ function stopWatch() {
     let stopWatchInterval, stopLapInterval;
     let zero = "0";
 
-    stopWatchClock = document.querySelector(".stopwatch-clock");
-    startButton    = document.getElementById("start");
-    stopButton     = document.getElementById("cancel");
-    resetButton    = document.getElementById("reset");
-    listLaps       = document.querySelector(".laps");
+    stopWatchClock  = document.querySelector(".stopwatch-clock");
+    let startButton = document.getElementById("start");
+    stopButton      = document.getElementById("cancel");
+    resetButton     = document.getElementById("reset");
+    listLaps        = document.querySelector(".laps");
 
     stopWatchClock.innerHTML = "00:00,00";
 
@@ -42,7 +42,7 @@ function stopWatch() {
         if (ms > 99) {
             ms = 0;
             s++;
-            (s < 10) ? s = zero + s: s;
+            (s < 10) ? s = zero + s : s;
         }
         if (s > 59) {
             s = 0;
@@ -61,7 +61,7 @@ function stopWatch() {
         if (millsec > 99) {
             millsec = 0;
             sec++;
-            (sec < 10) ? sec = zero + sec: sec;
+            (sec < 10) ? sec = zero + sec : sec;
         }
         if (sec > 59) {
             sec = 0;
@@ -137,13 +137,13 @@ function stopWatch() {
 }
 
 function timer () {
-    hoursList    = document.getElementById("hours");
-    minutesList  = document.getElementById("minutes");
-    secondsList  = document.getElementById("seconds");
-    showHour     = document.querySelector(".timer-clock .hour");
-    showMinute   = document.querySelector(".timer-clock .minute");
-    startButton  = document.getElementById("start-pause");
-    cancelButton = document.getElementById("cancel");
+    hoursList        = document.getElementById("hours");
+    minutesList      = document.getElementById("minutes");
+    secondsList      = document.getElementById("seconds");
+    showHour         = document.querySelector(".timer-clock .hour");
+    showMinute       = document.querySelector(".timer-clock .minute");
+    let startButton  = document.getElementById("start-pause");
+    cancelButton     = document.getElementById("cancel");
 
     document.querySelector(".container").onwheel = function() { return false; } // disable window scroll when scrolling on container
 
@@ -180,7 +180,7 @@ function timer () {
                     list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
                 }
             }
-            showSelected();
+            // showSelected();
         });
 
         for (let i = 0; i < list.getElementsByTagName("div").length; i++){
@@ -191,30 +191,55 @@ function timer () {
                 active = i; //new assign so we can scroll and click without having an error
                 list.getElementsByTagName("div")[Math.abs(active)].scrollIntoView({behavior: "smooth", block: "center"});
                 list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
-                showSelected();
+                // showSelected();
             }
         }
         
-        function showSelected() { //show selected hours and minutes on digital clock
-            var selected = parseInt(list.getElementsByTagName("div")[active].textContent);
-            if (selected < 10) {
-                showDigital.innerText = "0" + selected;
-            } else {
-                showDigital.innerText = selected;
-            }
-        }
+        // function showSelected() { //show selected hours and minutes on digital clock
+        //     selected = parseInt(list.getElementsByTagName("div")[active].textContent);
+        //     showDigital.innerText = checkTime(selected);
+        // }
     }
-
-    function startTimer() {
-        
-    }
+    
     //show selected hours and minutes on digital clock as default/start position
-    showHour.innerHTML = "00";
-    showMinute.innerHTML = "00";
+    // showHour.innerHTML = "00";
+    // showMinute.innerHTML = "00";
 
     createListItems(hoursList, 24), createListItems(minutesList, 60), createListItems(secondsList, 60);
     scrollClick(0, hoursList, showHour), scrollClick(0, minutesList, showMinute), scrollClick(0, secondsList, 0);
-    startTimer();
+
+    function startTimer() {
+        if (selectedHour == 0 && selectedMinute == 0 && selectedSecond == 0) {
+            showHour.innerHTML = "00";
+            showMinute.innerHTML = "00";
+            return
+        }
+        if (selectedSecond < 0) {
+            selectedSecond = 59; 
+            if (selectedMinute > 0) {selectedMinute-- } 
+            else { selectedMinute = 0}
+        }
+        if (selectedMinute < 0) {
+            selectedMinute = 59;
+            selectedHour--
+            if (selectedHour == 0) {selectedHour = 0}
+        }
+        if (selectedHour <= 0) {showHour.innerHTML = "00"}
+    
+        showHour.innerHTML = checkTime(selectedHour);
+        showMinute.innerHTML = checkTime(selectedMinute);
+
+        console.log(selectedHour, selectedMinute, selectedSecond)
+        setTimeout(startTimer, 1000);
+        
+        --selectedSecond
+    }
+    startButton.addEventListener("click", function () {
+        selectedHour   = parseInt(hoursList.querySelector(".active").textContent);
+        selectedMinute = parseInt(minutesList.querySelector(".active").textContent);
+        selectedSecond = parseInt(secondsList.querySelector(".active").textContent);
+        startTimer()
+    })
 }
 
 
