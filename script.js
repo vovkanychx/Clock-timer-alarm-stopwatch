@@ -142,6 +142,7 @@ function timer () {
     secondsList      = document.getElementById("seconds");
     showHour         = document.querySelector(".timer-clock .hour");
     showMinute       = document.querySelector(".timer-clock .minute");
+    showSecond       = document.querySelector(".timer-clock .second");
     let startButton  = document.getElementById("start-pause");
     cancelButton     = document.getElementById("cancel");
 
@@ -206,39 +207,44 @@ function timer () {
     // showMinute.innerHTML = "00";
 
     createListItems(hoursList, 24), createListItems(minutesList, 60), createListItems(secondsList, 60);
-    scrollClick(0, hoursList, showHour), scrollClick(0, minutesList, showMinute), scrollClick(0, secondsList, 0);
+    scrollClick(0, hoursList, showHour), scrollClick(0, minutesList, showMinute), scrollClick(0, secondsList, showSecond);
 
     function startTimer() {
         if (selectedHour == 0 && selectedMinute == 0 && selectedSecond == 0) {
             showHour.innerHTML = "00";
             showMinute.innerHTML = "00";
+            showSecond.innerHTML = "00";
             return
         }
         if (selectedSecond < 0) {
             selectedSecond = 59; 
             if (selectedMinute > 0) {selectedMinute-- } 
-            else { selectedMinute = 0}
+            else {selectedMinute = 0}
         }
         if (selectedMinute < 0) {
             selectedMinute = 59;
-            selectedHour--
-            if (selectedHour == 0) {selectedHour = 0}
+            if (selectedHour > 0) {selectedHour--}
+            else (selectedHour = 0)
         }
-        if (selectedHour <= 0) {showHour.innerHTML = "00"}
+        if (selectedHour > 0 && selectedMinute == 0 && selectedSecond == 0) {
+            selectedHour = 0;
+            selectedMinute = 59;
+            selectedSecond = 59;
+        }
     
         showHour.innerHTML = checkTime(selectedHour);
         showMinute.innerHTML = checkTime(selectedMinute);
-
-        console.log(selectedHour, selectedMinute, selectedSecond)
-        setTimeout(startTimer, 1000);
+        showSecond.innerHTML = checkTime(selectedSecond);
         
         --selectedSecond
     }
     startButton.addEventListener("click", function () {
+        let timerInterval;
         selectedHour   = parseInt(hoursList.querySelector(".active").textContent);
         selectedMinute = parseInt(minutesList.querySelector(".active").textContent);
         selectedSecond = parseInt(secondsList.querySelector(".active").textContent);
-        startTimer()
+        clearTimeout(timerInterval)
+        timerInterval = setInterval(startTimer, 1000)
     })
 }
 
