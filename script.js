@@ -231,19 +231,24 @@ function timer () {
             selectedMinute = 59;
             selectedSecond = 59;
         }
-    
-        showHour.innerHTML = checkTime(selectedHour);
-        showMinute.innerHTML = checkTime(selectedMinute);
-        showSecond.innerHTML = checkTime(selectedSecond);
+
+        showHour.innerText = checkTime(selectedHour);
+        showMinute.innerText = checkTime(selectedMinute);
+        showSecond.innerText = checkTime(selectedSecond);
         
         --selectedSecond
     }
+
     startButton.addEventListener("click", function () {
         let timerInterval;
         selectedHour   = parseInt(hoursList.querySelector(".active").textContent);
         selectedMinute = parseInt(minutesList.querySelector(".active").textContent);
-        selectedSecond = parseInt(secondsList.querySelector(".active").textContent);
-        clearTimeout(timerInterval)
+        selectedSecond = parseInt(secondsList.querySelector(".active").textContent);   
+        showHour.innerText = checkTime(selectedHour);
+        showMinute.innerText = checkTime(selectedMinute);
+        showSecond.innerText = checkTime(selectedSecond);
+        
+        clearInterval(timerInterval)
         timerInterval = setInterval(startTimer, 1000)
     })
 }
