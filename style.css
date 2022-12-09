@@ -16,6 +16,13 @@ body{
     --buttonStopwatchStopActive: #350000;
     --buttonStopWatchReset: #2c2c2c;
     --buttonStopWatchResetClick: #444444;
+    --buttonTimerStart: #0c5600;
+    --buttonTimerStartActive: #073300;
+    --buttonTimerPause: #a07b00;
+    --buttonTimerPauseActive: #715700;
+    --buttonTimerCancel: #2c2c2c;
+    --buttonTimerCancelClick: #444444;
+
 }
 img{
     width: 100%;
@@ -167,6 +174,7 @@ ul.laps{
     justify-content: center;
     align-items: center;
     margin: 0 auto 20px;
+    display: none;
 }
 .timer-clock::before{
     content: "";
@@ -176,7 +184,7 @@ ul.laps{
     border-radius: 50%;
 }
 
-.container{
+.timer-container{
     --divHeight: 40px;
     --containerHeight: 300px;
     position: relative;
@@ -317,4 +325,56 @@ ul.laps{
     justify-content: center;
     justify-content: space-between;
     margin-top: 40px;
+}
+
+#start-pause{
+    background-color: var(--buttonTimerStart);
+    color: #20f000;
+}
+#start-pause::before{
+    border-color: var(--buttonTimerStart);
+}
+#start-pause:active{
+    background-color: var(--buttonTimerStartActive);
+}
+#start-pause:active::before{
+    border-color: var(--buttonTimerStartActive);
+}
+#start-pause.pause{
+    background-color: var(--buttonTimerPause);
+    color: #ffd400;
+}
+#start-pause.pause::before{
+    border-color: var(--buttonTimerPause);
+}
+#start-pause.pause:active{
+    background-color: var(--buttonTimerPauseActive);
+}
+#start-pause.pause:active::before{
+    border-color: var(--buttonTimerPauseActive);
+}
+#cancel{
+    background-color: var(--buttonTimerCancel);
+    color: #c9c9c9;
+}
+#cancel::before{
+    border-color: var(--buttonTimerCancel);
+}
+#cancel:active{
+    background-color: #242424;
+}
+#cancel:active::before{
+    border-color: #242424;
+}
+#cancel.cancel{
+    background-color: var(--buttonTimerCancelClick);
+}
+#cancel.cancel::before{
+    border-color: var(--buttonTimerCancelClick);
+}
+#cancel.cancel:active{
+    background-color: #242424;
+}
+#cancel.cancel:active::before{
+    border-color: #242424;
 }
