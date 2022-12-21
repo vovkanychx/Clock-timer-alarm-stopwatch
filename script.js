@@ -17,7 +17,7 @@ function clock() {
     minutes = checkTime(minutes);
     seconds = checkTime(seconds);
 
-    document.querySelector(".clock").innerHTML =  hours + ":" + minutes + ":" + seconds;
+    document.querySelector(".display-time").innerHTML =  hours + ":" + minutes + ":" + seconds;
     setTimeout(clock, 1000);
 }
 
@@ -31,7 +31,6 @@ function stopWatch() {
     let startButton = document.getElementById("start");
     let resetButton = document.getElementById("reset");
     listLaps        = document.querySelector(".laps");
-
     stopWatchClock.innerHTML = "00:00,00";
 
     function startStopWatch() {
@@ -49,7 +48,6 @@ function stopWatch() {
             (m < 10) ? m = zero + m : m;
         }
         (ms < 10) ? ms = zero + ms : ms;
-        
         stopWatchClock.innerHTML = m + ":" + s + "," + ms;
     }
     
@@ -142,18 +140,32 @@ function timer () {
     showHour         = document.querySelector(".timer-clock .hour");
     showMinute       = document.querySelector(".timer-clock .minute");
     showSecond       = document.querySelector(".timer-clock .second");
+    showMilSec       = document.querySelector(".timer-clock .millisecond")
     let startButton  = document.getElementById("start-pause");
     let cancelButton = document.getElementById("cancel");
     let timerInterval;
 
-    document.querySelector(".timer-container").onwheel = function() { return false; } // disable window scroll when scrolling on container
-
+    document.querySelector(".timer-container").onwheel = () => { return false; } // disable window scroll when scrolling on container
     //create list select options (list items 0-23h 0-59m/s)
     function createListItems(list, lastItem) {
         for(let i = 0; i < lastItem; i++ ) {
             list.appendChild(document.createElement("div"));
             list.lastChild.innerHTML = i + " ";
         }
+    }
+    //place "hours", "min", "sec" near scrollable lists
+    function centerText() {
+        for (let i = 0; i < document.querySelectorAll(".box p").length; i++) {
+            document.querySelectorAll(".box p")[i].style.left = (document.querySelector(".wrap").clientWidth / 2 + document.querySelector(".box p").clientWidth / 2) + "px";
+        }
+        return
+    }
+
+    function displaySelected() {
+        showHour.innerHTML   = checkTime(parseInt(hoursList.querySelector(".active").textContent));
+        showMinute.innerHTML = checkTime(parseInt(minutesList.querySelector(".active").textContent));
+        showSecond.innerHTML = checkTime(parseInt(secondsList.querySelector(".active").textContent));
+        showMilSec.innerHTML = checkTime(0)
     }
 
     function scrollClick (active, list) {
@@ -181,8 +193,9 @@ function timer () {
                     list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
                 }
             }
+            //display selected time on digital clock
+            displaySelected();
         });
-
         for (let i = 0; i < list.getElementsByTagName("div").length; i++){
             list.getElementsByTagName("div")[i].onclick = function () { //move to option if clicked
                 list.querySelectorAll("div").forEach(el => { //if clicked remove any current active class
@@ -194,28 +207,39 @@ function timer () {
             }
         }
     }
-
+    
     createListItems(hoursList, 24), createListItems(minutesList, 60), createListItems(secondsList, 60);
     scrollClick(0, hoursList), scrollClick(0, minutesList), scrollClick(0, secondsList);
-
+    centerText();
+    window.addEventListener("resize", centerText);
+    
+    let selectedMilSec = 0;
     function startTimer() {
-        if (selectedHour == 0 && selectedMinute == 0 && selectedSecond == 0) {
-            showHour.innerHTML   = "00";
-            showMinute.innerHTML = "00";
-            showSecond.innerHTML = "00";
+        selectedMilSec--;
+        
+        if (selectedHour == 0 && selectedMinute == 0 && selectedSecond == 0 && selectedMilSec == 0) {
+            clearInterval(timerInterval);
             startButton.classList.remove("pause");
             cancelButton.classList.remove("cancel");
             startButton.innerHTML = "Start";
+            document.querySelector(".timer-clock").style.display = "none";
+            document.querySelector(".timer-container").style.display = "block";
+            displaySelected();
             return
+        }
+        if (selectedMilSec < 0) {
+            selectedMilSec = 99;
+            if (selectedSecond >= 0) {selectedSecond--}
+            else {selectedSecond = 0}
         }
         if (selectedSecond < 0) {
             selectedSecond = 59; 
-            if (selectedMinute > 0) {selectedMinute-- } 
+            if (selectedMinute >= 0) {selectedMinute--} 
             else {selectedMinute = 0}
         }
         if (selectedMinute < 0) {
             selectedMinute = 59;
-            if (selectedHour > 0) {selectedHour--}
+            if (selectedHour >= 0) {selectedHour--}
             else (selectedHour = 0)
         }
         if (selectedHour > 0 && selectedMinute == 0 && selectedSecond == 0) {
@@ -224,38 +248,47 @@ function timer () {
             selectedSecond = 59;
             selectedHour   = selectedHour - 1;
         }
-
-        showHour.innerText   = checkTime(selectedHour);
-        showMinute.innerText = checkTime(selectedMinute);
-        showSecond.innerText = checkTime(selectedSecond);
-        
-        --selectedSecond
+        (selectedHour <= 0) ? selectedHour = 0 : selectedHour = selectedHour;
+        showHour.innerHTML   = checkTime(selectedHour);
+        showMinute.innerHTML = checkTime(selectedMinute);
+        showSecond.innerHTML = checkTime(selectedSecond);
+        showMilSec.innerHTML = checkTime(selectedMilSec);
     }
 
     startButton.addEventListener("click", function () {
+        if (parseInt(hoursList.querySelector(".active").textContent) == 0 && 
+            parseInt(minutesList.querySelector(".active").textContent) == 0 && 
+            parseInt(secondsList.querySelector(".active").textContent) == 0) {
+            return;
+        } //disable start button if no time specified
         selectedHour   = parseInt(hoursList.querySelector(".active").textContent);
         selectedMinute = parseInt(minutesList.querySelector(".active").textContent);
         selectedSecond = parseInt(secondsList.querySelector(".active").textContent);
-        
+        convertTime = (((((selectedHour * 60) + selectedMinute) * 60) + selectedSecond) * 1000) + selectedMilSec + 100;   
+
         if (!startButton.classList.contains("pause") && !cancelButton.classList.contains("cancel")) {
-            timerInterval = setInterval(startTimer, 1000);
+            timerInterval = setInterval(startTimer, 10);
+            document.querySelector(".meter").style.animation = `animateProgress linear ${convertTime}ms`
+            document.querySelector(".meter").style.webkitAnimation = `animateProgress linear ${convertTime}ms`
             cancelButton.classList.add("cancel");
             startButton.classList.add("pause");
             startButton.innerHTML = "Pause";
             document.querySelector(".timer-clock").style.display = "flex";
             document.querySelector(".timer-container").style.display = "none";
         } else if (startButton.classList.contains("pause") && cancelButton.classList.contains("cancel")) {
-            clearInterval(timerInterval);
+            clearInterval(timerInterval); //pause timer
+            document.querySelector(".meter").style.animationPlayState = 'paused';
             startButton.innerHTML = "Resume";
             startButton.classList.remove("pause");
             startButton.classList.add("resume");
-
         } else if (startButton.classList.contains("resume") && cancelButton.classList.contains("cancel")) {
             selectedHour   = parseInt(document.querySelector("span.hour").textContent);
             selectedMinute = parseInt(document.querySelector("span.minute").textContent);
             selectedSecond = parseInt(document.querySelector("span.second").textContent);
-            clearInterval(timerInterval);
-            timerInterval = setInterval(startTimer, 1000);
+            selectedMilSec = parseInt(document.querySelector("span.millisecond").textContent);
+            clearInterval(timerInterval); //resume timer after pause
+            timerInterval = setInterval(startTimer, 10);
+            document.querySelector(".meter").style.animationPlayState = 'running';
             startButton.innerHTML = "Pause";
             startButton.classList.remove("resume");
             startButton.classList.add("pause");
@@ -273,11 +306,8 @@ function timer () {
             startButton.classList.remove("pause");
         }
         startButton.innerHTML = "Start";
-        showHour.innerText    = checkTime(parseInt(hoursList.querySelector(".active").textContent));
-        showMinute.innerText  = checkTime(parseInt(minutesList.querySelector(".active").textContent));
-        showSecond.innerText  = checkTime(parseInt(secondsList.querySelector(".active").textContent));
+        displaySelected();
     })
-
 }
 
 

@@ -6,7 +6,6 @@ body{
     font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
-    font-family: monospace;
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
@@ -27,24 +26,33 @@ body{
 img{
     width: 100%;
 }
+h1, h2{
+    margin: 0;
+}
 button{
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.clock, .stopwatch, .timer{
+.clock, .stopwatch, .timer, .alarm{
     padding: 20px;
     text-align: center;
     height: fit-content;
     width: 100%;
-    font-size: 32px;
+}
+.block-top{
+    display: flex;
+    justify-content: space-between;
+}
+.edit, .add{
+    cursor: pointer;
+    color: #ffa500;
 }
 #start, #reset, #start-pause, #cancel{
-    font-family: "Roboto", sans-serif;
     position: relative;
     font-size: 14px;
-    letter-spacing: 1.2px;
+    letter-spacing: 0.5px;
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -68,14 +76,17 @@ button{
 
 /* CLOCK */
 .clock{
-    background: #faebd7;
-    color: #222222;
+    background: #aa00ce;
+    color: #fff;
+}
+.display-time{
+    font-size: 32px;
 }
 
 /* STOPWATCH */
 .stopwatch{
     background: #5f9ea0;
-    color: #ffeeb3;
+    color: #fff;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
@@ -83,6 +94,7 @@ button{
 .stopwatch-clock{
     margin-bottom: 60px;
     width: 100%;
+    font-size: 32px;
 }
 #start{
     background-color: var(--buttonStopwatchStart);
@@ -153,35 +165,66 @@ ul.laps{
     display: flex;
     justify-content: space-between;
 }
-.laps li span{
-    font-family: "Roboto", sans-serif;
-}
 
 /* TIMER */
 .timer{
-    background: #90ee90;
-    font-family: "Roboto", sans-serif;
+    background: #010101;    
     line-height: 1;
 }
 
+@-webkit-keyframes fadeIn {
+    from { opacity: 0; }
+      to { opacity: 1; }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+      to { opacity: 1; }
+}
+@-webkit-keyframes animateProgress {
+    from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 282.78302001953125; }
+}
+@keyframes animateProgress {
+    from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 282.78302001953125; }
+}
+
 .timer-clock{
-    width: 35vw;
-    height: 35vw;
-    border: 5px solid red;
-    border-radius: 50%;
+    display: none;
     position: relative;
-    display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 auto 20px;
-    display: none;
+    width: 35vw;
+    height: 35vw;
+    font-size: 32px;
+    color: #fff;
+    margin: 0 auto 20px;    
+    -webkit-animation: fadeIn 0.5s;
+    animation: fadeIn 0.5s;
 }
-.timer-clock::before{
-    content: "";
+
+.progress-circle{
     position: absolute;
-    width: calc(50vw - 10px);
-    height: calc(50vh - 10px);
-    border-radius: 50%;
+    display: flex;
+    vertical-align: bottom;
+    width: 35vw;
+}
+.progress-circle circle{
+    stroke: rgba(255, 255, 255, 0.25);
+    stroke-width: 3px;
+    stroke-dasharray: 0;
+    fill: none;
+}
+.progress-circle .meter{
+    stroke-width: 3px;
+    stroke: #ffa500;
+    fill: none;
+    transform-origin: center center;
+    transform: rotate(-90deg) scaleX(-1);
+}
+
+.millisecond {
+    display: none;
 }
 
 .timer-container{
@@ -193,12 +236,8 @@ ul.laps{
     color: #fff;
     overflow: hidden;
     padding: 0 5%;
-}
-.wrap{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    width: 33.33%;
+    -webkit-animation: fadeIn 0.5s;
+    animation: fadeIn 0.5s;
 }
 .shadow{
     background-color: transparent;
@@ -236,6 +275,20 @@ ul.laps{
     align-items: center;
     font-weight: 500;
 }
+
+.wrap{
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 33%;
+}
+.wrap:first-of-type{
+    padding-left: 0.5%;
+}
+.wrap:last-of-type{
+    padding-right: 0.5%;
+}
 .box{
     display: flex;
     justify-content: space-between;
@@ -244,6 +297,7 @@ ul.laps{
     max-height: var(--containerHeight);
 }
 .box p{
+    position: absolute;
     margin: 0;
     align-self: center;
     min-height: var(--divHeight);
@@ -254,6 +308,7 @@ ul.laps{
 }
 .scroll{
     background-color: transparent;
+    width: 100%;
     height: 100%;
     overflow-y: scroll;
     scroll-snap-type: y mandatory;
@@ -274,8 +329,8 @@ ul.laps{
     height: var(--divHeight);
     max-height: var(--divHeight);
     min-width: var(--divHeight);
-    width: var(--divHeight);
-    max-width: var(--divHeight);
+    width: 100%;
+    max-width: 100%;
     background-color: transparent;
     scroll-snap-align: center;
     transition: opacity 200ms ease-in-out;
@@ -377,4 +432,26 @@ ul.laps{
 }
 #cancel.cancel:active::before{
     border-color: #242424;
+}
+
+/* ALARM */
+.alarm{
+    background-color: #a52a2a;
+    color: #fff;
+}
+.alarm h1{
+    text-align: left;
+}
+.alarm h2{
+    display: flex;
+    align-items: center;
+}
+.alarm svg{
+    margin-right: 5px;
+}
+.alarm svg path{
+    fill: #fff;
+}
+.alarm-item{
+    display: flex;
 }

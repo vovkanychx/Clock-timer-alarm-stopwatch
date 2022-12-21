@@ -6,11 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Document</title>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="clock"></div>
+    <div class="clock">
+        <div class="block-top">
+            <span class="edit" id="clock-edit">Edit</span>
+            <span class="add" id="clock-add">+</span>
+        </div>
+        <div class="display-time"></div>
+    </div>
     <div class="stopwatch">
         <div class="stopwatch-clock"></div>
         <button id="start">Start</button>
@@ -19,7 +24,16 @@
     </div>
     <div class="timer">
         <div class="timer-clock">
-            <span class="hour"></span>:<span class="minute"></span>:<span class="second"></span>
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="progress-circle" preserveAspectRatio="none">
+                <circle r="45" cx="50" cy="50" />
+                <path class="meter" 
+                    d="M5,50a45,45 0 1,0 90,0a45,45 0 1,0 -90,0" 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round" 
+                    stroke-dashoffset="282.78302001953125"
+                    stroke-dasharray="282.78302001953125"/>
+            </svg>
+            <span class="hour"></span>:<span class="minute"></span>:<span class="second"></span><span class="millisecond"></span>
         </div>
         <div class="timer-container">
             <div class="shadow top"></div>
@@ -32,11 +46,11 @@
                 </div>
                 <div class="wrap">
                     <div id="minutes" class="scroll"></div>
-                    <p>mins</p>
+                    <p>min</p>
                 </div>
                 <div class="wrap">
                     <div id="seconds" class="scroll"></div>
-                    <p>secs</p>
+                    <p>sec</p>
                 </div>
             </div>
         </div>
@@ -45,9 +59,27 @@
             <button id="cancel">Cancel</button>
         </div>
     </div>
+    <div class="alarm">
+        <div class="block-top">
+            <span class="edit" id="timer-edit">Edit</span>
+            <span class="add" id="timer-add">+</span>
+        </div>
+        <h1>Alarm</h1>
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" width="19.5" height="19.5" viewBox="0 0 512 512">
+                <path d="M432,224V96a16,16,0,0,0-16-16H96A16,16,0,0,0,80,96V224a48,48,0,0,0-48,48V432H68V400H444v32h36V272A48,48,0,0,0,432,224Zm-192,0H120V192a16,16,0,0,1,16-16h88a16,16,0,0,1,16,16Zm32-32a16,16,0,0,1,16-16h88a16,16,0,0,1,16,16v32H272Z"/>
+            </svg>
+            Sleep | Wake Up
+        </h2>
+        <div class="alarm-item">
+            <div class="alarm-time">
+                <span id="alarm-hour">09</span>:<span id="alarm-minute">15</span>
+            </div>
+            <div class="alarm-toggle"></div>
+        </div>
+    </div>
     <!-- #hours>div*24>{$} -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
