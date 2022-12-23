@@ -6,15 +6,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="clock">
         <div class="block-top">
-            <span class="edit" id="clock-edit">Edit</span>
-            <span class="add" id="clock-add">+</span>
+            <button class="edit" id="clock-edit">Edit</button>
+            <button class="add" id="clock-add">+</button>
         </div>
+        <h1>World Clock</h1>
+        <ul class="clock-list">
+            <li class="clock-item item">
+                <div class="clock-box">
+                    <span class="clock-label">Today, +0HRS</span>
+                    <p class="clock-city">Kyiv</p>
+                </div>
+                <p class="clock-time">21:06</p>
+            </li>
+            <li class="clock-item item">
+                <div class="clock-box">
+                    <span class="clock-label">Today, +0HRS</span>
+                    <p class="clock-city">Kyiv</p>
+                </div>
+                <p class="clock-time">21:06</p>
+            </li>
+        </ul>
         <div class="display-time"></div>
+        <div class="timezone fade-up">
+            <h5>Choose a City</h5>
+            <div class="timezone-search">
+                <input type="text" id="search" placeholder="Search">
+                <button id="search-cancel">Cancel</button>
+            </div>
+            <ul class="timezone-list">
+                <li class="timezone-item">Barcelona</li>
+                <li class="timezone-item">Prague</li>
+                <li class="timezone-item">New York</li>
+            </ul>
+        </div>
     </div>
     <div class="stopwatch">
         <div class="stopwatch-clock"></div>
@@ -61,8 +90,8 @@
     </div>
     <div class="alarm">
         <div class="block-top">
-            <span class="edit" id="timer-edit">Edit</span>
-            <span class="add" id="timer-add">+</span>
+            <button class="edit" id="alarm-edit">Edit</button>
+            <button class="add" id="alarm-add">+</button>
         </div>
         <h1>Alarm</h1>
         <h2>
@@ -71,15 +100,23 @@
             </svg>
             Sleep | Wake Up
         </h2>
-        <div class="alarm-item">
-            <div class="alarm-time">
-                <span id="alarm-hour">09</span>:<span id="alarm-minute">15</span>
-            </div>
-            <div class="alarm-toggle"></div>
-        </div>
+        <ul class="alarm-list">
+            <li class="alarm-item item">
+                <div class="alarm-time">
+                    <span id="alarm-hour">09</span>:<span id="alarm-minute">15</span>
+                </div>
+                <button id="alarm-toggle"><div class="circle"></div></button>
+            </li>
+            <li class="alarm-item item">
+                <div class="alarm-time">
+                    <span id="alarm-hour">09</span>:<span id="alarm-minute">15</span>
+                </div>
+                <button id="alarm-toggle"><div class="circle"></div></button>
+            </li>
+        </ul>
     </div>
     <!-- #hours>div*24>{$} -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>

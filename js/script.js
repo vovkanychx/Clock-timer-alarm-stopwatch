@@ -1,6 +1,7 @@
-document.querySelector(".clock").onload = clock();
+document.querySelector(".clock").onload     = clock();
 document.querySelector(".stopwatch").onload = stopWatch();
-document.querySelector(".timer").onload = timer();
+document.querySelector(".timer").onload     = timer();
+// document.querySelector(".alarm").onload     = alarm();
 
 function checkTime(i) { //add a zero to have 2 digits in clock
     if (i < 10) {i = "0" + i}; 
@@ -8,17 +9,47 @@ function checkTime(i) { //add a zero to have 2 digits in clock
 }
 
 function clock() {
-    const date  = new Date();
-    hours   = date.getHours();
-    minutes = date.getMinutes();
-    seconds = date.getSeconds();
+    let clockEdit    = document.getElementById("clock-edit");
+    let clockAdd     = document.getElementById("clock-add");
+    let searchInput  = document.getElementById("search");
+    let cancelSearch = document.getElementById("search-cancel");
+    let searchValue  = searchInput.value;
 
-    hours   = checkTime(hours);
-    minutes = checkTime(minutes);
-    seconds = checkTime(seconds);
+    clockAdd.onclick = () => {
+        document.querySelector(".timezone.fade-up").classList.add("opened");
+        document.querySelector(".block-top").style.visibility = "hidden";
+    }
 
-    document.querySelector(".display-time").innerHTML =  hours + ":" + minutes + ":" + seconds;
-    setTimeout(clock, 1000);
+    cancelSearch.onclick = () => {
+        document.querySelector(".timezone.fade-up").classList.remove("opened");
+        document.querySelector(".block-top").style.visibility = "visible";
+    }
+
+    searchInput.addEventListener("keyup", function () {
+        let cityListItem = document.getElementsByClassName("timezone-item");
+        for (i = 0; i < cityListItem.length; i++) { 
+            if (!cityListItem[i].innerHTML.toLowerCase().includes(searchInput.value)) {
+                cityListItem[i].style.display="none";
+            }
+            else {
+                cityListItem[i].style.display="list-item";                 
+            }
+        }
+    })
+    
+    function displayTime() {
+        const date   = new Date();
+        let hours    = date.getHours();
+        let minutes  = date.getMinutes();
+        let seconds  = date.getSeconds();
+
+        hours   = checkTime(hours);
+        minutes = checkTime(minutes);
+        seconds = checkTime(seconds);
+
+        document.querySelector(".display-time").innerHTML =  hours + ":" + minutes + ":" + seconds;
+    }
+    setInterval(displayTime, 100);
 }
 
 function stopWatch() {

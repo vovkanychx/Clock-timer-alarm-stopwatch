@@ -2,13 +2,7 @@
 *{
     box-sizing: border-box;
 }
-body{
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+:root{
     --buttonStopwatchStart: #0c5600;
     --buttonStopwatchStartActive: #073300;
     --buttonStopwatchStop: #610000;
@@ -21,33 +15,91 @@ body{
     --buttonTimerPauseActive: #715700;
     --buttonTimerCancel: #2c2c2c;
     --buttonTimerCancelClick: #444444;
-
+    --timerSelectedDivHeight: 40px;
+    --timerContainerHeight: 300px;
+    --toggleHeight: 20px;
+}
+body{
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 img{
     width: 100%;
 }
-h1, h2{
+h1, h2, h5{
     margin: 0;
+    text-align: left;
+}
+ul{
+    list-style: none;
+    padding: 0;
 }
 button{
+    padding: 0;
+    outline: none;
+    border: none;
     cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+}
+p{
+    margin: 0;
 }
 .clock, .stopwatch, .timer, .alarm{
     padding: 20px;
     text-align: center;
-    height: fit-content;
+    min-height: 100vh;
+    height: 100vh;
+    max-height: 100vh;
     width: 100%;
+}
+.fade-up{
+    position: absolute;
+    min-width: 100%;
+    width: 100%;
+    max-width: 100%;
+    min-height: 95%;
+    height: 95%;
+    max-height: 95%;
+    left: 0;
+    bottom: -100%;
+    transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 20px;
+}
+.opened{
+    bottom: 0;
 }
 .block-top{
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    transition: visibility 0.5s ease;
 }
 .edit, .add{
-    cursor: pointer;
+    background-color: transparent;
     color: #ffa500;
+    padding: 10px 0;
+}
+.edit{
+    padding-right: 10px;
+}
+.add{
+    padding-left: 10px;
+    font-size: 24px;
+}
+.item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-top: 1px solid #ccc;
+}
+.item:last-child{
+    border-bottom: 1px solid #ccc;
 }
 #start, #reset, #start-pause, #cancel{
     position: relative;
@@ -76,11 +128,68 @@ button{
 
 /* CLOCK */
 .clock{
+    position: relative;
     background: #aa00ce;
     color: #fff;
 }
 .display-time{
     font-size: 32px;
+}
+.clock-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.clock-label{
+    color: #c9c9c9;
+    font-size: 14px;
+}
+.clock-city{
+    font-size: 18px;
+    text-align: left;
+}
+.clock-time{
+    font-size: 30px;
+}
+
+.timezone{
+    background-color: #5c006f;
+}
+.timezone h5{
+    font-size: 14px;
+    color: #c9c9c9;
+    font-weight: 400;
+    text-align: center;
+}
+.timezone-search{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#search{
+    padding: 5px 15px;
+    width: 100%;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.50);
+    color: #fff;
+}
+#search::placeholder{
+    color: #c9c9c9;
+}
+#search-cancel{
+    background-color: transparent;
+    color: #ffa500;
+    padding: 10px 0 10px 10px;
+}
+.timezone-item{
+    text-align: left;
+    padding: 10px 0;
+    border-top: 1px solid #ccc;
+}
+.timezone-item:last-child{
+    border-bottom: 1px solid #ccc;
 }
 
 /* STOPWATCH */
@@ -228,8 +337,6 @@ ul.laps{
 }
 
 .timer-container{
-    --divHeight: 40px;
-    --containerHeight: 300px;
     position: relative;
     user-select: none;
     background-color: #010101;
@@ -261,12 +368,12 @@ ul.laps{
 .selected{
     position: absolute;
     width: 90%;
-    min-height: var(--divHeight);
-    height: var(--divHeight);
-    max-height: var(--divHeight);
+    min-height: var(--timerSelectedDivHeight);
+    height: var(--timerSelectedDivHeight);
+    max-height: var(--timerSelectedDivHeight);
     left: 0;
     right: 0;
-    top: calc((var(--containerHeight) / 2) - (var(--divHeight) / 2));
+    top: calc((var(--timerContainerHeight) / 2) - (var(--timerSelectedDivHeight) / 2));
     margin: 0 auto;
     background: #ffffff17;
     border-radius: 7px;
@@ -292,19 +399,19 @@ ul.laps{
 .box{
     display: flex;
     justify-content: space-between;
-    min-height: var(--containerHeight);
-    height: var(--containerHeight);
-    max-height: var(--containerHeight);
+    min-height: var(--timerContainerHeight);
+    height: var(--timerContainerHeight);
+    max-height: var(--timerContainerHeight);
 }
 .box p{
     position: absolute;
     margin: 0;
     align-self: center;
-    min-height: var(--divHeight);
-    height: var(--divHeight);
-    max-height: var(--divHeight);
+    min-height: var(--timerSelectedDivHeight);
+    height: var(--timerSelectedDivHeight);
+    max-height: var(--timerSelectedDivHeight);
     font-size: 20px;
-    line-height: var(--divHeight);
+    line-height: var(--timerSelectedDivHeight);
 }
 .scroll{
     background-color: transparent;
@@ -325,10 +432,10 @@ ul.laps{
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: var(--divHeight);
-    height: var(--divHeight);
-    max-height: var(--divHeight);
-    min-width: var(--divHeight);
+    min-height: var(--timerSelectedDivHeight);
+    height: var(--timerSelectedDivHeight);
+    max-height: var(--timerSelectedDivHeight);
+    min-width: var(--timerSelectedDivHeight);
     width: 100%;
     max-width: 100%;
     background-color: transparent;
@@ -336,10 +443,10 @@ ul.laps{
     transition: opacity 200ms ease-in-out;
 }
 .scroll div:first-of-type{
-    margin-top: calc((var(--containerHeight) / 2) - (var(--divHeight) / 2));
+    margin-top: calc((var(--timerContainerHeight) / 2) - (var(--timerSelectedDivHeight) / 2));
 }
 .scroll div:last-of-type{
-    margin-bottom: calc((var(--containerHeight) / 2) - (var(--divHeight) / 2));
+    margin-bottom: calc((var(--timerContainerHeight) / 2) - (var(--timerSelectedDivHeight) / 2));
 }
 .active{
     font-size: 24px;
@@ -439,12 +546,11 @@ ul.laps{
     background-color: #a52a2a;
     color: #fff;
 }
-.alarm h1{
-    text-align: left;
-}
 .alarm h2{
     display: flex;
+    justify-content: flex-start;
     align-items: center;
+    padding-bottom: 5px;
 }
 .alarm svg{
     margin-right: 5px;
@@ -452,6 +558,25 @@ ul.laps{
 .alarm svg path{
     fill: #fff;
 }
-.alarm-item{
+.alarm-time{
+    color: rgba(255, 255, 255, 0.75);
+}
+#alarm-toggle{
+    width: calc((var(--toggleHeight) * 2) - (var(--toggleHeight) * 0.25));
+    height: var(--toggleHeight);
     display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: 10px;
+    background-color: #2c2c2c;
+}
+#alarm-toggle .circle{
+    width: calc(var(--toggleHeight) - 2px);
+    height: calc(var(--toggleHeight) - 2px);   
+    border-radius: 50%;
+    background-color: #fff;
+    margin: 0 2px;
+}
+.alarm-active{
+    color: #fff;
 }
