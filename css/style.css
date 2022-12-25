@@ -18,6 +18,7 @@
     --timerSelectedDivHeight: 40px;
     --timerContainerHeight: 300px;
     --toggleHeight: 20px;
+    --searchHeight: 30px;
 }
 body{
     font-family: 'Roboto', sans-serif;
@@ -37,6 +38,7 @@ h1, h2, h5{
 ul{
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 button{
     padding: 0;
@@ -65,13 +67,15 @@ p{
     max-height: 95%;
     left: 0;
     bottom: -100%;
-    transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1) ;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    padding: 20px;
+    padding: 20px 20px 0;
+    visibility: hidden;
 }
 .opened{
     bottom: 0;
+    visibility: visible;
 }
 .block-top{
     display: flex;
@@ -155,11 +159,18 @@ p{
 .timezone{
     background-color: #5c006f;
 }
+.timezone-wrap{
+    height: 10%;
+}
 .timezone h5{
     font-size: 14px;
     color: #c9c9c9;
     font-weight: 400;
     text-align: center;
+}
+.timezone-search-wrap{
+    position: relative;
+    width: 90%;
 }
 .timezone-search{
     display: flex;
@@ -167,8 +178,11 @@ p{
     align-items: center;
 }
 #search{
-    padding: 5px 15px;
+    padding: 5px 15px 5px 35px;
     width: 100%;
+    min-height: var(--searchHeight);
+    height: var(--searchHeight);
+    max-height: var(--searchHeight);
     border-radius: 8px;
     border: none;
     outline: none;
@@ -178,18 +192,55 @@ p{
 #search::placeholder{
     color: #c9c9c9;
 }
+#clear-search-input{
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    height: 100%;
+    width: var(--searchHeight);
+    background-color: transparent;
+    visibility: hidden;
+}
+.search-icon, .search-clear-icon{
+    position: absolute;
+    content: "";
+    height: calc(var(--searchHeight) / 2);
+    top: 50%;
+    transform: translateY(-50%);
+    fill: #c9c9c9;
+}
+.search-icon{
+    left: 15px;
+    visibility: visible;
+}
 #search-cancel{
     background-color: transparent;
     color: #ffa500;
     padding: 10px 0 10px 10px;
 }
+.timezone-list{
+    height: 90%;
+    overflow-y: hidden;
+}
+.timezone-list ul{
+    overflow-y: scroll;
+    height: 100%;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.timezone-list ul::-webkit-scrollbar{ 
+    display: none;
+}
 .timezone-item{
     text-align: left;
+    text-transform: capitalize;
     padding: 10px 0;
     border-top: 1px solid #ccc;
+    cursor: pointer;
 }
 .timezone-item:last-child{
     border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
 }
 
 /* STOPWATCH */

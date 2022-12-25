@@ -13,11 +13,32 @@ function clock() {
     let clockAdd     = document.getElementById("clock-add");
     let searchInput  = document.getElementById("search");
     let cancelSearch = document.getElementById("search-cancel");
-    let searchValue  = searchInput.value;
+    let timeZoneList = document.querySelector(".timezone-list");
+    let clearSearch  = document.getElementById("clear-search-input");
 
     clockAdd.onclick = () => {
         document.querySelector(".timezone.fade-up").classList.add("opened");
         document.querySelector(".block-top").style.visibility = "hidden";
+        //make ajax request for json data
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.onload = function() {
+            const jsonData = JSON.parse(this.responseText);
+            //create list with list items as "capital, country"
+            let listItem = "<ul class='timezone-list'>";
+            for (let i in jsonData) {
+                listItem += `<li class="timezone-item">
+                                <span>${jsonData[i].capital}</span>, ${jsonData[i].country}
+                            </li>`;
+            }
+            listItem += "</ul>";
+            timeZoneList.innerHTML = listItem;
+            //sort capitals alphabetically in list
+            Array.from(document.querySelector(".timezone-list ul").getElementsByTagName("li"))
+                .sort((a, b) => a.textContent.localeCompare(b.textContent))
+                .forEach(li => document.querySelector(".timezone-list ul").appendChild(li));
+        }
+        xmlhttp.open("GET", "js/data.json");
+        xmlhttp.send();
     }
 
     cancelSearch.onclick = () => {
@@ -25,14 +46,26 @@ function clock() {
         document.querySelector(".block-top").style.visibility = "visible";
     }
 
-    searchInput.addEventListener("keyup", function () {
+    searchInput.addEventListener("keyup", function () { //searchbar, function triggers when user starts typing
         let cityListItem = document.getElementsByClassName("timezone-item");
-        for (i = 0; i < cityListItem.length; i++) { 
-            if (!cityListItem[i].innerHTML.toLowerCase().includes(searchInput.value)) {
-                cityListItem[i].style.display="none";
+        for (i = 0; i < cityListItem.length; i++) { //case insensitive search
+            if (!cityListItem[i].innerHTML.toLowerCase().match(new RegExp(searchInput.value, "i"))) {
+                cityListItem[i].style.display = "none";
             }
             else {
-                cityListItem[i].style.display="list-item";                 
+                cityListItem[i].style.display = "list-item";
+            }
+        }
+        if (searchInput.value == null || searchInput.value == "") { //show/hide clear search button
+            clearSearch.style.visibility = "hidden";
+        } else {
+            clearSearch.style.visibility = "visible";
+            clearSearch.onclick = () => {
+                searchInput.value = null;
+                clearSearch.style.visibility = "hidden";
+                Array.from(document.querySelector(".timezone-list ul").getElementsByTagName("li")).
+                    forEach((element) => {element.style.display = "list-item";
+                }); //show list items after click on button to clear search value
             }
         }
     })
