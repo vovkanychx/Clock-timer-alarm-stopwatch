@@ -147,10 +147,12 @@ p{
 .clock-label{
     color: #c9c9c9;
     font-size: 14px;
+    display: inherit;
 }
 .clock-city{
     font-size: 18px;
     text-align: left;
+    text-transform: capitalize;
 }
 .clock-time{
     font-size: 30px;
@@ -241,6 +243,12 @@ p{
 .timezone-item:last-child{
     border-bottom: 1px solid #ccc;
     margin-bottom: 20px;
+}
+.timezone.fade-up .search-icon, .timezone.fade-up #clear-search-input{
+    display: none;
+}
+.timezone.fade-up.opened .search-icon, .timezone.fade-up.opened #clear-search-input{
+    display: inline-block;
 }
 
 /* STOPWATCH */

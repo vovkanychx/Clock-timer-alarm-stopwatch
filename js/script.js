@@ -13,8 +13,12 @@ function clock() {
     let clockAdd     = document.getElementById("clock-add");
     let searchInput  = document.getElementById("search");
     let cancelSearch = document.getElementById("search-cancel");
-    let timeZoneList = document.querySelector(".timezone-list");
     let clearSearch  = document.getElementById("clear-search-input");
+    let timeZoneList = document.querySelector(".timezone-list");
+    let timeZoneItem = document.getElementsByClassName("timezone-item");
+    let clockList    = document.querySelector(".clock-list");
+    let GMToffsetArray   = [];
+    let unSortedCities   = [];
 
     clockAdd.onclick = () => {
         document.querySelector(".timezone.fade-up").classList.add("opened");
@@ -23,37 +27,64 @@ function clock() {
         const xmlhttp = new XMLHttpRequest();
         xmlhttp.onload = function() {
             const jsonData = JSON.parse(this.responseText);
-            //create list with list items as "capital, country"
-            let listItem = "<ul class='timezone-list'>";
+            //create list with list items as "city, country"
+            let listItem = "<ul>";
             for (let i in jsonData) {
                 listItem += `<li class="timezone-item">
-                                <span>${jsonData[i].capital}</span>, ${jsonData[i].country}
+                                <span>${jsonData[i].city}</span>, ${jsonData[i].country}
                             </li>`;
+                unSortedCities.push(jsonData[i].city);
+                GMToffsetArray.push(jsonData[i].offset);
             }
             listItem += "</ul>";
             timeZoneList.innerHTML = listItem;
-            //sort capitals alphabetically in list
+            addCityToList();
             Array.from(document.querySelector(".timezone-list ul").getElementsByTagName("li"))
                 .sort((a, b) => a.textContent.localeCompare(b.textContent))
-                .forEach(li => document.querySelector(".timezone-list ul").appendChild(li));
+                .forEach(li => { document.querySelector(".timezone-list ul").appendChild(li);
+            }); //sort cities alphabetically in list
         }
         xmlhttp.open("GET", "js/data.json");
         xmlhttp.send();
     }
 
+    function addCityToList() {
+        //create a new clock list item when user select his city on click
+        for (let i = 0; i < timeZoneItem.length; i++) {
+            const date = new Date();
+            timeZoneItem[i].onclick = function () {
+                let h = checkTime(date.getUTCHours() + Math.floor(GMToffsetArray[i] / 60));
+                let m = checkTime(date.getMinutes());
+                let res = `${h}:${m}`;
+                clockLabelHour = `${Math.floor(GMToffsetArray[i] / 60)}:${Math.floor(GMToffsetArray[i] % 60)}`;
+                let item = clockList.appendChild(document.createElement("li"));
+                item.className = "clock-item item";
+                item.innerHTML = 
+                    `<div class="clock-box">
+                        <span class="clock-label">Today, ${checkTime(clockLabelHour)}</span>
+                        <p class="clock-city">${unSortedCities[i]}</p>
+                    </div>
+                    <p class="clock-time">${res}</p>`
+                document.querySelector(".timezone.fade-up").classList.remove("opened");
+                document.querySelector(".block-top").style.visibility = "visible";
+                searchInput.value = null;
+            }
+        }
+    }
+    
     cancelSearch.onclick = () => {
         document.querySelector(".timezone.fade-up").classList.remove("opened");
         document.querySelector(".block-top").style.visibility = "visible";
+        searchInput.value = null;
     }
 
     searchInput.addEventListener("keyup", function () { //searchbar, function triggers when user starts typing
-        let cityListItem = document.getElementsByClassName("timezone-item");
-        for (i = 0; i < cityListItem.length; i++) { //case insensitive search
-            if (!cityListItem[i].innerHTML.toLowerCase().match(new RegExp(searchInput.value, "i"))) {
-                cityListItem[i].style.display = "none";
+        for (let i = 0; i < timeZoneItem.length; i++) { //case insensitive search
+            if (!timeZoneItem[i].innerHTML.toLowerCase().match(new RegExp(searchInput.value, "i"))) {
+                timeZoneItem[i].style.display = "none";
             }
             else {
-                cityListItem[i].style.display = "list-item";
+                timeZoneItem[i].style.display = "list-item";
             }
         }
         if (searchInput.value == null || searchInput.value == "") { //show/hide clear search button
