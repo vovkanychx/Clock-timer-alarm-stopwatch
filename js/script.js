@@ -52,16 +52,45 @@ function clock() {
         //create a new clock list item when user select his city on click
         for (let i = 0; i < timeZoneItem.length; i++) {
             const date = new Date();
+            let clockLabelHour;
             timeZoneItem[i].onclick = function () {
-                let h = checkTime(date.getUTCHours() + Math.floor(GMToffsetArray[i] / 60));
-                let m = checkTime(date.getMinutes());
-                let res = `${h}:${m}`;
-                clockLabelHour = `${Math.floor(GMToffsetArray[i] / 60)}:${Math.floor(GMToffsetArray[i] % 60)}`;
+                let h = date.getUTCHours() + Math.floor(GMToffsetArray[i] / 60);
+                let m = (Math.floor(GMToffsetArray[i] % 60) == 0) ? date.getUTCMinutes() : (date.getUTCMinutes() + (Math.floor(GMToffsetArray[i] % 60)));
+                let res;
+                let day;
+                // //format labelclock time difference if there is only offset in hours
+                if (Math.floor(GMToffsetArray[i] % 60) == 0) {
+                    if (Math.floor(GMToffsetArray[i] / 60) >= 0) {
+                        clockLabelHour = `+${Math.floor(GMToffsetArray[i] / 60)}HRS`;
+                    } else if (Math.floor(GMToffsetArray[i] / 60) < 0) {
+                        clockLabelHour = `-${Math.floor(GMToffsetArray[i] / 60)}HRS`;
+                    }
+                    if (Math.floor(GMToffsetArray[i] / 60) == 1) {
+                        clockLabelHour = `+${Math.floor(GMToffsetArray[i] / 60)}HR`;
+                    } else if (Math.floor(GMToffsetArray[i] / 60) == -1) {
+                        clockLabelHour = `-${Math.floor(GMToffsetArray[i] / 60)}HR`;
+                    }
+                }
+                // //format the clocklabel time difference if there is offset in hours and minutes
+                if (Math.floor(GMToffsetArray[i] % 60) !== 0) {
+                    if (Math.floor(GMToffsetArray[i] / 60) >= 0) {
+                        clockLabelHour = `+${Math.floor(GMToffsetArray[i] / 60)}:${Math.floor(GMToffsetArray[i] % 60)}HRS`;
+                    } else if (Math.floor(GMToffsetArray[i] / 60) < 0) {
+                        clockLabelHour = `-${Math.floor(GMToffsetArray[i] / 60)}:${Math.floor(GMToffsetArray[i] % 60)}HRS`;
+                    }
+                }
+                //format day of the city in the clocklabel
+                if (m >= 60) {h = h + 1; m = m % 60;} 
+                    else if (m < 0) {h = h - 1; m = m % 60;}
+                if (h >= 0 && h < 24) {day = "Today";}
+                if (h >= 24) {h = h % 24; day = "Tomorrow";}
+                if (h < 0) {h = 24 + h; day = "Yesterday";}
+                res = `${checkTime(Math.abs(h))}:${checkTime(Math.abs(m))}`;
                 let item = clockList.appendChild(document.createElement("li"));
                 item.className = "clock-item item";
                 item.innerHTML = 
                     `<div class="clock-box">
-                        <span class="clock-label">Today, ${checkTime(clockLabelHour)}</span>
+                        <span class="clock-label">${day}, ${checkTime(clockLabelHour)}</span>
                         <p class="clock-city">${unSortedCities[i]}</p>
                     </div>
                     <p class="clock-time">${res}</p>`
@@ -75,16 +104,19 @@ function clock() {
     cancelSearch.onclick = () => {
         document.querySelector(".timezone.fade-up").classList.remove("opened");
         document.querySelector(".block-top").style.visibility = "visible";
+        timeZoneList.classList.remove("no-match");
         searchInput.value = null;
     }
 
     searchInput.addEventListener("keyup", function () { //searchbar, function triggers when user starts typing
+        let hasAnyMatch = false;
         for (let i = 0; i < timeZoneItem.length; i++) { //case insensitive search
             if (!timeZoneItem[i].innerHTML.toLowerCase().match(new RegExp(searchInput.value, "i"))) {
                 timeZoneItem[i].style.display = "none";
-            }
-            else {
+            } else {
+                hasAnyMatch = true;
                 timeZoneItem[i].style.display = "list-item";
+                timeZoneList.classList.remove("no-match");
             }
         }
         if (searchInput.value == null || searchInput.value == "") { //show/hide clear search button
@@ -94,12 +126,17 @@ function clock() {
             clearSearch.onclick = () => {
                 searchInput.value = null;
                 clearSearch.style.visibility = "hidden";
+                timeZoneList.classList.remove("no-match");
                 Array.from(document.querySelector(".timezone-list ul").getElementsByTagName("li")).
                     forEach((element) => {element.style.display = "list-item";
                 }); //show list items after click on button to clear search value
             }
         }
-    })
+        //if searching result has no matches show user that nothing is found
+        if (!hasAnyMatch) {
+            timeZoneList.classList.add("no-match");
+        }
+    });
     
     function displayTime() {
         const date   = new Date();

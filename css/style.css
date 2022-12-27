@@ -221,6 +221,7 @@ p{
     padding: 10px 0 10px 10px;
 }
 .timezone-list{
+    position: relative;
     height: 90%;
     overflow-y: hidden;
 }
@@ -232,6 +233,20 @@ p{
 }
 .timezone-list ul::-webkit-scrollbar{ 
     display: none;
+}
+.timezone-list.no-match::before{
+    content: "No Results Found";
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    text-transform: capitalize;
+    text-align: center;
+    font-size: 22px;
 }
 .timezone-item{
     text-align: left;
