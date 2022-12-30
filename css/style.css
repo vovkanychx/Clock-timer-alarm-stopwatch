@@ -101,9 +101,12 @@ p{
     align-items: center;
     padding: 10px 0;
     border-top: 1px solid #ccc;
+    margin: 0 20px;
+    transition: margin 0.5s ease;
 }
 .item:last-child{
     border-bottom: 1px solid #ccc;
+    margin-bottom: -1px;
 }
 #start, #reset, #start-pause, #cancel{
     position: relative;
@@ -135,9 +138,104 @@ p{
     position: relative;
     background: #aa00ce;
     color: #fff;
+    padding: 20px 0;
+}
+.clock .block-top, .clock h1{
+    padding: 0 20px;
+}
+#clock-edit.edit{
+    visibility: hidden;
+    transition: visibility 0.25s linear;
 }
 .display-time{
     font-size: 32px;
+}
+.clock-item.delete{
+    margin-right: 0;
+    padding: 0;
+}
+.clock-item-add{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+@-webkit-keyframes clockItemDelete {
+    from { opacity: 0; min-width: 0; width: 0; max-width: 0; }
+      to { opacity: 1; min-width: 35px; width: 35px; max-width: 35px; }
+}
+@keyframes clockItemDelete {
+    from { opacity: 0; min-width: 0; width: 0; max-width: 0; }
+      to { opacity: 1; min-width: 35px; width: 35px; max-width: 35px; }
+}
+.clock-item-delete{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    position: relative;
+    transition: all 0.25s ease;
+    margin-right: 10px;
+}
+.clock-item-delete::before{
+    position: absolute;
+    content: '';
+    height: 2px;
+    width: 40%;
+    background-color: #ccc;
+}
+.clock-item.delete .clock-item-add{
+    padding: 10px 0;
+    width: 100%;
+    padding-right: 10px;
+}
+.clock-item.delete .clock-item-delete{
+    visibility: visible;
+    min-width: 35px;
+    width: 35px;
+    max-width: 35px;
+    min-height: 35px;
+    max-height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: #fd4747;
+    outline: 1px solid #fd4747;
+}
+@-webkit-keyframes deleteItem {
+    from { min-width: 0; width: 0; max-width: 0; }
+      to { min-width: 120px; width: 120px; max-width: 120px; }
+}
+@keyframes deleteItem {
+    from { min-width: 0; width: 0; max-width: 0; }
+      to { min-width: 120px; width: 120px; max-width: 120px; }
+}
+.delete-items-button{
+    visibility: hidden;
+    min-width: 120px;
+    width: 120px;
+    max-width: 120px;
+    min-height: 61px;
+    height: 61px;
+    max-height: 61px;
+    transition: width 0.5s ease;
+}
+.clock-item.delete .delete-items-button{
+    visibility: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    min-width: 120px;
+    width: 120px;
+    max-width: 120px;
+    min-height: 61px;
+    height: 61px;
+    max-height: 61px;
+    margin-top: -1px;
+    margin-bottom: -1px;
+    cursor: pointer;
+    text-transform: capitalize;
+    font-size: 14px;
+    color: #f9f9f9;
+    background-color: #fd4747;
 }
 .clock-box{
     display: flex;
@@ -163,6 +261,7 @@ p{
 }
 .timezone-wrap{
     height: 10%;
+    border-bottom: 1px solid #ccc;
 }
 .timezone h5{
     font-size: 14px;
@@ -252,11 +351,10 @@ p{
     text-align: left;
     text-transform: capitalize;
     padding: 10px 0;
-    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
     cursor: pointer;
 }
 .timezone-item:last-child{
-    border-bottom: 1px solid #ccc;
     margin-bottom: 20px;
 }
 .timezone.fade-up .search-icon, .timezone.fade-up #clear-search-input{

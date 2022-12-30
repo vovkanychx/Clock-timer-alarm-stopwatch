@@ -9,20 +9,25 @@ function checkTime(i) { //add a zero to have 2 digits in clock
 }
 
 function clock() {
-    let clockEdit    = document.getElementById("clock-edit");
-    let clockAdd     = document.getElementById("clock-add");
-    let searchInput  = document.getElementById("search");
-    let cancelSearch = document.getElementById("search-cancel");
-    let clearSearch  = document.getElementById("clear-search-input");
-    let timeZoneList = document.querySelector(".timezone-list");
-    let timeZoneItem = document.getElementsByClassName("timezone-item");
-    let clockList    = document.querySelector(".clock-list");
-    let GMToffsetArray   = [];
-    let unSortedCities   = [];
+    let clockEdit     = document.getElementById("clock-edit");
+    let clockAdd      = document.getElementById("clock-add");
+    let searchInput   = document.getElementById("search");
+    let cancelSearch  = document.getElementById("search-cancel");
+    let clearSearch   = document.getElementById("clear-search-input");
+    let timeZoneList  = document.querySelector(".timezone-list");
+    let timeZoneItem  = document.getElementsByClassName("timezone-item");
+    let clockList     = document.querySelector(".clock-list");
+    let GMToffsetArray        = [];
+    let unSortedCities        = [];
+    let clockItemsArrayTime   = [];
+    let clockItemsArrayDay    = [];
+    let clockItemsArrayOffset = [];
+    let clockEditEnable = false;
 
     clockAdd.onclick = () => {
         document.querySelector(".timezone.fade-up").classList.add("opened");
         document.querySelector(".block-top").style.visibility = "hidden";
+        clearSearch.style.visibility = "hidden";
         //make ajax request for json data
         const xmlhttp = new XMLHttpRequest();
         xmlhttp.onload = function() {
@@ -48,64 +53,137 @@ function clock() {
         xmlhttp.send();
     }
 
-    function addCityToList() {
-        //create a new clock list item when user select his city on click
-        for (let i = 0; i < timeZoneItem.length; i++) {
-            const date = new Date();
-            let clockLabelHour;
-            timeZoneItem[i].onclick = function () {
-                let h = date.getUTCHours() + Math.floor(GMToffsetArray[i] / 60);
-                let m = (Math.floor(GMToffsetArray[i] % 60) == 0) ? date.getUTCMinutes() : (date.getUTCMinutes() + (Math.floor(GMToffsetArray[i] % 60)));
-                let res;
-                let day;
-                // //format labelclock time difference if there is only offset in hours
-                if (Math.floor(GMToffsetArray[i] % 60) == 0) {
-                    if (Math.floor(GMToffsetArray[i] / 60) >= 0) {
-                        clockLabelHour = `+${Math.floor(GMToffsetArray[i] / 60)}HRS`;
-                    } else if (Math.floor(GMToffsetArray[i] / 60) < 0) {
-                        clockLabelHour = `-${Math.floor(GMToffsetArray[i] / 60)}HRS`;
-                    }
-                    if (Math.floor(GMToffsetArray[i] / 60) == 1) {
-                        clockLabelHour = `+${Math.floor(GMToffsetArray[i] / 60)}HR`;
-                    } else if (Math.floor(GMToffsetArray[i] / 60) == -1) {
-                        clockLabelHour = `-${Math.floor(GMToffsetArray[i] / 60)}HR`;
-                    }
-                }
-                // //format the clocklabel time difference if there is offset in hours and minutes
-                if (Math.floor(GMToffsetArray[i] % 60) !== 0) {
-                    if (Math.floor(GMToffsetArray[i] / 60) >= 0) {
-                        clockLabelHour = `+${Math.floor(GMToffsetArray[i] / 60)}:${Math.floor(GMToffsetArray[i] % 60)}HRS`;
-                    } else if (Math.floor(GMToffsetArray[i] / 60) < 0) {
-                        clockLabelHour = `-${Math.floor(GMToffsetArray[i] / 60)}:${Math.floor(GMToffsetArray[i] % 60)}HRS`;
-                    }
-                }
-                //format day of the city in the clocklabel
-                if (m >= 60) {h = h + 1; m = m % 60;} 
-                    else if (m < 0) {h = h - 1; m = m % 60;}
-                if (h >= 0 && h < 24) {day = "Today";}
-                if (h >= 24) {h = h % 24; day = "Tomorrow";}
-                if (h < 0) {h = 24 + h; day = "Yesterday";}
-                res = `${checkTime(Math.abs(h))}:${checkTime(Math.abs(m))}`;
-                let item = clockList.appendChild(document.createElement("li"));
-                item.className = "clock-item item";
-                item.innerHTML = 
-                    `<div class="clock-box">
-                        <span class="clock-label">${day}, ${checkTime(clockLabelHour)}</span>
-                        <p class="clock-city">${unSortedCities[i]}</p>
-                    </div>
-                    <p class="clock-time">${res}</p>`
-                document.querySelector(".timezone.fade-up").classList.remove("opened");
-                document.querySelector(".block-top").style.visibility = "visible";
-                searchInput.value = null;
-            }
-        }
-    }
-    
     cancelSearch.onclick = () => {
         document.querySelector(".timezone.fade-up").classList.remove("opened");
         document.querySelector(".block-top").style.visibility = "visible";
         timeZoneList.classList.remove("no-match");
         searchInput.value = null;
+    }
+
+    clockEdit.addEventListener("click", function () {
+        let clockItems = document.getElementsByClassName("clock-item");
+        if (!clockEdit.classList.contains("done-edit")) {
+            clockEdit.innerHTML = "Done";
+            clockEdit.classList.add("done-edit");
+            Array.from(clockItems).forEach(item => {
+                item.classList.add("delete");
+                let child = document.createElement("div");
+                child.style.animation = "clockItemDelete 0.5s ease";
+                child.classList.add("clock-item-delete");
+                item.prepend(child);
+            })
+        } else if (clockEdit.classList.contains("done-edit")) {
+            clockEdit.innerHTML = "Edit";
+            deleteItem();
+        }
+        let clockItemsDelete = document.getElementsByClassName("clock-item-delete");
+        for (let i = 0; i < clockItemsDelete.length; i++) {
+            let itemToDelete = i;
+            clockItemsDelete[i].onclick = () => {
+                let deleteButton = document.createElement("button");
+                deleteButton.style.animation = "deleteItem 0.5s ease";
+                deleteButton.classList.add("delete-items-button");
+                clockItems[i].appendChild(deleteButton);
+                deleteButton.innerText = "Delete";
+                for (let i = 0; i < document.getElementsByClassName("delete-items-button").length; i++) {
+                    document.getElementsByClassName("delete-items-button")[i].onclick = () => {
+                        clockEdit.innerHTML = "Edit";
+                        clockItems[itemToDelete].remove();
+                        showEdit();
+                        deleteItem();
+                    }
+                }
+            }
+        }
+        function deleteItem() {
+            clockEdit.classList.remove("done-edit");
+            Array.from(clockItems)
+                .forEach(item => {item.classList.remove("delete");});
+            Array.from(document.getElementsByClassName("clock-item-delete"))
+                .forEach(item => {item.remove();})
+            Array.from(document.getElementsByClassName("delete-items-button"))
+                .forEach(item => {item.remove();})
+            return
+        }
+    });
+
+    //show clock edit button
+    function showEdit() {
+        (clockList.childElementCount !== 0) ? clockEditEnable = true : clockEditEnable = false;
+        if (clockEditEnable === true) {
+            clockEdit.style.visibility = "visible";
+        } else if (clockEditEnable === false) {
+            clockEdit.style.visibility = "hidden";
+        }
+    }
+
+    function addCityToList() {
+        const date = new Date();
+        let clockLabelDay;
+        let clockLabelOffset;
+        let res;
+        //create formatted dynamic clock list item
+        for (let i = 0; i < timeZoneItem.length; i++) {
+            //add clock items when user select city from timezone list
+            timeZoneItem[i].onclick = () => {
+                formatClockLabel()
+                let item = clockList.appendChild(document.createElement("li"));
+                item.className = "clock-item item";
+                item.innerHTML = 
+                `<div class="clock-item-add">
+                    <div class="clock-box">
+                        <span class="clock-label">${clockLabelDay}, ${checkTime(clockLabelOffset)}</span>
+                        <p class="clock-city">${unSortedCities[i]}</p>
+                    </div>
+                    <p class="clock-time">${res}</p>
+                </div>`;
+                // function refresh() {
+                //     clockLabel.innerHTML = clockLabelDay + ", " + clockLabelOffset;
+                //     clockCity.innerHTML = unSortedCities[i];
+                //     clockTime.innerHTML = res;
+                // }
+                // setInterval(refresh, 1000);
+                document.querySelector(".timezone.fade-up").classList.remove("opened");
+                document.querySelector(".block-top").style.visibility = "visible";
+                searchInput.value = null;
+                showEdit()
+            }
+            //format clockitem time, clockLabelDay, and time difference
+            function formatClockLabel () {
+                let h, m;
+                h = date.getUTCHours() + Math.floor(GMToffsetArray[i] / 60);
+                m = (Math.floor(GMToffsetArray[i] % 60) == 0) ? date.getUTCMinutes() : (date.getUTCMinutes() + (Math.floor(GMToffsetArray[i] % 60)));    
+                // //format labelclock time difference if there is only offset in hours
+                if (Math.floor(GMToffsetArray[i] % 60) == 0) {
+                    if (Math.floor(GMToffsetArray[i] / 60) >= 0) {
+                        clockLabelOffset = `+${Math.floor(GMToffsetArray[i] / 60)}HRS`;
+                    } else if (Math.floor(GMToffsetArray[i] / 60) < 0) {
+                        clockLabelOffset = `${Math.floor(GMToffsetArray[i] / 60)}HRS`;
+                    }
+                    if (Math.floor(GMToffsetArray[i] / 60) == 1) {
+                        clockLabelOffset = `+${Math.floor(GMToffsetArray[i] / 60)}HR`;
+                    } else if (Math.floor(GMToffsetArray[i] / 60) == -1) {
+                        clockLabelOffset = `${Math.floor(GMToffsetArray[i] / 60)}HR`;
+                    }
+                }
+                // //format the clocklabel time difference if there is offset in hours and minutes
+                if (Math.floor(GMToffsetArray[i] % 60) !== 0) {
+                    if (Math.floor(GMToffsetArray[i] / 60) >= 0) {
+                        clockLabelOffset = `+${Math.floor(GMToffsetArray[i] / 60)}:${Math.floor(Math.abs(GMToffsetArray[i] % 60))}HRS`;
+                    } else if (Math.floor(GMToffsetArray[i] / 60) < 0) {
+                        clockLabelOffset = `${Math.floor(GMToffsetArray[i] / 60)}:${Math.floor(Math.abs(GMToffsetArray[i] % 60))}HRS`;
+                    }
+                }
+                //format clockLabelDay of the city in the clocklabel
+                if (m >= 60) {h = h + 1; m = m % 60;} 
+                else if (m < 0) {h = h - 1; m = m % 60;}
+                if (h >= 0 && h < 24) {clockLabelDay = "Today";}
+                if (h >= 24) {h = h % 24; clockLabelDay = "Tomorrow";}
+                if (h < 0) {h = 24 + h; clockLabelDay = "Yesterday";}
+                res = `${checkTime(Math.abs(h))}:${checkTime(Math.abs(m))}`;
+                //calculate the time of a choosen city
+            }
+        }
     }
 
     searchInput.addEventListener("keyup", function () { //searchbar, function triggers when user starts typing
@@ -137,7 +215,7 @@ function clock() {
             timeZoneList.classList.add("no-match");
         }
     });
-    
+
     function displayTime() {
         const date   = new Date();
         let hours    = date.getHours();
