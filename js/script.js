@@ -19,9 +19,8 @@ function clock() {
     let clockList     = document.querySelector(".clock-list");
     let GMToffsetArray        = [];
     let unSortedCities        = [];
-    let clockItemsArrayTime   = [];
-    let clockItemsArrayDay    = [];
-    let clockItemsArrayOffset = [];
+    let formatedGMTArray      = [];
+    let unformatedGMTArray    = [];
     let clockEditEnable = false;
 
     clockAdd.onclick = () => {
@@ -118,7 +117,6 @@ function clock() {
     }
 
     function addCityToList() {
-        const date = new Date();
         let clockLabelDay;
         let clockLabelOffset;
         let res;
@@ -126,23 +124,19 @@ function clock() {
         for (let i = 0; i < timeZoneItem.length; i++) {
             //add clock items when user select city from timezone list
             timeZoneItem[i].onclick = () => {
-                formatClockLabel()
+                formatClockLabel();
                 let item = clockList.appendChild(document.createElement("li"));
                 item.className = "clock-item item";
                 item.innerHTML = 
-                `<div class="clock-item-add">
-                    <div class="clock-box">
-                        <span class="clock-label">${clockLabelDay}, ${checkTime(clockLabelOffset)}</span>
-                        <p class="clock-city">${unSortedCities[i]}</p>
-                    </div>
-                    <p class="clock-time">${res}</p>
-                </div>`;
-                // function refresh() {
-                //     clockLabel.innerHTML = clockLabelDay + ", " + clockLabelOffset;
-                //     clockCity.innerHTML = unSortedCities[i];
-                //     clockTime.innerHTML = res;
-                // }
-                // setInterval(refresh, 1000);
+                    `<div class="clock-item-add">
+                        <div class="clock-box">
+                            <span class="clock-label" title="UTC: ${clockLabelOffset}">${clockLabelDay}, ${checkTime(clockLabelOffset)}</span>
+                            <p class="clock-city">${unSortedCities[i]}</p>
+                        </div>
+                        <p class="clock-time">${res}</p>
+                    </div>`;
+                formatedGMTArray.push(clockLabelOffset);
+                unformatedGMTArray.push(GMToffsetArray[i]);
                 document.querySelector(".timezone.fade-up").classList.remove("opened");
                 document.querySelector(".block-top").style.visibility = "visible";
                 searchInput.value = null;
@@ -150,6 +144,7 @@ function clock() {
             }
             //format clockitem time, clockLabelDay, and time difference
             function formatClockLabel () {
+                const date = new Date();
                 let h, m;
                 h = date.getUTCHours() + Math.floor(GMToffsetArray[i] / 60);
                 m = (Math.floor(GMToffsetArray[i] % 60) == 0) ? date.getUTCMinutes() : (date.getUTCMinutes() + (Math.floor(GMToffsetArray[i] % 60)));    
@@ -186,6 +181,28 @@ function clock() {
         }
     }
 
+    function refreshTime() {
+        const date = new Date();
+        let clockItems = document.querySelectorAll(".clock-item");
+        let h; let m; let day;
+        for (let i = 0; i < clockItems.length; i++) {
+            function formatTime() {
+                day = document.querySelectorAll(".clock-label")[i].innerText.split(',', 1)[0];
+                h = Math.floor(((date.getUTCHours() * 60) + unformatedGMTArray[i]) / 60);
+                m = date.getUTCMinutes() + (unformatedGMTArray[i] % 60);
+                if (m >= 60) {h = h + 1; m = m % 60;} 
+                else if (m < 0) {h = h - 1; m = m % 60;}
+                if (h >= 0 && h < 24) {day = "Today";}
+                if (h >= 24) {h = h % 24; day = "Tomorrow";}
+                if (h < 0) {h = 24 + h; day = "Yesterday";}
+            }
+            formatTime();
+            document.querySelectorAll(".clock-label")[i].innerText = day + ", " + formatedGMTArray[i];
+            document.querySelectorAll(".clock-time")[i].innerText = checkTime(h) + ":" + checkTime(m);
+        }
+    }
+    setInterval(refreshTime, 1000);
+    
     searchInput.addEventListener("keyup", function () { //searchbar, function triggers when user starts typing
         let hasAnyMatch = false;
         for (let i = 0; i < timeZoneItem.length; i++) { //case insensitive search
@@ -217,7 +234,7 @@ function clock() {
     });
 
     function displayTime() {
-        const date   = new Date();
+        const date = new Date();
         let hours    = date.getHours();
         let minutes  = date.getMinutes();
         let seconds  = date.getSeconds();
