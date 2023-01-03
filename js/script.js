@@ -21,6 +21,7 @@ function clock() {
     let unSortedCities        = [];
     let formatedGMTArray      = [];
     let unformatedGMTArray    = [];
+    let clockItemsArray       = [];
     let clockEditEnable = false;
 
     clockAdd.onclick = () => {
@@ -78,22 +79,52 @@ function clock() {
         let clockItemsDelete = document.getElementsByClassName("clock-item-delete");
         for (let i = 0; i < clockItemsDelete.length; i++) {
             let itemToDelete = i;
-            clockItemsDelete[i].onclick = () => {
+            clockItemsDelete[i].addEventListener("click", function () { //on click on removebutton of item another delete confirmation button pops
                 let deleteButton = document.createElement("button");
                 deleteButton.style.animation = "deleteItem 0.5s ease";
                 deleteButton.classList.add("delete-items-button");
                 clockItems[i].appendChild(deleteButton);
                 deleteButton.innerText = "Delete";
                 for (let i = 0; i < document.getElementsByClassName("delete-items-button").length; i++) {
-                    document.getElementsByClassName("delete-items-button")[i].onclick = () => {
+                    document.getElementsByClassName("delete-items-button")[i].onclick = () => { //delete clock item on delete confirmation button
                         clockEdit.innerHTML = "Edit";
-                        clockItems[itemToDelete].remove();
-                        showEdit();
-                        deleteItem();
+                        //deleted clock item's transitions
+                        document.getElementsByClassName("clock-item-add")[itemToDelete].style.cssText = "margin: 0; padding: 0; width: 0; height: 0; transform: scale(0);";
+                        document.getElementsByClassName("clock-item-delete")[itemToDelete].style.cssText = "margin: 0; padding: 0; max-width: 0; min-width: 0; width: 0; height: 0; transform: scale(0);";
+                        document.getElementsByClassName("delete-items-button")[i].style.cssText = "min-width: 100%; width: 100%; max-width: 100%; transition: width 1.5s ease; animation: none;";
+                        document.getElementsByClassName("clock-item")[itemToDelete].style.cssText = "transform: scaleY(0); transition: transform 0.5s ease; margin-top: 0;"
+                        setTimeout(()=>{
+                            //remove list item and it's content from arrays
+                            clockItems[itemToDelete].remove();
+                            clockItemsArray.splice(itemToDelete, 1);
+                            formatedGMTArray.splice(itemToDelete, 1);
+                            unformatedGMTArray.splice(itemToDelete, 1);
+                            showEdit();
+                            deleteItem();
+                        }, 255)
                     }
                 }
+            }, {once: true});
+        }
+        //if edit button clicked (if then any other button clicked aswell) and then add button clicked: open popup and cancel edit
+        if (document.querySelector(".clock-item").classList.contains("delete")) {
+            clockAdd.onclick = () => {
+                document.querySelector(".timezone.fade-up").classList.add("opened");
+                document.querySelector(".block-top").style.visibility = "hidden";
+                clearSearch.style.visibility = "hidden";
+                setTimeout(() => {
+                    clockEdit.innerText = "Edit";
+                    clockEdit.classList.remove("done-edit");
+                    Array.from(document.querySelectorAll(".clock-item"))
+                        .forEach(item => {item.classList.remove("delete")})
+                    Array.from(document.getElementsByClassName("clock-item-delete"))
+                        .forEach(item => {item.remove();})
+                    Array.from(document.getElementsByClassName("delete-items-button"))
+                        .forEach(item => {item.remove();})
+                }, 550);
             }
         }
+        //remove supportive divs and buttons from other clock items after deleting one of them
         function deleteItem() {
             clockEdit.classList.remove("done-edit");
             Array.from(clockItems)
@@ -137,6 +168,7 @@ function clock() {
                     </div>`;
                 formatedGMTArray.push(clockLabelOffset);
                 unformatedGMTArray.push(GMToffsetArray[i]);
+                clockItemsArray.push(item);
                 document.querySelector(".timezone.fade-up").classList.remove("opened");
                 document.querySelector(".block-top").style.visibility = "visible";
                 searchInput.value = null;
