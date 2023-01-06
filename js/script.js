@@ -28,7 +28,7 @@ function clock() {
         document.querySelector(".timezone.fade-up").classList.add("opened");
         document.querySelector(".block-top").style.visibility = "hidden";
         clearSearch.style.visibility = "hidden";
-        //make ajax request for json data
+        //make http request for json data
         const xmlhttp = new XMLHttpRequest();
         xmlhttp.onload = function() {
             const jsonData = JSON.parse(this.responseText);
@@ -79,34 +79,61 @@ function clock() {
         let clockItemsDelete = document.getElementsByClassName("clock-item-delete");
         for (let i = 0; i < clockItemsDelete.length; i++) {
             let itemToDelete = i;
-            clockItemsDelete[i].addEventListener("click", function () { //on click on removebutton of item another delete confirmation button pops
-                let deleteButton = document.createElement("button");
-                deleteButton.style.animation = "deleteItem 0.5s ease";
-                deleteButton.classList.add("delete-items-button");
-                clockItems[i].appendChild(deleteButton);
-                deleteButton.innerText = "Delete";
-                for (let i = 0; i < document.getElementsByClassName("delete-items-button").length; i++) {
-                    document.getElementsByClassName("delete-items-button")[i].onclick = () => { //delete clock item on delete confirmation button
-                        clockEdit.innerHTML = "Edit";
-                        //deleted clock item's transitions
-                        document.getElementsByClassName("clock-item-add")[itemToDelete].style.cssText = "margin: 0; padding: 0; width: 0; height: 0; transform: scale(0);";
-                        document.getElementsByClassName("clock-item-delete")[itemToDelete].style.cssText = "margin: 0; padding: 0; max-width: 0; min-width: 0; width: 0; height: 0; transform: scale(0);";
-                        document.getElementsByClassName("delete-items-button")[i].style.cssText = "min-width: 100%; width: 100%; max-width: 100%; transition: width 1.5s ease; animation: none;";
-                        document.getElementsByClassName("clock-item")[itemToDelete].style.cssText = "transform: scaleY(0); transition: transform 0.5s ease; margin-top: 0;"
-                        setTimeout(()=>{
-                            //remove list item and it's content from arrays
-                            clockItems[itemToDelete].remove();
-                            clockItemsArray.splice(itemToDelete, 1);
-                            formatedGMTArray.splice(itemToDelete, 1);
-                            unformatedGMTArray.splice(itemToDelete, 1);
-                            showEdit();
-                            deleteItem();
-                        }, 255)
+            clockItemsDelete[i].addEventListener("click", function () { //on click on removebutton of item delete confirmation button pops
+                if (clockList.contains(document.querySelector(".delete-items-button"))) {
+                    return //can not add confirm delete button if there's already one in clocklist
+                } else if (!clockList.contains(document.querySelector(".delete-items-button"))) {
+                    let deleteButton = document.createElement("button");
+                    deleteButton.style.animation = "deleteItem 0.5s ease";
+                    deleteButton.classList.add("delete-items-button");
+                    clockItems[i].appendChild(deleteButton);
+                    deleteButton.innerText = "Delete";
+                    for (let i = 0; i < document.getElementsByClassName("delete-items-button").length; i++) {
+                        //delete clock item on delete confirmation button
+                        document.getElementsByClassName("delete-items-button")[i].onclick = () => {
+                            clockEdit.innerHTML = "Edit";
+                            //deleted clock item's transitions
+                            document.getElementsByClassName("clock-item-add")[itemToDelete].style.cssText = "margin: 0; padding: 0; width: 0; height: 0; transform: scale(0);";
+                            document.getElementsByClassName("clock-item-delete")[itemToDelete].style.cssText = "margin: 0; padding: 0; max-width: 0; min-width: 0; width: 0; height: 0; transform: scale(0);";
+                            document.getElementsByClassName("delete-items-button")[i].style.cssText = "min-width: 100%; width: 100%; max-width: 100%; transition: width 1.5s ease; animation: none;";
+                            document.getElementsByClassName("clock-item")[itemToDelete].style.cssText = "transform: scaleY(0); transition: all 0.5s ease; margin: 0;"
+                            setTimeout(()=>{
+                                //remove list item and it's content from arrays
+                                clockItems[itemToDelete].remove();
+                                clockItemsArray.splice(itemToDelete, 1);
+                                formatedGMTArray.splice(itemToDelete, 1);
+                                unformatedGMTArray.splice(itemToDelete, 1);
+                                showEdit();
+                                deleteItem();
+                            }, 550);
+                        }
+                        clickOutsideDeleteButton();
                     }
                 }
-            }, {once: true});
+            });
         }
-        //if edit button clicked (if then any other button clicked aswell) and then add button clicked: open popup and cancel edit
+        cancelEditing();
+    });
+
+    //remove supportive divs and buttons from other clock items after deleting one of them
+    function deleteItem() {
+        clockEdit.classList.remove("done-edit");
+        Array.from(document.getElementsByClassName("clock-item")).forEach(item => {item.classList.remove("delete");});
+        Array.from(document.getElementsByClassName("clock-item-delete")).forEach(item => {
+            item.style.cssText = "opacity: 0; min-width: 0; width: 0; max-width: 0; margin-right: 0; transiton all 0.25s ease;";
+            setTimeout(() => {
+                item.remove();
+            }, 250);})
+        Array.from(document.getElementsByClassName("delete-items-button")).forEach(item => {
+            item.style.cssText = "min-width: 0; width: 0; max-width: 0; margin: 0; padding: 0; max-height: 0; min-height: 0; height: 0; background-color: transparent; color: transparent; transition: all 0.25s ease;";
+            setTimeout(() => {
+                item.remove();
+            }, 500);})
+        return
+    }
+
+    //if edit button clicked (if then any other button clicked aswell) and then add button clicked: open popup and cancel edit
+    function cancelEditing() {
         if (document.querySelector(".clock-item").classList.contains("delete")) {
             clockAdd.onclick = () => {
                 document.querySelector(".timezone.fade-up").classList.add("opened");
@@ -124,18 +151,32 @@ function clock() {
                 }, 550);
             }
         }
-        //remove supportive divs and buttons from other clock items after deleting one of them
-        function deleteItem() {
-            clockEdit.classList.remove("done-edit");
-            Array.from(clockItems)
-                .forEach(item => {item.classList.remove("delete");});
-            Array.from(document.getElementsByClassName("clock-item-delete"))
-                .forEach(item => {item.remove();})
-            Array.from(document.getElementsByClassName("delete-items-button"))
-                .forEach(item => {item.remove();})
-            return
-        }
-    });
+    }
+
+    // listen for click outside of delete confirm button
+    function clickOutsideDeleteButton() {
+        let click = 0;
+        window.addEventListener("click", function(e){
+            click++;
+            if (document.querySelector(".delete-items-button") != null) {
+                if (click == 2) {
+                    if (document.querySelector(".delete-items-button").contains(e.target)) { // Clicked the delete button
+                        clockEdit.innerText = "Edit";
+                        setTimeout(() => {
+                            deleteItem();
+                        }, 500);
+                    } else { // Clicked outside the delete button
+                        Array.from(document.getElementsByClassName("delete-items-button")).forEach(item => {
+                            item.style.cssText = "min-width: 0; width: 0; max-width: 0; margin: 0; padding: 0; max-height: 39px; min-height: 39px; height: 39px; background-color: transparent; color: transparent; transition: all 0.25s ease;";
+                            setTimeout(() => {
+                                item.remove();
+                            }, 500);
+                        })
+                    }
+                }
+            } else { click = 0 }
+        });
+    }
 
     //show clock edit button
     function showEdit() {
@@ -146,7 +187,8 @@ function clock() {
             clockEdit.style.visibility = "hidden";
         }
     }
-
+    
+    //create clock list item
     function addCityToList() {
         let clockLabelDay;
         let clockLabelOffset;
@@ -213,6 +255,7 @@ function clock() {
         }
     }
 
+    //refresh clock list items time
     function refreshTime() {
         const date = new Date();
         let clockItems = document.querySelectorAll(".clock-item");
