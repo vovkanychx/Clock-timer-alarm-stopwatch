@@ -1,7 +1,64 @@
+document.body.onload = menu();
 document.querySelector(".clock").onload     = clock();
 document.querySelector(".stopwatch").onload = stopWatch();
 document.querySelector(".timer").onload     = timer();
-// document.querySelector(".alarm").onload     = alarm();
+document.querySelector(".alarm").onload     = alarm();
+
+function menu() {
+    // show latest used section when opened an app
+    if (localStorage.getItem("show-content") === null) {
+        document.querySelector("section.clock").style.display = "block";
+        document.getElementById("clock").classList.add("visited");
+    } else if (localStorage.getItem("show-content") === "clock") {
+        document.querySelector("section.clock").style.display = "block";
+        document.getElementById("clock").classList.add("visited");
+    } else if (localStorage.getItem("show-content") === "stopwatch") {
+        document.querySelector("section.stopwatch").style.display = "block";
+        document.getElementById("stopwatch").classList.add("visited");
+    } else if (localStorage.getItem("show-content") === "timer") {
+        document.querySelector("section.timer").style.display = "block";
+        document.getElementById("timer").classList.add("visited");
+    } else if (localStorage.getItem("show-content") === "alarm") {
+        document.querySelector("section.alarm").style.display = "block";
+        document.getElementById("alarm").classList.add("visited");
+    }
+    // add/remove active class to menu buttons
+    let menuItems = document.getElementsByClassName("menu-item");
+    Array.from(menuItems).forEach(item => {
+        item.addEventListener("click", function (event) {
+            // remove class from previous menu item
+            Array.from(menuItems).forEach(item => { item.classList.remove("visited") });
+            // add class to current clicked menu item
+            item.classList.add("visited");
+            showSection();
+        });
+    })
+    function showSection() {
+        if (document.getElementById("clock").classList.contains("visited")) {
+            hideSection();
+            document.querySelector("section.clock").style.display = "block";
+            localStorage.setItem("show-content", "clock");
+        } else if (document.getElementById("stopwatch").classList.contains("visited")) {
+            hideSection();
+            document.querySelector("section.stopwatch").style.display = "block";
+            localStorage.setItem("show-content", "stopwatch");
+        } else if (document.getElementById("timer").classList.contains("visited")) {
+            hideSection();
+            document.querySelector("section.timer").style.display = "block";
+            localStorage.setItem("show-content", "timer");
+        } else if (document.getElementById("alarm").classList.contains("visited")) {
+            hideSection();
+            document.querySelector("section.alarm").style.display = "block";
+            localStorage.setItem("show-content", "alarm");
+        }
+        function hideSection() {
+            Array.from(document.getElementsByTagName("section")).forEach(section => {
+                section.style.display = "none";
+                localStorage.removeItem("show-content");
+            })
+        }
+    }
+}
 
 function checkTime(i) { //add a zero to have 2 digits in clock
     if (i < 10) {i = "0" + i}; 
@@ -24,7 +81,7 @@ function clock() {
     let clockItemsArray       = [];
     let clockEditEnable = false;
 
-    clockAdd.onclick = () => {
+    clockAdd.addEventListener("click", function () {
         document.querySelector(".timezone.fade-up").classList.add("opened");
         document.querySelector(".block-top").style.visibility = "hidden";
         clearSearch.style.visibility = "hidden";
@@ -51,106 +108,94 @@ function clock() {
         }
         xmlhttp.open("GET", "js/data.json");
         xmlhttp.send();
-    }
+        let delButtonsClass = "delete-buttons";
+        // if "edit" button toggled, stop the action of editing
+        if (clockEdit.classList.contains("toggle-edit") === true) {
+            clockEdit.classList.remove("toggle-edit");
+            setTimeout(() => {
+                removeDeleteButtons(clockEdit, delButtonsClass);
+            }, 300);
+        }
+    });
 
-    cancelSearch.onclick = () => {
+    cancelSearch.addEventListener("click", function () {
         document.querySelector(".timezone.fade-up").classList.remove("opened");
         document.querySelector(".block-top").style.visibility = "visible";
         timeZoneList.classList.remove("no-match");
         searchInput.value = null;
-    }
-
-    clockEdit.addEventListener("click", function () {
-        let clockItems = document.getElementsByClassName("clock-item");
-        if (!clockEdit.classList.contains("done-edit")) {
-            clockEdit.innerHTML = "Done";
-            clockEdit.classList.add("done-edit");
-            Array.from(clockItems).forEach(item => {
-                item.classList.add("delete");
-                let child = document.createElement("div");
-                child.style.animation = "clockItemDelete 0.5s ease";
-                child.classList.add("clock-item-delete");
-                item.prepend(child);
-            })
-        } else if (clockEdit.classList.contains("done-edit")) {
-            clockEdit.innerHTML = "Edit";
-            deleteItem();
-        }
-        let clockItemsDelete = document.getElementsByClassName("clock-item-delete");
-        for (let i = 0; i < clockItemsDelete.length; i++) {
-            let itemToDelete = i;
-            clockItemsDelete[i].addEventListener("click", function () { //on click on removebutton of item delete confirmation button pops
-                if (clockList.contains(document.querySelector(".delete-items-button"))) {
-                    return //can not add confirm delete button if there's already one in clocklist
-                } else if (!clockList.contains(document.querySelector(".delete-items-button"))) {
-                    let deleteButton = document.createElement("button");
-                    deleteButton.style.animation = "deleteItem 0.5s ease";
-                    deleteButton.classList.add("delete-items-button");
-                    clockItems[i].appendChild(deleteButton);
-                    deleteButton.innerText = "Delete";
-                    for (let i = 0; i < document.getElementsByClassName("delete-items-button").length; i++) {
-                        //delete clock item on delete confirmation button
-                        document.getElementsByClassName("delete-items-button")[i].onclick = () => {
-                            clockEdit.innerHTML = "Edit";
-                            //deleted clock item's transitions
-                            document.getElementsByClassName("clock-item-add")[itemToDelete].style.cssText = "margin: 0; padding: 0; width: 0; height: 0; transform: scale(0);";
-                            document.getElementsByClassName("clock-item-delete")[itemToDelete].style.cssText = "margin: 0; padding: 0; max-width: 0; min-width: 0; width: 0; height: 0; transform: scale(0);";
-                            document.getElementsByClassName("delete-items-button")[i].style.cssText = "min-width: 100%; width: 100%; max-width: 100%; transition: width 1.5s ease; animation: none;";
-                            document.getElementsByClassName("clock-item")[itemToDelete].style.cssText = "transform: scaleY(0); transition: all 0.5s ease; margin: 0;"
-                            setTimeout(()=>{
-                                //remove list item and it's content from arrays
-                                clockItems[itemToDelete].remove();
-                                clockItemsArray.splice(itemToDelete, 1);
-                                formatedGMTArray.splice(itemToDelete, 1);
-                                unformatedGMTArray.splice(itemToDelete, 1);
-                                showEdit();
-                                deleteItem();
-                            }, 550);
-                        }
-                        clickOutsideDeleteButton();
-                    }
-                }
-            });
-        }
-        cancelEditing();
     });
 
-    //remove supportive divs and buttons from other clock items after deleting one of them
-    function deleteItem() {
-        clockEdit.classList.remove("done-edit");
-        Array.from(document.getElementsByClassName("clock-item")).forEach(item => {item.classList.remove("delete");});
-        Array.from(document.getElementsByClassName("clock-item-delete")).forEach(item => {
-            item.style.cssText = "opacity: 0; min-width: 0; width: 0; max-width: 0; margin-right: 0; transiton all 0.25s ease;";
-            setTimeout(() => {
-                item.remove();
-            }, 250);})
-        Array.from(document.getElementsByClassName("delete-items-button")).forEach(item => {
-            item.style.cssText = "min-width: 0; width: 0; max-width: 0; margin: 0; padding: 0; max-height: 0; min-height: 0; height: 0; background-color: transparent; color: transparent; transition: all 0.25s ease;";
-            setTimeout(() => {
-                item.remove();
-            }, 500);})
-        return
-    }
+    clockEdit.addEventListener("click", function () {
+        let list = clockList;
+        let button = this;
+        let buttonClass = "toggle-edit";
+        let listItems = document.getElementsByClassName("clock-item");
+        let delButtonsClass = "delete-buttons";
+        let delButtonsAnimation = "itemsDeleteButtons 0.5s ease";
+        let cssHideDelButtons = "opacity: 0; max-width: 0; min-width: 0; width: 0; margin-right: 0; visibility: hidden; transiton all 0.25s ease;";
+        let confirmButtonClass = "confirm-delete";
+        let confirmButtonAnimation = "confirmDelete 0.5s ease"
+        toggleEdit(list, button, buttonClass, listItems, delButtonsClass, delButtonsAnimation, cssHideDelButtons, confirmButtonClass, confirmButtonAnimation);
+    });
 
-    //if edit button clicked (if then any other button clicked aswell) and then add button clicked: open popup and cancel edit
-    function cancelEditing() {
-        if (document.querySelector(".clock-item").classList.contains("delete")) {
-            clockAdd.onclick = () => {
-                document.querySelector(".timezone.fade-up").classList.add("opened");
-                document.querySelector(".block-top").style.visibility = "hidden";
-                clearSearch.style.visibility = "hidden";
+    function toggleEdit(list, button, buttonClass, listItems, delButtonsClass, delButtonsAnimation, cssHideDelButtons, confirmButtonClass, confirmButtonAnimation) {
+        if (button.classList.contains(`${buttonClass}`)) { // if edit was already clicked 
+            button.innerText = "Edit";
+            button.classList.remove(`${buttonClass}`);
+            // hide delete buttons
+            Array.from(listItems).forEach(item => {
+                item.getElementsByTagName("button")[0].style.cssText = cssHideDelButtons;
                 setTimeout(() => {
-                    clockEdit.innerText = "Edit";
-                    clockEdit.classList.remove("done-edit");
-                    Array.from(document.querySelectorAll(".clock-item"))
-                        .forEach(item => {item.classList.remove("delete")})
-                    Array.from(document.getElementsByClassName("clock-item-delete"))
-                        .forEach(item => {item.remove();})
-                    Array.from(document.getElementsByClassName("delete-items-button"))
-                        .forEach(item => {item.remove();})
-                }, 550);
-            }
+                    item.getElementsByTagName("button")[0].remove();
+                }, 250);
+            });
+        } else if (!button.classList.contains(`${buttonClass}`)) { // if edit was not already clicked 
+            button.classList.add(`${buttonClass}`);
+            button.innerText = "Done";
+            // create 1st delete button on each list item
+            Array.from(listItems).forEach(item => {
+                let deleteAsk = document.createElement("button"); 
+                item.prepend(deleteAsk);
+                deleteAsk.classList.add(`${delButtonsClass}`);
+                deleteAsk.style.animation = `${delButtonsAnimation}`;
+            });
         }
+        for (let i = 0; i < listItems.length; i++) {
+            let itemToDelete = i;
+            let delButtons = document.getElementsByClassName(`${delButtonsClass}`);
+            // click on delete button of any list item
+            delButtons[i].addEventListener("click", function (e) {
+                if (list.contains(document.querySelector(`.${confirmButtonClass}`))) { 
+                    // return if there's already confirm delete button
+                    return
+                } else if (!list.contains(document.querySelector(`.${confirmButtonClass}`))) {
+                    // move item's toggle button to left
+                    let toggle = this.parentElement.lastChild;
+                    toggle.style.cssText = "margin-right: 121px;";
+                    // if there is not any confirm delete button > create one
+                    let confirmButton = this.parentElement.appendChild(document.createElement("button"));
+                    confirmButton.classList.add(`${confirmButtonClass}`);
+                    confirmButton.innerText = "Delete";
+                    confirmButton.style.animation = confirmButtonAnimation;
+                    // handle confirm delete button's click
+                    confirmButton.addEventListener("click", function () {
+                        // enable alarm item's toggle button
+                        this.style.cssText = "width: 100vw;";
+                        this.parentElement.style.cssText = "transform: translateX(-100vw); transition: all 0.5s ease";
+                        // remove item from list
+                        setTimeout(() => {
+                            this.parentElement.remove();
+                            clockItemsArray.splice(itemToDelete, 1);
+                            formatedGMTArray.splice(itemToDelete, 1);
+                            unformatedGMTArray.splice(itemToDelete, 1);
+                            showEdit();
+                        }, 500);
+                    });
+                    // if clicked anywhere but confirm delete button then hide and remove it
+                    clickOutsideDeleteButton(); 
+                }
+            });
+        }        
     }
 
     // listen for click outside of delete confirm button
@@ -158,16 +203,14 @@ function clock() {
         let click = 0;
         window.addEventListener("click", function(e){
             click++;
-            if (document.querySelector(".delete-items-button") != null) {
+            if (document.querySelector(".confirm-delete") != null) {
                 if (click == 2) {
-                    if (document.querySelector(".delete-items-button").contains(e.target)) { // Clicked the delete button
-                        clockEdit.innerText = "Edit";
-                        setTimeout(() => {
-                            deleteItem();
-                        }, 500);
+                    if (document.querySelector(".confirm-delete").contains(e.target)) { // Clicked the delete button
+                        return
                     } else { // Clicked outside the delete button
-                        Array.from(document.getElementsByClassName("delete-items-button")).forEach(item => {
-                            item.style.cssText = "min-width: 0; width: 0; max-width: 0; margin: 0; padding: 0; max-height: 39px; min-height: 39px; height: 39px; background-color: transparent; color: transparent; transition: all 0.25s ease;";
+                        Array.from(document.getElementsByClassName("confirm-delete")).forEach(item => {
+                            item.style.cssText = "width: 0;";
+                            item.parentElement.getElementsByTagName("p")[1].style.cssText = "margin-right: 0;";
                             setTimeout(() => {
                                 item.remove();
                             }, 500);
@@ -176,11 +219,23 @@ function clock() {
                 }
             } else { click = 0 }
         });
+    } 
+
+    //remove delete buttons on each list item
+    function removeDeleteButtons(button, delButtonsClass) {
+        button.classList.remove("toggle-edit");
+        button.innerText = "Edit";
+        // remove delete buttons when "done" button clicked
+        Array.from(document.getElementsByClassName(`${delButtonsClass}`)).forEach(item => {
+            item.style.cssText = "opacity: 0; width: 0; margin-right: 0; visibility: hidden; transiton all 0.5s ease;";
+            setTimeout(() => {
+                item.remove();
+        }, 500);})
     }
 
     //show clock edit button
     function showEdit() {
-        (clockList.childElementCount !== 0) ? clockEditEnable = true : clockEditEnable = false;
+        (clockList.childElementCount == 0) ? clockEditEnable = false : clockEditEnable = true;
         if (clockEditEnable === true) {
             clockEdit.style.visibility = "visible";
         } else if (clockEditEnable === false) {
@@ -196,26 +251,24 @@ function clock() {
         //create formatted dynamic clock list item
         for (let i = 0; i < timeZoneItem.length; i++) {
             //add clock items when user select city from timezone list
-            timeZoneItem[i].onclick = () => {
+            timeZoneItem[i].addEventListener("click", function () {
                 formatClockLabel();
                 let item = clockList.appendChild(document.createElement("li"));
                 item.className = "clock-item item";
                 item.innerHTML = 
-                    `<div class="clock-item-add">
-                        <div class="clock-box">
-                            <span class="clock-label" title="UTC: ${clockLabelOffset}">${clockLabelDay}, ${checkTime(clockLabelOffset)}</span>
-                            <p class="clock-city">${unSortedCities[i]}</p>
-                        </div>
-                        <p class="clock-time">${res}</p>
-                    </div>`;
+                    `<div class="clock-box">
+                        <span class="clock-label" title="UTC: ${clockLabelOffset}">${clockLabelDay}, ${checkTime(clockLabelOffset)}</span>
+                        <p class="clock-city">${unSortedCities[i]}</p>
+                    </div>
+                    <p class="clock-time">${res}</p>`;
                 formatedGMTArray.push(clockLabelOffset);
                 unformatedGMTArray.push(GMToffsetArray[i]);
                 clockItemsArray.push(item);
                 document.querySelector(".timezone.fade-up").classList.remove("opened");
                 document.querySelector(".block-top").style.visibility = "visible";
                 searchInput.value = null;
-                showEdit()
-            }
+                showEdit();
+            });
             //format clockitem time, clockLabelDay, and time difference
             function formatClockLabel () {
                 const date = new Date();
@@ -307,20 +360,6 @@ function clock() {
             timeZoneList.classList.add("no-match");
         }
     });
-
-    function displayTime() {
-        const date = new Date();
-        let hours    = date.getHours();
-        let minutes  = date.getMinutes();
-        let seconds  = date.getSeconds();
-
-        hours   = checkTime(hours);
-        minutes = checkTime(minutes);
-        seconds = checkTime(seconds);
-
-        document.querySelector(".display-time").innerHTML =  hours + ":" + minutes + ":" + seconds;
-    }
-    setInterval(displayTime, 100);
 }
 
 function stopWatch() {
@@ -401,7 +440,7 @@ function stopWatch() {
                     listLaps.appendChild(document.createElement("li"));
                     lapCount = (Number(listLaps.getElementsByTagName("li").length) - 1);
                     listLaps.lastChild.innerHTML =
-                    "<span>" + "Lap: " + lapCount + "</span>" +  m + ":" + s + "," + ms;
+                        "<span>" + "Lap: " + lapCount + "</span>" +  m + ":" + s + "," + ms;
                 }
                 resetButton.onclick = function () {     //reset only available if stopwatch started
                     if (!startButton.classList.contains("stop")) {
@@ -446,13 +485,13 @@ function timer () {
     let startButton  = document.getElementById("start-pause");
     let cancelButton = document.getElementById("cancel");
     let timerInterval;
-
+    
     document.querySelector(".timer-container").onwheel = () => { return false; } // disable window scroll when scrolling on container
     //create list select options (list items 0-23h 0-59m/s)
     function createListItems(list, lastItem) {
         for(let i = 0; i < lastItem; i++ ) {
             list.appendChild(document.createElement("div"));
-            list.lastChild.innerHTML = i + " ";
+            list.lastChild.innerHTML = i;
         }
     }
     //place "hours", "min", "sec" near scrollable lists
@@ -473,13 +512,15 @@ function timer () {
     function scrollClick (active, list) {
         active = 0;
         list.getElementsByTagName("div")[Math.abs(active)].classList.add("active"); //first elements are active (00:00,00)
-        list.addEventListener('wheel', (e) => {
+        list.addEventListener("wheel", (e) => {
             e.preventDefault(); //disable scrolling
             if (e.deltaY < 0) { //if scrolling up
                 if (active <= parseInt(list.firstElementChild.textContent)) { //stop scrolling if it's top
                     return
                 } else {
-                    list.getElementsByTagName("div")[Math.abs(active - 1)].scrollIntoView({behavior: "smooth", block: "center"})
+                    let i = active - 1;
+                    list.scrollTo({top: document.querySelector(".active").offsetHeight * i, behavior: "smooth"});
+                    // list.getElementsByTagName("div")[Math.abs(active - 1)].scrollIntoView({behavior: "smooth", block: "center"})
                     --active;
                     list.getElementsByTagName("div")[Math.abs(active + 1)].classList.remove("active");
                     list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
@@ -489,7 +530,9 @@ function timer () {
                 if (active >= parseInt(list.lastElementChild.textContent)) { //stop scrolling if it's bottom
                     return
                 } else {
-                    list.getElementsByTagName("div")[Math.abs(active + 1)].scrollIntoView({behavior: "smooth", block: "center"})
+                    let i = active + 1;
+                    list.scrollTo({top: document.querySelector(".active").offsetHeight * i, behavior: "smooth"});
+                    // list.getElementsByTagName("div")[Math.abs(active + 1)].scrollIntoView({behavior: "smooth", block: "center"})
                     active++;
                     list.getElementsByTagName("div")[Math.abs(active - 1)].classList.remove("active");
                     list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
@@ -504,7 +547,8 @@ function timer () {
                     el.classList.remove("active");
                 });
                 active = i; //new assign so we can scroll and click without having an error
-                list.getElementsByTagName("div")[Math.abs(active)].scrollIntoView({behavior: "smooth", block: "center"});
+                list.scrollTo({top: document.querySelector(".active").offsetHeight * i, behavior: "smooth"});
+                // list.getElementsByTagName("div")[Math.abs(active)].scrollIntoView({behavior: "smooth", block: "center"});
                 list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
             }
         }
@@ -512,13 +556,12 @@ function timer () {
     
     createListItems(hoursList, 24), createListItems(minutesList, 60), createListItems(secondsList, 60);
     scrollClick(0, hoursList), scrollClick(0, minutesList), scrollClick(0, secondsList);
-    centerText();
-    window.addEventListener("resize", centerText);
+    // centerText();
+    // window.addEventListener("resize", centerText);
     
     let selectedMilSec = 0;
     function startTimer() {
         selectedMilSec--;
-        
         if (selectedHour == 0 && selectedMinute == 0 && selectedSecond == 0 && selectedMilSec == 0) {
             clearInterval(timerInterval);
             startButton.classList.remove("pause");
@@ -566,8 +609,7 @@ function timer () {
         selectedHour   = parseInt(hoursList.querySelector(".active").textContent);
         selectedMinute = parseInt(minutesList.querySelector(".active").textContent);
         selectedSecond = parseInt(secondsList.querySelector(".active").textContent);
-        convertTime = (((((selectedHour * 60) + selectedMinute) * 60) + selectedSecond) * 1000) + selectedMilSec + 100;   
-
+        convertTime = (((((selectedHour * 60) + selectedMinute) * 60) + selectedSecond) * 1000) + selectedMilSec;
         if (!startButton.classList.contains("pause") && !cancelButton.classList.contains("cancel")) {
             timerInterval = setInterval(startTimer, 10);
             document.querySelector(".meter").style.animation = `animateProgress linear ${convertTime}ms`
@@ -612,16 +654,253 @@ function timer () {
     })
 }
 
+function alarm() {
+    const date = new Date();
+    let alarmAddBtn  = document.getElementById("alarm-add");
+    let alarmEditBtn = document.getElementById("alarm-edit");
+    let alarmCancel  = document.getElementById("alarm-cancel");
+    let alarmSaveBtn = document.getElementById("alarm-save");
+    let alarmsList   = document.querySelector(".alarm-list");
+    let alarmListHour   = document.getElementById("alarm-select-hour");
+    let alarmListMinute = document.getElementById("alarm-select-minute");
+    let alarmEditEnable = false;
 
-// function alarm() {
-//     const date  = new Date();
-//     let hours   = date.getHours();
-//     let minutes = date.getMinutes();
-//     let seconds = date.getSeconds();
+    // create new alarm and add it to alarm list
+    function addToList() {
+        let li = alarmsList.appendChild(document.createElement("li")); // list item
+        let alarmTime = li.appendChild(document.createElement("p")); // list item time
+        let createAlarmToggle = li.appendChild(document.createElement("button")); // list item toggle button
+        createAlarmToggle.appendChild(document.createElement("span")).classList.add("circle");
+        li.setAttribute("class", "alarm-item item");
+        alarmTime.setAttribute("class", "alarm-time");
+        createAlarmToggle.setAttribute("class", "alarm-toggle toggle");
+        let selectedHour = parseInt(document.getElementById("alarm-select-hour").querySelector(".active").innerText); // get hour from list of options
+        let selectedMinute = parseInt(document.getElementById("alarm-select-minute").querySelector(".active").innerText); // get minute from list of options
+        li.querySelector(".alarm-time").innerText = checkTime(selectedHour) + ":" + checkTime(selectedMinute);
+        // show edit button
+        alarmEditEnable = true;
+        // li.addEventListener("click", function () {
+        //     document.querySelector(".alarm-popup").classList.add("opened");
+        //     let delButtonsClass = "delete-buttons";
+        //     // if "edit" button toggled, stop the action of editing
+        //     if (alarmEditBtn.classList.contains("toggle-edit") === true) {
+        //         setTimeout(() => {
+        //             removeDeleteButtons(alarmEditBtn, delButtonsClass);
+        //         }, 300);
+        //     }
+        // })
+    }
 
-//     startButton.addEventListener("click", function () {
-//         console.log(hours + parseInt(hoursList.getElementsByClassName("active")[0].textContent))
-//         console.log(parseInt(minutesList.getElementsByClassName("active")[0].textContent))
-//         console.log(parseInt(secondsList.getElementsByClassName("active")[0].textContent))
-//     })
-// }
+    function showEdit() {
+        (alarmsList.childElementCount !== 0) ? alarmEditEnable = true : alarmEditEnable = false;
+        if (alarmEditEnable === true) {
+            alarmEditBtn.style.visibility = "visible";
+        } else if (alarmEditEnable === false) {
+            alarmEditBtn.style.visibility = "hidden";
+        }
+    }
+
+    function removeDeleteButtons(button, delButtonsClass) {
+        button.classList.remove("toggle-edit");
+        button.innerText = "Edit";
+        // remove delete buttons when "done" button clicked
+        Array.from(document.getElementsByClassName(`${delButtonsClass}`)).forEach(item => {
+            item.style.cssText = "opacity: 0; width: 0; margin-right: 0; visibility: hidden; transiton all 0.5s ease;";
+            setTimeout(() => {
+                item.remove();
+        }, 500);})
+    }
+
+    function observeChanges() {
+        // code here used from MDN Web Docs https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+        const targetNode = alarmsList;
+        // Options for the observer (which mutations to observe)
+        const config = { attributes: false, childList: true, subtree: false };
+        // Callback function to execute when mutations are observed
+        const callback = (mutationList, observer) => {
+            for (const mutation of mutationList) {
+                if (mutation.type === "childList") {
+                    Array.from(document.getElementsByClassName("alarm-toggle")).forEach(item => {
+                        item.onclick = () => {
+                            item.classList.toggle("toggle");
+                        }
+                    });
+                }
+            }
+        };
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
+        // Start observing the target node for configured mutations
+        observer.observe(targetNode, config);
+    }
+    observeChanges();
+
+    // listen for click outside of delete confirm button
+    function clickOutsideDeleteButton() {
+        let click = 0;
+        window.addEventListener("click", function(e){
+            click++;
+            if (document.querySelector(".confirm-delete") != null) {
+                if (click == 2) {
+                    if (document.querySelector(".confirm-delete").contains(e.target)) { // Clicked the delete button
+                        return
+                    } else { // Clicked outside the delete button
+                        Array.from(document.getElementsByClassName("confirm-delete")).forEach(item => {
+                            item.style.cssText = "width: 0;";
+                            item.parentElement.getElementsByTagName("button")[1].style.cssText = "margin-right: 0; opacity: 1;";
+                            setTimeout(() => {
+                                item.remove();
+                            }, 500);
+                        })
+                    }
+                }
+            } else { click = 0 }
+        });
+    }  
+
+    function loopScroll (active, list, bottomValue, topValue, startPos) {
+        Array.from(list.getElementsByTagName("div")).forEach(el => {
+            el.classList.remove("active");
+        });
+        // can not use only Date.getHours() or Date.getMinutes() to set active elements because there are more than 24/60 elements 
+        // so value "10" would set the active element with "07" innerText but it's actually 10th element in the list 
+        // so there's a need to add that bottomValue (+3) to startPos to make element active responsively to hours/minutes atm
+        active = startPos + bottomValue;
+        list.scrollTo({top: list.getElementsByTagName("div")[active].offsetHeight * active}); // start position
+        list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
+        list.addEventListener("wheel", (e) => {
+            e.preventDefault(); //disable scrolling
+            list.getElementsByTagName("div")[Math.abs(active)].classList.remove("active");
+            if (e.deltaY < 0) { //if scrolling up
+                let newPos = active - 1;
+                let moveToPos =  list.getElementsByTagName("div")[Math.abs(active)].offsetHeight * newPos;
+                list.scrollTo({top: moveToPos, behavior: "smooth"});
+                --active;
+                list.getElementsByTagName("div")[Math.abs(active + 1)].classList.remove("active");
+                list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
+                if (active < bottomValue) {
+                    list.querySelectorAll("div").forEach(el => {
+                        el.classList.remove("active");
+                    })
+                    active = topValue;
+                    list.getElementsByTagName("div")[active].classList.add("active");
+                    setTimeout(() => {
+                        list.scrollTo({top: list.getElementsByTagName("div")[active].offsetHeight * active});
+                    }, 100);
+                }
+            } 
+            else if (e.deltaY > 0) { //if scrolling down
+                let newPos = active + 1;
+                let moveToPos = list.getElementsByTagName("div")[Math.abs(active)].offsetHeight * newPos;
+                list.scrollTo({top: moveToPos, behavior: "smooth"});
+                active++;
+                list.getElementsByTagName("div")[Math.abs(active - 1)].classList.remove("active");
+                list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
+                if (active > topValue) {
+                    list.querySelectorAll("div").forEach(el => {
+                        el.classList.remove("active");
+                    })
+                    active = bottomValue;
+                    list.getElementsByTagName("div")[active].classList.add("active");
+                    setTimeout(() => {
+                        list.scrollTo({top: list.getElementsByTagName("div")[active].offsetHeight * active});
+                    }, 100);
+                }
+            }
+        });
+    }
+    loopScroll(date.getHours(), alarmListHour, 3, 26, date.getHours());
+    loopScroll(date.getMinutes(), alarmListMinute, 3, 62, date.getMinutes());
+
+    function toggleEdit(list, button, buttonClass, listItems, delButtonsClass, delButtonsAnimation, cssHideDelButtons, confirmButtonClass, confirmButtonAnimation) {
+        if (button.classList.contains(`${buttonClass}`)) { // if edit was already clicked 
+            button.innerText = "Edit";
+            button.classList.remove(`${buttonClass}`);
+            // hide delete buttons
+            Array.from(listItems).forEach(item => {
+                item.firstChild.style.cssText = cssHideDelButtons;
+                setTimeout(() => {
+                    item.firstChild.remove();
+                }, 250);
+            });
+        } else if (!button.classList.contains(`${buttonClass}`)) { // if edit was not already clicked 
+            button.classList.add(`${buttonClass}`);
+            button.innerText = "Done";
+            // create 1st delete button on each list item
+            Array.from(listItems).forEach(item => {
+                let deleteAsk = document.createElement("button"); 
+                item.prepend(deleteAsk);
+                deleteAsk.classList.add(`${delButtonsClass}`);
+                deleteAsk.style.animation = `${delButtonsAnimation}`;
+            });
+        }
+        for (let i = 0; i < listItems.length; i++) {
+            let delButtons = document.getElementsByClassName(`${delButtonsClass}`);
+            // click on delete button of any list item
+            delButtons[i].addEventListener("click", function (e) {
+                if (list.contains(document.querySelector(`.${confirmButtonClass}`))) { 
+                    // return if there's already confirm delete button
+                    return
+                } else if (!list.contains(document.querySelector(`.${confirmButtonClass}`))) {
+                    // move item's toggle button to left
+                    let toggle = this.parentElement.lastChild;
+                    toggle.style.cssText = "margin-right: 121px; opacity: 0.25;";
+                    // if there is not any confirm delete button > create one
+                    let confirmButton = this.parentElement.appendChild(document.createElement("button"));
+                    confirmButton.classList.add(`${confirmButtonClass}`);
+                    confirmButton.innerText = "Delete";
+                    confirmButton.style.animation = confirmButtonAnimation;
+                    // handle confirm delete button's click
+                    confirmButton.addEventListener("click", function () {
+                        // enable alarm item's toggle button
+                        this.style.cssText = "width: 100vw;";
+                        this.parentElement.style.cssText = "transform: translateX(-100vw); transition: all 0.5s ease";
+                        // remove item from list
+                        setTimeout(() => {
+                            this.parentElement.remove();
+                            showEdit();
+                        }, 500);
+                    });
+                    // if clicked anywhere but confirm delete button then hide and remove it
+                    clickOutsideDeleteButton(); 
+                }
+            });
+        }        
+    }
+    
+    // open modal
+    alarmAddBtn.addEventListener("click", function () {
+        document.querySelector(".alarm-popup").classList.add("opened");
+        let delButtonsClass = "delete-buttons";
+        // if "edit" button toggled, stop the action of editing
+        if (alarmEditBtn.classList.contains("toggle-edit") === true) {
+            setTimeout(() => {
+                removeDeleteButtons(alarmEditBtn, delButtonsClass);
+            }, 300);
+        }
+    })
+    
+    alarmEditBtn.addEventListener("click", function () {
+        let list = alarmsList;
+        let button = this;
+        let buttonClass = "toggle-edit";
+        let listItems = document.getElementsByClassName("alarm-item");
+        let delButtonsClass = "delete-buttons";
+        let delButtonsAnimation = "itemsDeleteButtons 0.5s ease";
+        let cssHideDelButtons = "opacity: 0; max-width: 0; min-width: 0; width: 0; margin-right: 0; visibility: hidden; transiton all 0.25s ease;";
+        let confirmButtonClass = "confirm-delete";
+        let confirmButtonAnimation = "confirmDelete 0.5s ease"
+        toggleEdit(list, button, buttonClass, listItems, delButtonsClass, delButtonsAnimation, cssHideDelButtons, confirmButtonClass, confirmButtonAnimation);
+    }); 
+    
+    // add new alarm to alarm list
+    alarmSaveBtn.addEventListener("click", function () {
+        addToList();
+        showEdit();
+        document.querySelector(".alarm-popup").classList.remove("opened");
+    })
+    // close modal
+    alarmCancel.addEventListener("click", function () {
+        document.querySelector(".alarm-popup").classList.remove("opened");
+    })
+}
