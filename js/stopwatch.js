@@ -6,7 +6,8 @@ export function stopwatch() {
     const listLaps        = document.querySelector(".laps");
     var stopwatchInterval; // setInterval for stopwatch clock
     var stopwatchStorage = localStorage.getItem("stopwatchStorage"); // Stopwatch time
-    var lapStorage = localStorage.getItem("lapStorage");
+    var lapStorage       = localStorage.getItem("lapStorage");
+    var firstLapStorage  = localStorage.getItem("firstLapStorage");
     var lapCount; // Laps counter
     var ms, s, m, msLap, sLap, mLap;
     
@@ -22,18 +23,14 @@ export function stopwatch() {
             s = parseInt(stopwatchStorage.split(":")[1].split(",")[0]);
             m = parseInt(stopwatchStorage.split(":")[0]);
             // Get first lap data when window is loaded after it was closed/refreshed
-            msLap = parseInt(localStorage.getItem("firstLapStorage").split("\n")[1].split(",")[1]);
-            sLap = parseInt(localStorage.getItem("firstLapStorage").split("\n")[1].split(":")[1].split(",")[0]);
-            mLap = parseInt(localStorage.getItem("firstLapStorage").split("\n")[1].split(":")[0]);
+            msLap = parseInt(firstLapStorage.split("\n")[1].split(",")[1]);
+            sLap = parseInt(firstLapStorage.split("\n")[1].split(":")[1].split(",")[0]);
+            mLap = parseInt(firstLapStorage.split("\n")[1].split(":")[0]);
             stopwatchClock.innerText = `${checkTime(m)}:${checkTime(s)},${checkTime(ms)}`; // Set stopwatch clock
             listLaps.innerHTML = lapStorage; // Set list of laps from latest session
             lapCount = Number(listLaps.getElementsByTagName("li").length); // Lap count
             listLaps.firstChild.innerHTML = `<span>Lap ${lapCount}</span>${checkTime(mLap)}:${checkTime(sLap)},${checkTime(msLap)}`; // Set first lap
         }
-        // Save first lap if window reloaded, closed, or loaded
-        this.addEventListener("unload", function () {
-            localStorage.setItem("firstLapStorage", listLaps.firstChild.innerText);
-        })
     })
 
     function addLap() { // Add lap on startButton click when list of laps is empty and clock was started yet
@@ -42,7 +39,9 @@ export function stopwatch() {
         lapCount = 1;
         li.innerHTML = `<span>Lap ${lapCount}</span>${checkTime(m)}:${checkTime(s)},${checkTime(ms)}`;
         localStorage.removeItem("lapStorage");
+        localStorage.removeItem("firstLapStorage");
         localStorage.setItem("lapStorage", listLaps.innerHTML);
+        localStorage.setItem("firstLapStorage", listLaps.firstChild.innerText);
     }
     
     function reset() { // Remove setInterval, set time to 0, remove laps from list, clear localStorage
@@ -68,6 +67,7 @@ export function stopwatch() {
         stopwatchClock.innerText = `${checkTime(m)}:${checkTime(s)},${checkTime(ms)}`;
         listLaps.firstChild.innerHTML = `<span>Lap ${lapCount}</span>${checkTime(mLap)}:${checkTime(sLap)},${checkTime(msLap)}`;
         localStorage.setItem("stopwatchStorage", stopwatchClock.innerText);
+        localStorage.setItem("firstLapStorage", listLaps.firstChild.innerText);
     }
     
     startButton.addEventListener("click", function () {
@@ -98,6 +98,7 @@ export function stopwatch() {
             lapCount = Number(listLaps.getElementsByTagName("li").length);
             li.innerHTML = `<span>Lap ${lapCount}</span>${checkTime(mLap)}:${checkTime(sLap)},${checkTime(msLap)}`;
             localStorage.removeItem("lapStorage");
+            localStorage.removeItem("firstLapStorage");
             localStorage.setItem("lapStorage", listLaps.innerHTML);
             // Start new lap with new stopwatch
             msLap = sLap = mLap = 0;
