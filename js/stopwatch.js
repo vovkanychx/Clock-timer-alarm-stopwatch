@@ -10,29 +10,30 @@ export function stopwatch() {
     var lapCount; // Laps counter
     var ms, s, m, msLap, sLap, mLap;
     
+    stopwatchClock.innerText = "00:00,00";
     window.addEventListener("load", function () {
         if (stopwatchStorage == null) { // Stopwatch not started
             m = s = ms = 0;
+            mLap = sLap = msLap = 0;
             stopwatchClock.innerText = `${checkTime(m)}:${checkTime(s)},${checkTime(ms)}`; // Set stopwatch clock at "00:00,00"
             // startButton.addEventListener("click", addLap, {once: true} );
         } else { // Stopwatch was started so using localStorage data for clock and laps
             ms = parseInt(stopwatchStorage.split(",")[1]);
             s = parseInt(stopwatchStorage.split(":")[1].split(",")[0]);
             m = parseInt(stopwatchStorage.split(":")[0]);
-            // Save first lap if window reloaded, closed, or loaded
-            this.addEventListener("unload", function () {
-                localStorage.setItem("firstLapStorage", listLaps.firstChild.innerText);
-            })
             // Get first lap data when window is loaded after it was closed/refreshed
             msLap = parseInt(localStorage.getItem("firstLapStorage").split("\n")[1].split(",")[1]);
             sLap = parseInt(localStorage.getItem("firstLapStorage").split("\n")[1].split(":")[1].split(",")[0]);
             mLap = parseInt(localStorage.getItem("firstLapStorage").split("\n")[1].split(":")[0]);
             stopwatchClock.innerText = `${checkTime(m)}:${checkTime(s)},${checkTime(ms)}`; // Set stopwatch clock
             listLaps.innerHTML = lapStorage; // Set list of laps from latest session
-            let firstChild = listLaps.firstChild; // First lap in list
             lapCount = Number(listLaps.getElementsByTagName("li").length); // Lap count
-            firstChild.innerHTML = `<span>Lap ${lapCount}</span>${checkTime(mLap)}:${checkTime(sLap)},${checkTime(msLap)}`; // Set first lap
+            listLaps.firstChild.innerHTML = `<span>Lap ${lapCount}</span>${checkTime(mLap)}:${checkTime(sLap)},${checkTime(msLap)}`; // Set first lap
         }
+        // Save first lap if window reloaded, closed, or loaded
+        this.addEventListener("unload", function () {
+            localStorage.setItem("firstLapStorage", listLaps.firstChild.innerText);
+        })
     })
 
     function addLap() { // Add lap on startButton click when list of laps is empty and clock was started yet

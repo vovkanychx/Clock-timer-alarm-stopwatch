@@ -66,7 +66,7 @@ p{
     margin: 0;
 }
 .clock, .stopwatch, .timer, .alarm{
-    padding: 20px 20px 60px 20px;
+    padding: 20px 20px 0 20px;
     text-align: center;
     min-height: 550px;
     height: 100vh;
@@ -126,6 +126,7 @@ p{
 }
 .item:last-child{
     border-bottom: 1px solid #fefefe75;
+    margin-bottom: 60px;
 }
 #start, #reset, #start-pause, #cancel{
     position: relative;
@@ -230,6 +231,11 @@ p{
     /* padding: 10px 0; */
     height: 60px;
 }
+.menu-scrollable{
+    backdrop-filter: blur(20px);
+    background-color: #30303012;
+    border-top: 1px solid #191919;
+}
 .menu-item{
     font-family: "Roboto", sans-serif;
     text-transform: capitalize;
@@ -289,7 +295,6 @@ p{
     margin-left: auto;
     transition: all 0.5s ease;
 }
-
 .timezone{
     background-color: #171717;
 }
@@ -389,7 +394,7 @@ p{
     content: "No Results Found";
     position: absolute;
     left: 0;
-    top: 0;
+    bottom: 15%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -408,6 +413,15 @@ p{
 }
 .timezone-item:last-child{
     margin-bottom: 100px;
+}
+.timezone-navigation{
+    position: absolute;
+    right: 5px;
+    font-size: 10px;
+    line-height: 1;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ffa500;
 }
 .timezone.fade-up .search-icon, .timezone.fade-up #clear-search-input{
     display: none;
@@ -443,8 +457,8 @@ p{
     display: flex;
     justify-content: space-between;
 }
-.separator{
-    display: none;
+.laps li:last-child{
+    margin-bottom: 60px;
 }
 #start{
     background-color: var(--buttonStopwatchStart);
