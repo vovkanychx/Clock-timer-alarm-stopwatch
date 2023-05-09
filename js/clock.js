@@ -7,6 +7,7 @@ export function clock() {
     const clearSearch   = document.getElementById("clear-search-input");
     const timeZoneList  = document.querySelector(".timezone-list");
     const timeZoneItem  = document.getElementsByClassName("timezone-item");
+    const timeZoneNav   = document.querySelector(".timezone-navigation");
     const clockList     = document.querySelector(".clock-list");
     let GMToffsetArray        = [];
     let unSortedCities        = [];
@@ -64,6 +65,7 @@ export function clock() {
                 .sort((a, b) => a.textContent.localeCompare(b.textContent))
                 .forEach(li => { document.querySelector(".timezone-list ul").appendChild(li);
             }); //sort cities alphabetically in list
+            alphabetFilter();
         }
         xmlhttp.open("GET", "js/data.json");
         xmlhttp.send();
@@ -287,7 +289,7 @@ export function clock() {
                 h = Math.floor(((date.getUTCHours() * 60) + unformatedGMTArray[i]) / 60);
                 m = date.getUTCMinutes() + (unformatedGMTArray[i] % 60);
                 if (m >= 60) {h = h + 1; m = m % 60;} 
-                else if (m < 0) {h = h - 1; m = m % 60;}
+                    else if (m < 0) {h = h - 1; m = m % 60;}
                 if (h >= 0 && h < 24) {day = "Today";}
                 if (h >= 24) {h = h % 24; day = "Tomorrow";}
                 if (h < 0) {h = 24 + h; day = "Yesterday";}
@@ -297,7 +299,43 @@ export function clock() {
             document.querySelectorAll(".clock-time")[i].innerText = checkTime(h) + ":" + checkTime(m);
         }
     }
-    
+
+    function alphabetFilter() { // timezone list navigation by alphabet letter
+        let alphabet = [...Array(26).keys()].map(i => String.fromCharCode(i + 65));
+        let list = timeZoneNav.appendChild(document.createElement("ul"));
+        let i = 0;
+        do {
+            let li = list.appendChild(document.createElement("li"));
+            let a = li.appendChild(document.createElement("a"));
+            a.setAttribute("href", `#${alphabet[i]}`);
+            a.innerText = alphabet[i];
+            i++;
+        } while (i < alphabet.length);
+
+        let citiesSorted = [];
+        document.querySelectorAll(".timezone-list ul li").forEach(item => { 
+            citiesSorted.push(item.innerText.split(",")[0].split(" ")[0].split("-")[0]) 
+        });
+        function find(...letters){
+            return citiesSorted.filter(w => letters.every(l => w.includes(l)));
+        }
+        let indexArray = []
+        for (let i = 0; i < alphabet.length; i++) {
+                let el = find(alphabet[i])[0];
+                // if (citiesSorted.indexOf(el) === -1) // searching indexOf non-existed/undefined element returns -1
+                // {continue} // don't add that to indexArray (e.g: X which return -1 in our case, because no city starts with "X" letter)
+                indexArray.push(citiesSorted.indexOf(el));
+        }
+        indexArray.forEach((item, index) => {
+            let list = document.querySelector(".timezone-list ul");
+            let node = document.createElement("div");
+            list.insertBefore(node, list.getElementsByTagName("li")[item]);
+            node.textContent = alphabet[index];
+            node.className = "timezone-anchor";
+            node.setAttribute("id", `${alphabet[index]}`);
+        })
+    }
+
     searchInput.addEventListener("keyup", function () { //searchbar, function triggers when user starts typing
         let hasAnyMatch = false;
         for (let i = 0; i < timeZoneItem.length; i++) { //case insensitive search

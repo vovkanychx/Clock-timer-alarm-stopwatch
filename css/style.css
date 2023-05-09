@@ -406,7 +406,7 @@ p{
 }
 .timezone-item{
     text-align: left;
-    text-transform: capitalize;
+    /* text-transform: capitalize; */
     padding: 10px 0;
     border-bottom: 1px solid #fefefe75;
     cursor: pointer;
@@ -421,7 +421,27 @@ p{
     line-height: 1;
     top: 50%;
     transform: translateY(-50%);
+    height: 100%;
+}
+.timezone-navigation ul{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+.timezone-navigation a{
     color: #ffa500;
+    text-decoration: none;
+}
+.timezone-anchor{
+    display: flex;
+    align-items: flex-end;
+    height: 50px;
+    padding-bottom: 5px;
+    text-align: left;
+    font-weight: 500;
+    color: #a8a8a8;
+    border-bottom: 1px solid #fefefe75;
 }
 .timezone.fade-up .search-icon, .timezone.fade-up #clear-search-input{
     display: none;
