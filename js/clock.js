@@ -47,10 +47,11 @@ export function clock() {
         clearSearch.style.visibility = "hidden";
         //make http request for json data
         const xmlhttp = new XMLHttpRequest();
+        
         xmlhttp.onload = function() {
             const jsonData = JSON.parse(this.responseText);
             //create list with list items as "city, country"
-            let listItem = "<ul>";
+            let listItem = "<span class='separator'>";
             for (let i in jsonData) {
                 listItem += `<li class="timezone-item">
                                 <span>${jsonData[i].city}</span>, ${jsonData[i].country}
@@ -58,12 +59,12 @@ export function clock() {
                 unSortedCities.push(jsonData[i].city);
                 GMToffsetArray.push(jsonData[i].offset);
             }
-            listItem += "</ul>";
+            listItem += "</span>";
             timeZoneList.innerHTML = listItem;
             addCityToList();
-            Array.from(document.querySelector(".timezone-list ul").getElementsByTagName("li"))
+            Array.from(timeZoneList.getElementsByTagName("li"))
                 .sort((a, b) => a.textContent.localeCompare(b.textContent))
-                .forEach(li => { document.querySelector(".timezone-list ul").appendChild(li);
+                .forEach(li => { timeZoneList.appendChild(li);
             }); //sort cities alphabetically in list
             alphabetFilter();
         }
@@ -300,69 +301,97 @@ export function clock() {
         }
     }
 
+    let alphabet = [...Array(26).keys()].map(i => String.fromCharCode(i + 65)); // create array of letters
     function alphabetFilter() { // timezone list navigation by alphabet letter
-        let alphabet = [...Array(26).keys()].map(i => String.fromCharCode(i + 65));
-        let list = timeZoneNav.appendChild(document.createElement("ul"));
-        let i = 0;
-        do {
-            let li = list.appendChild(document.createElement("li"));
-            let a = li.appendChild(document.createElement("a"));
-            a.setAttribute("href", `#${alphabet[i]}`);
-            a.innerText = alphabet[i];
-            i++;
-        } while (i < alphabet.length);
+        if (document.querySelectorAll(".timezone-navigation-list").length === 1) // stop executing if list was already created
+        { return appendLetters() } 
+        else
+        {  
+            timeZoneNav.appendChild(document.createElement("ul")).classList.add("timezone-navigation-list");
+            let list = document.querySelector(".timezone-navigation-list");
+            let i = 0; // append list of letters to popup
+            do {
+                let li = list.appendChild(document.createElement("li"));
+                let a = li.appendChild(document.createElement("a"));
+                a.setAttribute("href", `#${alphabet[i]}`);
+                a.innerText = alphabet[i];
+                i++;
+            } while (i < alphabet.length);
+            appendLetters();
+        }
+    }
 
-        let citiesSorted = [];
-        document.querySelectorAll(".timezone-list ul li").forEach(item => { 
-            citiesSorted.push(item.innerText.split(",")[0].split(" ")[0].split("-")[0]) 
+    function appendLetters() {
+        let citiesSorted = []; // sort cities alphabetically
+        document.querySelectorAll(".timezone-list li").forEach(item => { 
+            citiesSorted.push(item.innerText.split(",")[0].split(" ")[0].split("-")[0]); // add to array only the 1st word of the city's name
         });
-        function find(...letters){
-            return citiesSorted.filter(w => letters.every(l => w.includes(l)));
+        function find(...letters){ // find matches between each city name and each letter in alphabet
+            return citiesSorted.filter(w => letters.every(l => w.includes(l))); // e.g. find("K") returns list of cities names starting with K
         }
         let indexArray = []
-        for (let i = 0; i < alphabet.length; i++) {
-                let el = find(alphabet[i])[0];
-                // if (citiesSorted.indexOf(el) === -1) // searching indexOf non-existed/undefined element returns -1
-                // {continue} // don't add that to indexArray (e.g: X which return -1 in our case, because no city starts with "X" letter)
-                indexArray.push(citiesSorted.indexOf(el));
+        for (let i = 0; i < alphabet.length; i++) { 
+            let el = find(alphabet[i])[0]; // get first city that matches letter search (e.g. find("K")[0] returns "Kabul")
+            indexArray.push(citiesSorted.indexOf(el)); // array of indexes of first letter occurance in cities names (e.g. "Baghdad" -> 30)   
         }
-        indexArray.forEach((item, index) => {
-            let list = document.querySelector(".timezone-list ul");
+        for (let i = 0; i < indexArray.length; i++) { // append anchors to timezone-list
+            if (find(alphabet[i])[0] === undefined) 
+                { continue } // pass iteration if there's no city name match by letter (e.g. no city with starting letter "X")
             let node = document.createElement("div");
-            list.insertBefore(node, list.getElementsByTagName("li")[item]);
-            node.textContent = alphabet[index];
+            timeZoneList.insertBefore(node, timeZoneList.getElementsByTagName("li")[indexArray[i]]);
+            node.textContent = alphabet[i];
             node.className = "timezone-anchor";
-            node.setAttribute("id", `${alphabet[index]}`);
+            node.setAttribute("id", `${alphabet[i]}`);
+        }
+        document.querySelectorAll(".timezone-navigation a").forEach(anchor => {
+            anchor.addEventListener("click", (e) => {
+                e.preventDefault();
+                if (document.querySelector(`#${anchor.textContent}`) === null) 
+                    { return }
+                document.querySelector(".timezone-list").scrollTop = document.querySelector(`#${anchor.textContent}`).offsetTop - 100;
+            });
         })
     }
 
-    searchInput.addEventListener("keyup", function () { //searchbar, function triggers when user starts typing
+    searchInput.addEventListener("keyup", function () { // searchbar, function triggers when user starts typing
         let hasAnyMatch = false;
-        for (let i = 0; i < timeZoneItem.length; i++) { //case insensitive search
-            if (!timeZoneItem[i].innerHTML.toLowerCase().match(new RegExp(searchInput.value, "i"))) {
+        for (let i = 0; i < timeZoneItem.length; i++) { // case insensitive search
+            if (!timeZoneItem[i].innerHTML.toLowerCase().match(new RegExp(searchInput.value, "i"))) { // no match
                 timeZoneItem[i].style.display = "none";
-            } else {
+            } else { // match
                 hasAnyMatch = true;
                 timeZoneItem[i].style.display = "list-item";
                 timeZoneList.classList.remove("no-match");
+                hideAnchorNav();
             }
         }
-        if (searchInput.value == null || searchInput.value == "") { //show/hide clear search button
+        if (searchInput.value == null || searchInput.value == "") { // show/hide clear search button
             clearSearch.style.visibility = "hidden";
+            showAnchorNav();
         } else {
             clearSearch.style.visibility = "visible";
             clearSearch.onclick = () => {
                 searchInput.value = null;
                 clearSearch.style.visibility = "hidden";
                 timeZoneList.classList.remove("no-match");
-                Array.from(document.querySelector(".timezone-list ul").getElementsByTagName("li")).
+                Array.from(timeZoneList.getElementsByTagName("li")).
                     forEach((element) => {element.style.display = "list-item";
-                }); //show list items after click on button to clear search value
+                }); // show list items after click on button to clear search value
+                showAnchorNav();
             }
         }
         //if searching result has no matches show user that nothing is found
         if (!hasAnyMatch) {
             timeZoneList.classList.add("no-match");
+            hideAnchorNav();
+        }
+        function showAnchorNav() {
+            document.querySelectorAll(".timezone-navigation a").forEach(a => a.style.display = "initial"); // show nav
+            document.querySelectorAll(".timezone-anchor").forEach(anchor => anchor.style.display = "flex"); // show nav anchors
+        }
+        function hideAnchorNav() {
+            document.querySelectorAll(".timezone-navigation a").forEach(a => a.style.display = "none"); // hide nav
+            document.querySelectorAll(".timezone-anchor").forEach(anchor => anchor.style.display = "none"); // hide nav anchors
         }
     });
 }
