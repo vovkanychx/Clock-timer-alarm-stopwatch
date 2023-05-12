@@ -40,14 +40,49 @@ export function clock() {
         showEdit();
         setInterval(refreshTime, 1000);
     });
-    
+
+    setTimeout(() => {
+        if (clockList.scrollHeight > clockList.clientHeight) {document.querySelector("menu").classList.add("scrolling")}
+    }, 20);
+
+    function observeChanges() {
+        // code here used from MDN Web Docs https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+        const targetNode = clockList;
+        // Options for the observer (which mutations to observe)
+        const config = { attributes: false, childList: true, subtree: false };
+        // Callback function to execute when mutations are observed
+        const callback = (mutationList, observer) => {
+            const menu = document.querySelector("menu");
+            for (const mutation of mutationList) {
+                if (mutation.target.children.length > 1) {
+                    // document.getElementById("clock-edit").style.visibility = "visible";
+                    document.getElementById("clock-edit").style.background = "blue";
+                } else {
+                    // document.getElementById("clock-edit").style.visibility = "hidden";
+                    document.getElementById("clock-edit").style.background = "yellow";
+                }
+                if (mutation.type === "childList" && targetNode.scrollHeight > targetNode.clientHeight + 60) {
+                    setTimeout(() => {
+                        menu.classList.add("scrolling");
+                    }, 250);
+                } else {
+                    menu.classList.remove("scrolling");
+                }
+            };
+        }
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
+        // Start observing the target node for configured mutations
+        observer.observe(targetNode, config);
+    }
+    observeChanges();
+
     clockAdd.addEventListener("click", function () {
         document.querySelector(".timezone.fade-up").classList.add("opened");
         document.querySelector(".block-top").style.visibility = "hidden";
         clearSearch.style.visibility = "hidden";
         //make http request for json data
         const xmlhttp = new XMLHttpRequest();
-        
         xmlhttp.onload = function() {
             const jsonData = JSON.parse(this.responseText);
             //create list with list items as "city, country"
@@ -348,10 +383,32 @@ export function clock() {
                 e.preventDefault();
                 if (document.querySelector(`#${anchor.textContent}`) === null) 
                     { return }
-                document.querySelector(".timezone-list").scrollTop = document.querySelector(`#${anchor.textContent}`).offsetTop - 100;
+                let scrollOffset = document.querySelector(`#${anchor.textContent}`).offsetTop - document.querySelector(".timezone-wrap").scrollHeight
+                document.querySelector(".timezone-list").scrollTop = scrollOffset;
             });
         })
     }
+
+    clockList.addEventListener("scroll", function () {
+        document.querySelector(".clock .block-top").classList.add("scrolling");
+        document.querySelector(".clock .block-top-title").classList.add("scrolling");
+        if (this.scrollTop <= 0) {
+            document.querySelector(".clock .block-top").classList.remove("scrolling");
+            document.querySelector(".clock .block-top-title").classList.remove("scrolling");
+        }
+        if (this.scrollTop >= (this.scrollHeight - this.offsetHeight)) {
+            document.querySelector("menu").classList.remove("scrolling");
+        } else {
+            document.querySelector("menu").classList.add("scrolling");
+        }
+    })
+
+    timeZoneList.addEventListener("scroll", function () {
+        document.querySelector(".timezone-wrap").classList.add("scrolling");
+        if (this.scrollTop <= 0) {
+            document.querySelector(".timezone-wrap").classList.remove("scrolling");
+        }
+    })
 
     searchInput.addEventListener("keyup", function () { // searchbar, function triggers when user starts typing
         let hasAnyMatch = false;
@@ -368,6 +425,13 @@ export function clock() {
         if (searchInput.value == null || searchInput.value == "") { // show/hide clear search button
             clearSearch.style.visibility = "hidden";
             showAnchorNav();
+        } else if (searchInput.value === " ") {
+            hasAnyMatch = false;
+            timeZoneList.classList.add("no-match");
+            Array.from(timeZoneList.getElementsByTagName("li")).
+                forEach((element) => {element.style.display = "none";
+            });
+            hideAnchorNav();
         } else {
             clearSearch.style.visibility = "visible";
             clearSearch.onclick = () => {

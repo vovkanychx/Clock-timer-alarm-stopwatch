@@ -5,7 +5,7 @@ export function alarm() {
     const alarmEditBtn = document.getElementById("alarm-edit");
     const alarmCancel  = document.getElementById("alarm-cancel");
     const alarmSaveBtn = document.getElementById("alarm-save");
-    const alarmsList   = document.querySelector(".alarm-list");
+    const alarmList   = document.querySelector(".alarm-list");
     const alarmListHour   = document.getElementById("alarm-select-hour");
     const alarmListMinute = document.getElementById("alarm-select-minute");
     let alarmEditEnable = false;
@@ -17,7 +17,7 @@ export function alarm() {
         if (localStorage.getItem("alarmStorage") !== null) {
             alarmEditEnable = true;
             Array.from(localStorage.getItem("alarmStorage").split(",")).forEach(item => {
-                let li = alarmsList.appendChild(document.createElement("li")); // list item
+                let li = alarmList.appendChild(document.createElement("li")); // list item
                 li.outerHTML = item;
             })
         } else {
@@ -26,9 +26,13 @@ export function alarm() {
         showEdit();
     });
 
+    setTimeout(() => {
+        if (alarmList.scrollHeight > alarmList.clientHeight) {document.querySelector("menu").classList.add("scrolling")}
+    }, 20);
+
     // create new alarm and add it to alarm list
     function addToList() {
-        let li = alarmsList.appendChild(document.createElement("li")); // list item
+        let li = alarmList.appendChild(document.createElement("li")); // list item
         let alarmTime = li.appendChild(document.createElement("p")); // list item time
         let createAlarmToggle = li.appendChild(document.createElement("button")); // list item toggle button
         createAlarmToggle.appendChild(document.createElement("span")).classList.add("circle");
@@ -44,7 +48,7 @@ export function alarm() {
     }
 
     function showEdit() {
-        (alarmsList.childElementCount !== 0) ? alarmEditEnable = true : alarmEditEnable = false;
+        (alarmList.childElementCount !== 0) ? alarmEditEnable = true : alarmEditEnable = false;
         if (alarmEditEnable === true) {
             alarmEditBtn.style.visibility = "visible";
         } else if (alarmEditEnable === false) {
@@ -65,11 +69,12 @@ export function alarm() {
 
     function observeChanges() {
         // code here used from MDN Web Docs https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-        const targetNode = alarmsList;
+        const targetNode = alarmList;
         // Options for the observer (which mutations to observe)
         const config = { attributes: false, childList: true, subtree: false };
         // Callback function to execute when mutations are observed
         const callback = (mutationList, observer) => {
+            const menu = document.querySelector("menu");
             for (const mutation of mutationList) {
                 if (mutation.type === "childList") {
                     Array.from(document.getElementsByClassName("alarm-toggle")).forEach(item => {
@@ -77,6 +82,11 @@ export function alarm() {
                             item.classList.toggle("toggle");
                         }
                     });
+                } 
+                if (mutation.type === "childList" && targetNode.scrollHeight > targetNode.clientHeight + 60) {
+                    menu.classList.add("scrolling");
+                } else {
+                    menu.classList.remove("scrolling");
                 }
             }
         };
@@ -249,7 +259,7 @@ export function alarm() {
     })
     
     alarmEditBtn.addEventListener("click", function () {
-        let list = alarmsList;
+        let list = alarmList;
         let button = this;
         let buttonClass = "toggle-edit";
         let listItems = document.getElementsByClassName("alarm-item");
@@ -287,5 +297,19 @@ export function alarm() {
     // close modal
     alarmCancel.addEventListener("click", function () {
         document.querySelector(".alarm-popup").classList.remove("opened");
+    })
+
+    alarmList.addEventListener("scroll", function () {
+        document.querySelector(".alarm .block-top").classList.add("scrolling");
+        document.querySelector(".alarm .block-top-title").classList.add("scrolling");
+        if (this.scrollTop <= 0) {
+            document.querySelector(".alarm .block-top").classList.remove("scrolling");
+            document.querySelector(".alarm .block-top-title").classList.remove("scrolling");
+        } 
+        if (this.scrollTop >= (this.scrollHeight - this.offsetHeight)) {
+            document.querySelector("menu").classList.remove("scrolling");
+        } else {
+            document.querySelector("menu").classList.add("scrolling");
+        }
     })
 }

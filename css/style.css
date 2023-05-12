@@ -67,13 +67,16 @@ p{
     margin: 0;
 }
 .clock, .stopwatch, .timer, .alarm{
-    padding: 20px 20px 0 20px;
+    padding: 0 20px;
     text-align: center;
     min-height: 550px;
     height: 100dvh;
     max-height: 100vh;
     width: 100%;
     display: none;
+}
+.clock h1, .alarm h1{
+    margin-top: 50px;
 }
 .fade-up{
     position: absolute;
@@ -97,15 +100,42 @@ p{
 }
 .block-top{
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 50px;
+    padding: 5px 20px 0;
+    border-bottom: 1px solid transparent;
     transition: visibility 0.5s ease;
-    margin-top: 20px;
+}
+.block-top.scrolling{
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background-color: #19191980;
+    border-bottom: 1px solid #fefefe25;
+}
+.block-top-title{
+    visibility: hidden;
+    font-weight: 500;
+    font-size: 16px;
+    opacity: 0;
+    transition: all 0.2s ease-in-out;
+}
+.block-top-title.scrolling{
+    visibility: visible;
+    opacity: 1;
 }
 .edit, .add{
     background-color: transparent;
     color: #ffa500;
     font-size: 14px;
+    line-height: 1;
     padding: 10px 0;
 }
 .edit{
@@ -229,13 +259,13 @@ p{
     padding: 0;
     display: flex;
     justify-content: space-between;
-    /* padding: 10px 0; */
     height: 60px;
 }
-.menu-scrollable{
+.menu.scrolling{
     backdrop-filter: blur(20px);
-    background-color: #30303012;
-    border-top: 1px solid #191919;
+    -webkit-backdrop-filter: blur(20px);
+    background-color: #19191980;
+    border-top: 1px solid #fefefe25;
 }
 .menu-item{
     font-family: "Roboto", sans-serif;
@@ -248,8 +278,6 @@ p{
     font-size: 12px;
     color: #ccc;
     background-color: transparent; 
-    backdrop-filter: blur(20px);
-    /* background-color: #19191900 */
 }
 .menu-item > svg{
     margin-bottom: 5px;
@@ -269,7 +297,8 @@ p{
     overflow: hidden;
 }
 .clock h1{
-    padding-bottom: 5px;
+    margin-bottom: 10px;
+    width: 100%;
 }
 #clock-edit.edit{
     visibility: hidden;
@@ -307,11 +336,13 @@ p{
     height: 100px;
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
+    background-color: #171717;
+}
+.timezone-wrap.scrolling{
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    background-color: #171717;
-    /* background-color: #53535375; */
-    /* border-bottom: 1px solid #fefefe25; */
+    background-color: #53535375;
+    border-bottom: 1px solid #fefefe25;
 }
 .timezone h5{
     font-size: 14px;
@@ -340,6 +371,7 @@ p{
     outline: none;
     background: rgba(255, 255, 255, 0.50);
     color: #fff;
+    font-size: 14px;
 }
 #search::placeholder{
     color: #c9c9c9;
@@ -366,6 +398,7 @@ p{
     visibility: visible;
 }
 #search-cancel{
+    font-size: 14px;
     background-color: transparent;
     color: #ffa500;
     padding: 10px 0 10px 10px;
@@ -417,11 +450,24 @@ p{
     transform: translateY(-50%);
     height: 100%;
 }
-.timezone-navigation ul{
+.timezone-navigation-list{
     display: flex;
     flex-direction: column;
     justify-content: center;
     height: 100%;
+}
+.timezone-navigation-list li:last-child{
+    position: relative;
+}
+.timezone-navigation-list li:last-child::after{
+    position: absolute;
+    content: "#";
+    line-height: 1;
+    font-size: 10px;
+    color: #ffa500;
+    top: 12px;
+    right: 0;
+    left: 0;
 }
 .timezone-navigation a{
     color: #ffa500;
@@ -817,11 +863,12 @@ p{
     position: relative;
     overflow: hidden;
 }
+.alarm h1{
+    width: 100%;
+}
 .alarm h2{
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding-bottom: 5px;
+    width: 100%;
+    margin-bottom: 10px;
 }
 .alarm svg{
     margin-right: 5px;
