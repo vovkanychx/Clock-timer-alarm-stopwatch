@@ -37,7 +37,7 @@ export function clock() {
         } else {
             return clockEditEnable = false;
         }
-        showEdit();
+        // showEdit();
         setInterval(refreshTime, 1000);
     });
 
@@ -55,11 +55,12 @@ export function clock() {
             const menu = document.querySelector("menu");
             for (const mutation of mutationList) {
                 if (mutation.target.children.length > 1) {
-                    // document.getElementById("clock-edit").style.visibility = "visible";
-                    document.getElementById("clock-edit").style.background = "blue";
+                    clockEdit.style.visibility = "visible";
+                    clockAdd.addEventListener("click", () => setTimeout(() => {
+                        clockEdit.style.visibility = "hidden";
+                    }, 150));
                 } else {
-                    // document.getElementById("clock-edit").style.visibility = "hidden";
-                    document.getElementById("clock-edit").style.background = "yellow";
+                    clockEdit.style.visibility = "hidden";
                 }
                 if (mutation.type === "childList" && targetNode.scrollHeight > targetNode.clientHeight + 60) {
                     setTimeout(() => {
@@ -118,6 +119,9 @@ export function clock() {
     cancelSearch.addEventListener("click", function () {
         document.querySelector(".timezone.fade-up").classList.remove("opened");
         document.querySelector(".block-top").style.visibility = "visible";
+        if (clockList.childElementCount > 1) {
+            clockEdit.style.visibility = "visible";
+        }
         timeZoneList.classList.remove("no-match");
         searchInput.value = null;
     });
@@ -159,13 +163,13 @@ export function clock() {
         }
         for (let i = 0; i < listItems.length; i++) {
             let itemToDelete = i;
-            let delButtons = document.getElementsByClassName(`${delButtonsClass}`);
+            let delButtons = list.getElementsByClassName(`${delButtonsClass}`);
             // click on delete button of any list item
             delButtons[i].addEventListener("click", function (e) {
-                if (list.contains(document.querySelector(`.${confirmButtonClass}`))) {
+                if (list.contains(list.querySelector(`.${confirmButtonClass}`))) {
                     // return if there's already confirm delete button
                     return
-                } else if (!list.contains(document.querySelector(`.${confirmButtonClass}`))) {
+                } else if (!list.contains(list.querySelector(`.${confirmButtonClass}`))) {
                     // move item's toggle button to left
                     let toggle = this.parentElement.lastChild;
                     toggle.style.cssText = "margin-right: 121px;";
@@ -205,12 +209,12 @@ export function clock() {
         let click = 0;
         window.addEventListener("click", function(e){
             click++;
-            if (document.querySelector(".confirm-delete") != null) {
+            if (clockList.querySelector(".confirm-delete") != null) {
                 if (click == 2) {
-                    if (document.querySelector(".confirm-delete").contains(e.target)) { // Clicked the delete button
+                    if (clockList.querySelector(".confirm-delete").contains(e.target)) { // Clicked the delete button
                         return
                     } else { // Clicked outside the delete button
-                        Array.from(document.getElementsByClassName("confirm-delete")).forEach(item => {
+                        Array.from(clockList.getElementsByClassName("confirm-delete")).forEach(item => {
                             item.style.cssText = "width: 0;";
                             item.parentElement.getElementsByTagName("p")[1].style.cssText = "margin-right: 0;";
                             setTimeout(() => {
@@ -232,7 +236,8 @@ export function clock() {
             item.style.cssText = "opacity: 0; width: 0; margin-right: 0; visibility: hidden; transiton all 0.5s ease;";
             setTimeout(() => {
                 item.remove();
-        }, 500);})
+            }, 500);
+        });
     }
 
     //show clock edit button

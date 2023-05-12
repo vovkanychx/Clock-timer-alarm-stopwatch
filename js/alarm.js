@@ -1,10 +1,10 @@
 import { checkTime } from "../js/script.js";
 export function alarm() {
     const date = new Date();
-    const alarmAddBtn  = document.getElementById("alarm-add");
-    const alarmEditBtn = document.getElementById("alarm-edit");
+    const alarmAdd  = document.getElementById("alarm-add");
+    const alarmEdit = document.getElementById("alarm-edit");
     const alarmCancel  = document.getElementById("alarm-cancel");
-    const alarmSaveBtn = document.getElementById("alarm-save");
+    const alarmSave = document.getElementById("alarm-save");
     const alarmList   = document.querySelector(".alarm-list");
     const alarmListHour   = document.getElementById("alarm-select-hour");
     const alarmListMinute = document.getElementById("alarm-select-minute");
@@ -25,6 +25,45 @@ export function alarm() {
         }
         showEdit();
     });
+
+    function observeChanges() {
+        // code here used from MDN Web Docs https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+        const targetNode = alarmList;
+        // Options for the observer (which mutations to observe)
+        const config = { attributes: false, childList: true, subtree: false };
+        // Callback function to execute when mutations are observed
+        const callback = (mutationList, observer) => {
+            const menu = document.querySelector("menu");
+            for (const mutation of mutationList) {
+                if (mutation.type === "childList") {
+                    Array.from(document.getElementsByClassName("alarm-toggle")).forEach(item => {
+                        item.onclick = () => {
+                            item.classList.toggle("toggle");
+                        }
+                    });
+                }
+                if (mutation.target.children.length > 2) {
+                    alarmEdit.style.visibility = "visible";
+                    alarmAdd.addEventListener("click", () => setTimeout(() => {
+                        alarmAdd.style.visibility = "hidden"
+                        alarmEdit.style.visibility = "hidden";
+                    }, 150));
+                } else {
+                    alarmEdit.style.visibility = "hidden";
+                }
+                if (mutation.type === "childList" && targetNode.scrollHeight > targetNode.clientHeight + 60) {
+                    menu.classList.add("scrolling");
+                } else {
+                    menu.classList.remove("scrolling");
+                }
+            }
+        };
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
+        // Start observing the target node for configured mutations
+        observer.observe(targetNode, config);
+    }
+    observeChanges();
 
     setTimeout(() => {
         if (alarmList.scrollHeight > alarmList.clientHeight) {document.querySelector("menu").classList.add("scrolling")}
@@ -50,9 +89,9 @@ export function alarm() {
     function showEdit() {
         (alarmList.childElementCount !== 0) ? alarmEditEnable = true : alarmEditEnable = false;
         if (alarmEditEnable === true) {
-            alarmEditBtn.style.visibility = "visible";
+            alarmEdit.style.visibility = "visible";
         } else if (alarmEditEnable === false) {
-            alarmEditBtn.style.visibility = "hidden";
+            alarmEdit.style.visibility = "hidden";
         }
     }
 
@@ -67,47 +106,17 @@ export function alarm() {
         }, 500);})
     }
 
-    function observeChanges() {
-        // code here used from MDN Web Docs https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-        const targetNode = alarmList;
-        // Options for the observer (which mutations to observe)
-        const config = { attributes: false, childList: true, subtree: false };
-        // Callback function to execute when mutations are observed
-        const callback = (mutationList, observer) => {
-            const menu = document.querySelector("menu");
-            for (const mutation of mutationList) {
-                if (mutation.type === "childList") {
-                    Array.from(document.getElementsByClassName("alarm-toggle")).forEach(item => {
-                        item.onclick = () => {
-                            item.classList.toggle("toggle");
-                        }
-                    });
-                } 
-                if (mutation.type === "childList" && targetNode.scrollHeight > targetNode.clientHeight + 60) {
-                    menu.classList.add("scrolling");
-                } else {
-                    menu.classList.remove("scrolling");
-                }
-            }
-        };
-        // Create an observer instance linked to the callback function
-        const observer = new MutationObserver(callback);
-        // Start observing the target node for configured mutations
-        observer.observe(targetNode, config);
-    }
-    observeChanges();
-
     // listen for click outside of delete confirm button
     function clickOutsideDeleteButton() {
         let click = 0;
         window.addEventListener("click", function(e){
             click++;
-            if (document.querySelector(".confirm-delete") != null) {
+            if (alarmList.querySelector(".confirm-delete") != null) {
                 if (click == 2) {
-                    if (document.querySelector(".confirm-delete").contains(e.target)) { // Clicked the delete button
+                    if (alarmList.querySelector(".confirm-delete").contains(e.target)) { // Clicked the delete button
                         return
                     } else { // Clicked outside the delete button
-                        Array.from(document.getElementsByClassName("confirm-delete")).forEach(item => {
+                        Array.from(alarmList.getElementsByClassName("confirm-delete")).forEach(item => {
                             item.style.cssText = "width: 0;";
                             item.parentElement.getElementsByTagName("button")[1].style.cssText = "margin-right: 0; opacity: 1;";
                             setTimeout(() => {
@@ -208,14 +217,14 @@ export function alarm() {
             });
         }
         for (let i = 0; i < listItems.length; i++) {
-            let delButtons = document.getElementsByClassName(`${delButtonsClass}`);
+            let delButtons = list.getElementsByClassName(`${delButtonsClass}`);
             // click on delete button of any list item
             delButtons[i].addEventListener("click", function (e) {
                 let arrayIndex = i;
-                if (list.contains(document.querySelector(`.${confirmButtonClass}`))) { 
+                if (list.contains(list.querySelector(`.${confirmButtonClass}`))) { 
                     // return if there's already confirm delete button
                     return
-                } else if (!list.contains(document.querySelector(`.${confirmButtonClass}`))) {
+                } else if (!list.contains(list.querySelector(`.${confirmButtonClass}`))) {
                     // move item's toggle button to left
                     let toggle = this.parentElement.lastChild;
                     toggle.style.cssText = "margin-right: 121px; opacity: 0.25;";
@@ -245,20 +254,20 @@ export function alarm() {
     }
     
     // open modal
-    alarmAddBtn.addEventListener("click", function () {
+    alarmAdd.addEventListener("click", function () {
         document.querySelector(".alarm-popup").classList.add("opened");
         let delButtonsClass = "delete-buttons";
         // if "edit" button toggled, stop the action of editing
-        if (alarmEditBtn.classList.contains("toggle-edit") === true) {
+        if (alarmEdit.classList.contains("toggle-edit") === true) {
             setTimeout(() => {
-                removeDeleteButtons(alarmEditBtn, delButtonsClass);
+                removeDeleteButtons(alarmEdit, delButtonsClass);
             }, 300);
         }
         loopScroll(date.getHours(), alarmListHour, 23);
         loopScroll(date.getMinutes(), alarmListMinute, 59);
     })
     
-    alarmEditBtn.addEventListener("click", function () {
+    alarmEdit.addEventListener("click", function () {
         let list = alarmList;
         let button = this;
         let buttonClass = "toggle-edit";
@@ -272,7 +281,7 @@ export function alarm() {
     }); 
     
     // add new alarm to alarm list
-    alarmSaveBtn.addEventListener("click", function () {
+    alarmSave.addEventListener("click", function () {
         addToList();
         // show edit button
         alarmEditEnable = true;
@@ -286,7 +295,7 @@ export function alarm() {
         //         } else if (event.target == this) {
         //             document.querySelector(".alarm-popup").classList.add("opened");
         //             let listItem = this;
-        //             alarmSaveBtn.addEventListener("click", function () {
+        //             alarmSave.addEventListener("click", function () {
         //                 listItem.querySelector(".alarm-time").innerText = alarmListHour.querySelector(".active").innerText + ":" + alarmListMinute.querySelector(".active").innerText;
         //             })
         //         }
@@ -297,6 +306,10 @@ export function alarm() {
     // close modal
     alarmCancel.addEventListener("click", function () {
         document.querySelector(".alarm-popup").classList.remove("opened");
+        if (alarmList.childElementCount > 2) {
+            alarmEdit.style.visibility = "visible";
+            alarmAdd.style.visibility = "visible";
+        }
     })
 
     alarmList.addEventListener("scroll", function () {
