@@ -79,9 +79,6 @@ export function clock() {
     observeChanges();
 
     clockAdd.addEventListener("click", function () {
-        document.querySelector(".timezone.fade-up").classList.add("opened");
-        document.querySelector(".block-top").style.visibility = "hidden";
-        clearSearch.style.visibility = "hidden";
         //make http request for json data
         const xmlhttp = new XMLHttpRequest();
         xmlhttp.onload = function() {
@@ -106,6 +103,14 @@ export function clock() {
         }
         xmlhttp.open("GET", "js/data.json");
         xmlhttp.send();
+    }, {once: true})
+
+    clockAdd.addEventListener("click", function () {
+        document.querySelector(".timezone").classList.add("opened");
+        document.querySelector(".clock .block-top-title").style.visibility = "hidden";
+        clockEdit.style.visibility = "hidden";
+        clockAdd.style.visibility = "hidden";
+        clearSearch.style.visibility = "hidden";
         let delButtonsClass = "delete-buttons";
         // if "edit" button toggled, stop the action of editing
         if (clockEdit.classList.contains("toggle-edit") === true) {
@@ -117,8 +122,10 @@ export function clock() {
     });
 
     cancelSearch.addEventListener("click", function () {
-        document.querySelector(".timezone.fade-up").classList.remove("opened");
-        document.querySelector(".block-top").style.visibility = "visible";
+        document.querySelector(".timezone").classList.remove("opened");
+        document.querySelector(".clock .block-top-title").style.visibility = "visible";
+        clockEdit.style.visibility = "visible";
+        clockAdd.style.visibility = "visible";
         if (clockList.childElementCount > 1) {
             clockEdit.style.visibility = "visible";
         }
@@ -276,8 +283,10 @@ export function clock() {
                 localStorage.setItem("clockStorage", clockStorage.toString());
                 storageOffset.push(GMToffsetArray[i]);
                 localStorage.setItem("clockOffset", storageOffset.toString());
-                document.querySelector(".timezone.fade-up").classList.remove("opened");
-                document.querySelector(".block-top").style.visibility = "visible";
+                document.querySelector(".timezone").classList.remove("opened");
+                document.querySelector(".clock .block-top-title").style.visibility = "visible";
+                clockEdit.style.visibility = "visible";
+                clockAdd.style.visibility = "visible";
                 searchInput.value = null;
                 showEdit();
             });

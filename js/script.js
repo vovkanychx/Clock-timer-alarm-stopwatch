@@ -13,12 +13,12 @@ const sectionTimer     = document.querySelector(".timer");
 const sectionAlarm     = document.querySelector(".alarm");
 
 document.body.onload = menu();
-sectionClock.onload     = clock();
-sectionStopwatch.onload = stopwatch();
-sectionTimer.onload     = timer();
-sectionAlarm.onload     = alarm();
 
 function menu() {
+    sectionClock.onload     = clock();
+    sectionStopwatch.onload = stopwatch();
+    sectionTimer.onload     = timer();
+    sectionAlarm.onload     = alarm();
     // show latest used section when opened an app
     switch (localStorage.getItem("show-content")) {
         case "clock" :

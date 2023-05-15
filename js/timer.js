@@ -7,9 +7,41 @@ export function timer () {
     const showMinute       = document.querySelector(".timer-clock .minute");
     const showSecond       = document.querySelector(".timer-clock .second");
     const showMilSec       = document.querySelector(".timer-clock .millisecond")
-    let startButton  = document.getElementById("start-pause");
-    let cancelButton = document.getElementById("cancel");
+    const startButton      = document.getElementById("start-pause");
+    const cancelButton     = document.getElementById("cancel");
     let timerInterval;
+    var activeHour, activeMinute, activeSecond;
+    activeHour   = parseInt(localStorage.getItem("activeHour"));
+    activeMinute = parseInt(localStorage.getItem("activeMinute"));
+    activeSecond = parseInt(localStorage.getItem("activeSecond"));
+    console.log("hour: "+activeHour)
+    console.log("minute: "+activeMinute)
+    console.log("second: "+activeSecond)
+
+    window.addEventListener("unload", function () {
+        localStorage.removeItem("activeHour");
+        localStorage.removeItem("activeMinute");
+        localStorage.removeItem("activeSecond");
+        localStorage.setItem("activeHour", parseInt(hoursList.querySelector(".active").textContent));
+        localStorage.setItem("activeMinute", parseInt(minutesList.querySelector(".active").textContent));
+        localStorage.setItem("activeSecond", parseInt(secondsList.querySelector(".active").textContent));
+    })
+
+    window.addEventListener("load", function () {
+        if (isNaN(activeHour) || isNaN(activeMinute) || isNaN(activeSecond)) { // means parseInt'ed localStorage items are NaN (null)
+            localStorage.removeItem("activeHour");
+            localStorage.removeItem("activeMinute");
+            localStorage.removeItem("activeSecond");
+            activeHour = activeMinute = activeSecond = 0; // backup alternate
+        } else {
+            hoursList.scrollTop   = hoursList.querySelector("div").offsetHeight * activeHour + 1;
+            minutesList.scrollTop = minutesList.querySelector("div").offsetHeight * activeMinute + 1;
+            secondsList.scrollTop = secondsList.querySelector("div").offsetHeight * activeSecond + 1;
+            hoursList.getElementsByTagName("div")[activeHour].classList.add("active");
+            minutesList.getElementsByTagName("div")[activeMinute].classList.add("active");
+            secondsList.getElementsByTagName("div")[activeSecond].classList.add("active");
+        }
+    })
     
     document.querySelector(".timer-container").onwheel = (e) => { e.preventDefault(); } // disable default scroll when scrolling on container
     //create list select options (list items 0-23h 0-59m/s)
@@ -28,8 +60,8 @@ export function timer () {
     }
 
     function scrollClick (active, list) {
-        active = 0;
-        list.getElementsByTagName("div")[Math.abs(active)].classList.add("active"); //first elements are active (00:00,00)
+        // list.scrollTop = list.querySelector("div").offsetHeight * active + 1;
+        // list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
         list.addEventListener("wheel", (e) => {
             e.preventDefault(); //disable scrolling
             if (e.deltaY < 0) { //if scrolling up
@@ -37,7 +69,7 @@ export function timer () {
                     return
                 } else {
                     let i = active - 1;
-                    list.scrollTo({top: document.querySelector(".active").offsetHeight * i, behavior: "smooth"});
+                    list.scrollTo({top: list.querySelector(".active").offsetHeight * i, behavior: "smooth"});
                     // list.getElementsByTagName("div")[Math.abs(active - 1)].scrollIntoView({behavior: "smooth", block: "center"})
                     --active;
                     list.getElementsByTagName("div")[Math.abs(active + 1)].classList.remove("active");
@@ -49,7 +81,7 @@ export function timer () {
                     return
                 } else {
                     let i = active + 1;
-                    list.scrollTo({top: document.querySelector(".active").offsetHeight * i, behavior: "smooth"});
+                    list.scrollTo({top: list.querySelector(".active").offsetHeight * i, behavior: "smooth"});
                     // list.getElementsByTagName("div")[Math.abs(active + 1)].scrollIntoView({behavior: "smooth", block: "center"})
                     active++;
                     list.getElementsByTagName("div")[Math.abs(active - 1)].classList.remove("active");
@@ -65,7 +97,7 @@ export function timer () {
                     el.classList.remove("active");
                 });
                 active = i; //new assign so we can scroll and click without having an error
-                list.scrollTo({top: document.querySelector(".active").offsetHeight * i, behavior: "smooth"});
+                list.scrollTo({top: list.querySelector(".active").offsetHeight * i, behavior: "smooth"});
                 // list.getElementsByTagName("div")[Math.abs(active)].scrollIntoView({behavior: "smooth", block: "center"});
                 list.getElementsByTagName("div")[Math.abs(active)].classList.add("active");
             }
@@ -73,7 +105,7 @@ export function timer () {
     }
     
     createListItems(hoursList, 24), createListItems(minutesList, 60), createListItems(secondsList, 60);
-    scrollClick(0, hoursList), scrollClick(0, minutesList), scrollClick(0, secondsList);
+    scrollClick(parseInt(activeHour), hoursList), scrollClick(parseInt(activeMinute), minutesList), scrollClick(parseInt(activeSecond), secondsList);
     
     let selectedMilSec, selectedSecond, selectedMinute, selectedHour;
     selectedMilSec = selectedSecond = selectedMinute = selectedHour = 0;

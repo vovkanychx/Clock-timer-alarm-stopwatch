@@ -106,11 +106,9 @@ p{
     position: absolute;
     z-index: 1;
     left: 0;
-    right: 0;
     top: 0;
     width: 100%;
     height: 50px;
-    padding: 5px 20px 0;
     border-bottom: 1px solid transparent;
     transition: visibility 0.5s ease;
 }
@@ -120,8 +118,13 @@ p{
     background-color: #19191980;
     border-bottom: 1px solid #fefefe25;
 }
+.block-top .container{
+    flex-direction: row;
+    width: 100%;
+}
 .block-top-title{
     visibility: hidden;
+    margin: auto;
     font-weight: 500;
     font-size: 16px;
     opacity: 0;
@@ -136,13 +139,9 @@ p{
     color: #ffa500;
     font-size: 14px;
     line-height: 1;
-    padding: 10px 0;
-}
-.edit{
-    padding-right: 10px;
+    padding: 10px 20px;
 }
 .add{
-    padding-left: 10px;
     font-size: 24px;
 }
 .item{
@@ -163,8 +162,8 @@ p{
     position: relative;
     font-size: 14px;
     letter-spacing: 0.5px;
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
     border-radius: 50%;
     outline: none;
     border: none;
@@ -176,8 +175,8 @@ p{
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 65px;
-    height: 65px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background-color: transparent;
     border: 3px solid;
@@ -251,21 +250,24 @@ p{
     z-index: 5;
     bottom: 0;
     left: 0;
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
-    background-color: #010101;
-    margin: 0;
-    padding: 0;
     display: flex;
     justify-content: space-between;
     height: 60px;
+    width: 100%;    
+    background-color: #010101;
+    border-top: 1px solid transparent;
+    padding: 0;
+    margin: 0;
 }
 .menu.scrolling{
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     background-color: #19191980;
     border-top: 1px solid #fefefe25;
+}
+.menu .container{
+    flex-direction: row;
+    width: 100%;
 }
 .menu-item{
     font-family: "Roboto", sans-serif;
@@ -274,10 +276,26 @@ p{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 25%;
+    /* width: 25%; */
     font-size: 12px;
     color: #ccc;
     background-color: transparent; 
+}
+.menu-item:first-child{
+    padding-left: 20px;
+    padding-right: calc(25% - 49px);
+}
+.menu-item:nth-child(2){
+    padding-left: 6%;
+    padding-right: calc(19% - 57px);
+}
+.menu-item:nth-child(3){
+    padding-left: calc(19% - 31px);
+    padding-right: 6%;
+}
+.menu-item:last-child{
+    padding-left: calc(25% - 52px);
+    padding-right: 20px;
 }
 .menu-item > svg{
     margin-bottom: 5px;
@@ -300,9 +318,8 @@ p{
     margin-bottom: 10px;
     width: 100%;
 }
-#clock-edit.edit{
+#clock-edit{
     visibility: hidden;
-    transition: visibility 0.25s linear;
 }
 .clock-box{
     display: flex;
@@ -607,13 +624,14 @@ p{
     position: relative;
     justify-content: center;
     align-items: center;
-    width: 35vw;
+    width: 50dvh;
+    aspect-ratio: 1 / 1;
     min-width: 250px;
-    height: 35vw;
+    /* height: 35vw; */
     min-height: 250px;
     font-size: 32px;
     color: #fff;
-    margin: 0 auto 20px;    
+    margin: 20px auto;    
     -webkit-animation: fadeIn 0.5s;
     animation: fadeIn 0.5s;
 }
@@ -995,7 +1013,34 @@ p{
 }
 .alarm .scroll div:last-of-type, .alarm .scroll li:last-of-type{
     margin-bottom: 50px;
-} 
+}
+
+/* MEDIA */
+@media screen and (min-width: 1080px) {
+    .edit{
+        margin-left: -20px;
+    }
+    .add{
+        margin-right: -20px;
+    }
+}
+@media screen and (max-width: 565px) {
+    .menu-item{
+        width: 25%;
+    }
+    .menu-item:first-child{
+       padding: 0;
+    }
+    .menu-item:nth-child(2){
+       padding: 0;
+    }
+    .menu-item:nth-child(3){
+        padding: 0;
+    }
+    .menu-item:last-child{
+        padding: 0;
+    }
+}
 
 /* .delete-buttons ~ .alarm-toggle, .delete-buttons ~ .alarm-toggle > .circle {
     background-color: transparent;

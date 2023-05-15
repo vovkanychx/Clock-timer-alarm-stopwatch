@@ -256,6 +256,7 @@ export function alarm() {
     // open modal
     alarmAdd.addEventListener("click", function () {
         document.querySelector(".alarm-popup").classList.add("opened");
+        document.querySelector(".alarm .block-top-title").style.visibility = "hidden";
         let delButtonsClass = "delete-buttons";
         // if "edit" button toggled, stop the action of editing
         if (alarmEdit.classList.contains("toggle-edit") === true) {
@@ -286,21 +287,10 @@ export function alarm() {
         // show edit button
         alarmEditEnable = true;
         showEdit();
+        alarmAdd.style.visibility = "visible";
         document.querySelector(".alarm-popup").classList.remove("opened");
-        // for (let i = 0; i < document.getElementsByClassName("alarm-item").length; i++) {
-        //     document.getElementsByClassName("alarm-item")[i].addEventListener("click", function (event) {
-        //         if (event.target == this.querySelector(".alarm-time") || event.target == this.querySelector(".alarm-toggle")) {
-        //             console.log(0);
-        //             return
-        //         } else if (event.target == this) {
-        //             document.querySelector(".alarm-popup").classList.add("opened");
-        //             let listItem = this;
-        //             alarmSave.addEventListener("click", function () {
-        //                 listItem.querySelector(".alarm-time").innerText = alarmListHour.querySelector(".active").innerText + ":" + alarmListMinute.querySelector(".active").innerText;
-        //             })
-        //         }
-        //     });
-        // }
+        document.querySelector(".alarm .block-top-title").style.visibility = "visible";
+
     })
 
     // close modal
@@ -310,6 +300,7 @@ export function alarm() {
             alarmEdit.style.visibility = "visible";
             alarmAdd.style.visibility = "visible";
         }
+        document.querySelector(".alarm .block-top-title").style.visibility = "visible";
     })
 
     alarmList.addEventListener("scroll", function () {
