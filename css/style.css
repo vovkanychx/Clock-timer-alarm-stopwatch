@@ -359,7 +359,7 @@ p{
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     background-color: #53535375;
-    border-bottom: 1px solid #fefefe25;
+    border-bottom: 1px solid #818181;
 }
 .timezone h5{
     font-size: 14px;
@@ -499,11 +499,19 @@ p{
     text-align: left;
     font-size: 15px;
     font-weight: 500;
-    color: #a8a8a8;
+    color: #a0a0a0;
     border-bottom: 1px solid #fefefe75;
+    scroll-margin-top: 100px;
 }
-.timezone-anchor:first-child{
-    margin-top: 100px;
+.timezone-anchor.scrolling{
+    position: sticky;
+    top: 99px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background-color: #53535375;
+    border-bottom: 1px solid transparent;
+    margin: 0 -20px;
+    padding: 5px 20px;
 }
 .timezone.fade-up .search-icon, .timezone.fade-up #clear-search-input{
     display: none;

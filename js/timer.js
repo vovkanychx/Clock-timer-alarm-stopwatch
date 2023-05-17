@@ -14,9 +14,6 @@ export function timer () {
     activeHour   = parseInt(localStorage.getItem("activeHour"));
     activeMinute = parseInt(localStorage.getItem("activeMinute"));
     activeSecond = parseInt(localStorage.getItem("activeSecond"));
-    console.log("hour: "+activeHour)
-    console.log("minute: "+activeMinute)
-    console.log("second: "+activeSecond)
 
     window.addEventListener("unload", function () {
         localStorage.removeItem("activeHour");

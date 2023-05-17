@@ -128,6 +128,8 @@ export function clock() {
         clockAdd.style.visibility = "visible";
         if (clockList.childElementCount > 1) {
             clockEdit.style.visibility = "visible";
+        } else {
+            clockEdit.style.visibility = "hidden";
         }
         timeZoneList.classList.remove("no-match");
         searchInput.value = null;
@@ -395,10 +397,10 @@ export function clock() {
         document.querySelectorAll(".timezone-navigation a").forEach(anchor => {
             anchor.addEventListener("click", (e) => {
                 e.preventDefault();
-                if (document.querySelector(`#${anchor.textContent}`) === null) 
+                if (document.querySelector(`#${e.target.textContent}`) === null) 
                     { return }
-                let scrollOffset = document.querySelector(`#${anchor.textContent}`).offsetTop - document.querySelector(".timezone-wrap").scrollHeight
-                document.querySelector(".timezone-list").scrollTop = scrollOffset;
+                let scrollOffset = document.querySelector(`#${e.target.textContent}`).offsetTop - document.querySelector(".timezone-wrap").scrollHeight;
+                timeZoneList.scrollTop = scrollOffset;
             });
         })
     }
@@ -421,6 +423,23 @@ export function clock() {
         document.querySelector(".timezone-wrap").classList.add("scrolling");
         if (this.scrollTop <= 0) {
             document.querySelector(".timezone-wrap").classList.remove("scrolling");
+        }
+    })
+
+    let offsetArr = [];
+    timeZoneList.addEventListener("scroll", function () {     
+        let anchors = document.querySelectorAll(".timezone-anchor");
+        anchors.forEach(anchor => offsetArr.push(anchor.offsetTop));
+        for (let i = 0; i < anchors.length; i++) {
+            if (this.scrollTop >= offsetArr[i] - document.querySelector(".timezone-wrap").scrollHeight) {
+                anchors.forEach(anchor => anchor.classList.remove("scrolling"));
+                anchors[i].classList.add("scrolling");
+            }
+            else if (timeZoneList.scrollTop <= 0) {
+                anchors.forEach(anchor => anchor.classList.remove("scrolling"));
+            } else {
+                anchors[i].classList.remove("scrolling");
+            }
         }
     })
 
