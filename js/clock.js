@@ -394,6 +394,25 @@ export function clock() {
             node.className = "timezone-anchor";
             node.setAttribute("id", `${alphabet[i]}`);
         }
+        // let wrapIndexesArray = [];
+        // for (let i = 0; i < indexArray.length; i++) { 
+        //     if (indexArray[i] === -1) { continue }
+        //     let firstInGroup = find(alphabet[i])[0];
+        //     let lastInGroup = find(alphabet[i])[find(alphabet[i]).length - 1];
+        //     let firstIndex = citiesSorted.indexOf(firstInGroup);
+        //     let lastIndex = citiesSorted.indexOf(lastInGroup);
+        //     // console.log(firstIndex + ":" + lastIndex)
+        //     wrapIndexesArray.push([firstIndex, lastIndex])
+        //     // console.log(wrapIndexesArray)
+        // }
+        // for (let i = 0; i < wrapIndexesArray.length; i++) {
+        //     let firstIndex = wrapIndexesArray[i][0];
+        //     let secondIndex = wrapIndexesArray[i][1];
+        //     let first = document.querySelectorAll(".timezone-item")[firstIndex]
+        //     let last = document.querySelectorAll(".timezone-item")[secondIndex]
+        //     console.log(document.querySelectorAll(".timezone-item")[firstIndex])
+        //     console.log(document.querySelectorAll(".timezone-item")[secondIndex])
+        // }
         document.querySelectorAll(".timezone-navigation a").forEach(anchor => {
             anchor.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -420,28 +439,38 @@ export function clock() {
     })
 
     timeZoneList.addEventListener("scroll", function () {
-        document.querySelector(".timezone-wrap").classList.add("scrolling");
         if (this.scrollTop <= 0) {
             document.querySelector(".timezone-wrap").classList.remove("scrolling");
+            document.querySelectorAll(".timezone-anchor").forEach(anchor => anchor.classList.remove("scrolling"))
+        } else if (this.scrollTop > 5) {
+            document.querySelector(".timezone-wrap").classList.add("scrolling");
+            let anchors = document.querySelectorAll(".timezone-anchor");
+            for (let i = 0; i < anchors.length; i++) {
+                const anchor = anchors[i];
+                if ((this.scrollTop + 80) > anchor.offsetTop) {
+                    anchors.forEach(anchor => anchor.classList.remove("scrolling"))
+                    anchor.classList.add("scrolling")
+                    // console.log("list scrolltop: " + (this.scrollTop + 100))
+                    // console.log("element offsettop: " + anchor.offsetTop);
+                    // console.log((this.scrollTop + 100) >= anchor.offsetTop)
+                }
+            }
         }
     })
 
-    let offsetArr = [];
-    timeZoneList.addEventListener("scroll", function () {     
-        let anchors = document.querySelectorAll(".timezone-anchor");
-        anchors.forEach(anchor => offsetArr.push(anchor.offsetTop));
-        for (let i = 0; i < anchors.length; i++) {
-            if (this.scrollTop >= offsetArr[i] - document.querySelector(".timezone-wrap").scrollHeight) {
-                anchors.forEach(anchor => anchor.classList.remove("scrolling"));
-                anchors[i].classList.add("scrolling");
-            }
-            else if (timeZoneList.scrollTop <= 0) {
-                anchors.forEach(anchor => anchor.classList.remove("scrolling"));
-            } else {
-                anchors[i].classList.remove("scrolling");
-            }
-        }
-    })
+    // let offsetArr = [];
+    // timeZoneList.addEventListener("scroll", function () {     
+    //     let anchors = document.querySelectorAll(".timezone-anchor");
+    //     anchors.forEach(anchor => offsetArr.push(anchor.offsetTop));
+    //     for (let i = 0; i < anchors.length; i++) {
+    //         if (this.scrollTop >= offsetArr[i] - (document.querySelector(".timezone-wrap").offsetHeight + 1)) {
+    //             anchors.forEach(anchor => anchor.classList.remove("scrolling"));
+    //             anchors[i].classList.toggle("scrolling");
+    //         } else {
+    //             anchors[i].classList.remove("scrolling");
+    //         }
+    //     }
+    // })
 
     searchInput.addEventListener("keyup", function () { // searchbar, function triggers when user starts typing
         let hasAnyMatch = false;
@@ -491,4 +520,31 @@ export function clock() {
             document.querySelectorAll(".timezone-anchor").forEach(anchor => anchor.style.display = "none"); // hide nav anchors
         }
     });
+    HTMLElement.prototype.wrapAll = function(elms) {
+        var el = elms.length ? elms[0] : elms;
+    
+        // Cache the current parent and sibling of the first element.
+        var parent  = el.parentNode;
+        var sibling = el.nextSibling;
+    
+        // Wrap the first element (is automatically removed from its
+        // current parent).
+        this.appendChild(el);
+    
+        // Wrap all other elements (if applicable). Each element is
+        // automatically removed from its current parent and from the elms
+        // array.
+        while (elms.length) {
+            this.appendChild(elms[0]);
+        }
+    
+        // If the first element had a sibling, insert the wrapper before the
+        // sibling to maintain the HTML structure; otherwise, just append it
+        // to the parent.
+        if (sibling) {
+            parent.insertBefore(this, sibling);
+        } else {
+            parent.appendChild(this);
+        }
+    };
 }

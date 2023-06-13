@@ -1,6 +1,5 @@
 import { checkTime } from "../js/script.js";
 export function alarm() {
-    const date = new Date();
     const alarmAdd  = document.getElementById("alarm-add");
     const alarmEdit = document.getElementById("alarm-edit");
     const alarmCancel  = document.getElementById("alarm-cancel");
@@ -24,7 +23,19 @@ export function alarm() {
             return alarmEditEnable = false;
         }
         showEdit();
+        enableToggleAndSaveToStorage();
     });
+
+    function enableToggleAndSaveToStorage() {
+        alarmList.querySelectorAll(".alarm-toggle").forEach((button, index) => {
+            button.addEventListener("click", () => {
+                button.classList.toggle("toggle");
+                alarmStorage[index] = alarmList.getElementsByTagName("li")[index].outerHTML;
+                localStorage.removeItem("alarmStorage");
+                localStorage.setItem("alarmStorage", alarmStorage.toString());
+            });
+        });
+    }
 
     function observeChanges() {
         // code here used from MDN Web Docs https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
@@ -36,11 +47,7 @@ export function alarm() {
             const menu = document.querySelector("menu");
             for (const mutation of mutationList) {
                 if (mutation.type === "childList") {
-                    Array.from(document.getElementsByClassName("alarm-toggle")).forEach(item => {
-                        item.onclick = () => {
-                            item.classList.toggle("toggle");
-                        }
-                    });
+                    enableToggleAndSaveToStorage();
                 }
                 if (mutation.target.children.length > 2) {
                     alarmEdit.style.visibility = "visible";
@@ -81,9 +88,6 @@ export function alarm() {
         let selectedHour = parseInt(document.getElementById("alarm-select-hour").querySelector(".active").innerText); // get hour from list of options
         let selectedMinute = parseInt(document.getElementById("alarm-select-minute").querySelector(".active").innerText); // get minute from list of options
         li.querySelector(".alarm-time").innerText = checkTime(selectedHour) + ":" + checkTime(selectedMinute);
-        // add item to an array and alarmstorage
-        alarmStorage.push(li.outerHTML);
-        localStorage.setItem("alarmStorage", alarmStorage.toString());
     }
 
     function showEdit() {
@@ -160,38 +164,41 @@ export function alarm() {
     function loopScroll (startPosition, list, topValue) {
         let counter = startPosition;
         list.getElementsByTagName("li")[startPosition].classList.add("active");
-        list.scrollTop = counter * list.firstElementChild.offsetHeight;
-        return list.addEventListener("wheel", function (e) {
-            const elementHeight = list.firstElementChild.offsetHeight;
+        const elementHeight = list.getElementsByTagName("li")[0].offsetHeight;
+        const cloneUpperDiv = list.querySelector(".clone.upper");
+        const cloneUpperDivMargin = parseFloat(window.getComputedStyle(cloneUpperDiv).getPropertyValue("margin"));
+        const cloneUpperDivHeight = cloneUpperDiv.offsetHeight + cloneUpperDivMargin;
+        list.scrollTop = ((cloneUpperDivHeight + (startPosition * elementHeight)) - ((list.offsetHeight / 2) - (elementHeight / 2)))
+        list.addEventListener("wheel", function (e) {
             e.preventDefault();
             if (e.deltaY < 0) { 
                 // scrolling up
                 if (counter == 0) {
                     removeActiveClass(list);
                     counter = topValue;
-                    list.getElementsByTagName("li")[counter].classList.add("active");
-                    list.scrollTop = counter * list.firstElementChild.offsetHeight;
+                    scrollAddClass(list, counter)
                 } else {
                     counter--;
-                    list.scrollBy({top: -elementHeight, left: 0, behavior: "auto"});
                     removeActiveClass(list);
-                    list.getElementsByTagName("li")[counter].classList.add("active");
+                    scrollAddClass(list, counter)
                 }
             } else if (e.deltaY > 0) {
                 // scrolling down
                 if (counter == topValue) {
                     removeActiveClass(list);
                     counter = 0;
-                    list.getElementsByTagName("li")[counter].classList.add("active");
-                    list.scrollTop = counter * list.firstElementChild.offsetHeight;
+                    scrollAddClass(list, counter)
                 } else {
                     counter++;
-                    list.scrollBy({top: elementHeight, left: 0, behavior: "auto"});
                     removeActiveClass(list);
-                    list.getElementsByTagName("li")[counter].classList.add("active");
+                    scrollAddClass(list, counter)
                 }
             }
         });
+        function scrollAddClass(list, counter) {
+            list.scrollTop = (counter * elementHeight) + elementHeight;
+            list.getElementsByTagName("li")[counter].classList.add("active");
+        }
     }
 
     function toggleEdit(list, button, buttonClass, listItems, delButtonsClass, delButtonsAnimation, cssHideDelButtons, confirmButtonClass, confirmButtonAnimation) {
@@ -264,8 +271,10 @@ export function alarm() {
                 removeDeleteButtons(alarmEdit, delButtonsClass);
             }, 300);
         }
+        const date = new Date();
         loopScroll(date.getHours(), alarmListHour, 23);
         loopScroll(date.getMinutes(), alarmListMinute, 59);
+        enableToggleAndSaveToStorage();
     })
     
     alarmEdit.addEventListener("click", function () {

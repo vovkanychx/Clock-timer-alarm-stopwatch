@@ -31,6 +31,7 @@ body{
 }
 .container{
     max-width: 1080px;
+    width: 100%;
     height: 100%;
     margin: 0 auto;
     overflow: hidden;
@@ -50,7 +51,8 @@ ul{
     margin: 0;
     overflow-x: hidden;
     overflow-y: scroll;
-    flex: 1 1 auto;
+    /* flex: 1 1 auto; */
+    height: 100%;
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
@@ -67,6 +69,8 @@ p{
     margin: 0;
 }
 .clock, .stopwatch, .timer, .alarm{
+    background-color: #010101;
+    color: #fff;
     padding: 0 20px;
     text-align: center;
     min-height: 550px;
@@ -80,7 +84,7 @@ p{
 }
 .fade-up{
     position: absolute;
-    z-index: 5;
+    z-index: 10;
     min-width: 100%;
     width: 100%;
     max-width: 100%;
@@ -93,6 +97,7 @@ p{
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     visibility: hidden;
+    overflow-x: hidden;
 }
 .opened{
     bottom: 0;
@@ -167,7 +172,7 @@ p{
     border-radius: 50%;
     outline: none;
     border: none;
-    transition: all .1s ease-in-out;
+    transition: background .1s ease-in-out;
 }
 #start::before, #reset::before, #start-pause::before, #cancel::before{
     position: absolute;
@@ -180,7 +185,7 @@ p{
     border-radius: 50%;
     background-color: transparent;
     border: 3px solid;
-    transition: all .1s ease-in-out;
+    transition: background .1s ease-in-out;
 }
 .delete-buttons{
     position: relative;
@@ -242,6 +247,7 @@ p{
 .main{
     position: relative;
     min-height: 550px;
+    height: 100dvh;
     max-height: 100vh;
     overflow: hidden;
 }
@@ -309,9 +315,6 @@ p{
 
 /* CLOCK */
 .clock{
-    position: relative;
-    background: #010101;
-    color: #fff;
     overflow: hidden;
 }
 .clock h1{
@@ -350,10 +353,13 @@ p{
     position: absolute;
     z-index: 5;
     width: 100%;
+    max-width: 1080px;
     height: 100px;
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
     background-color: #171717;
+    border-bottom: 1px solid transparent;
+    transition: background 100ms;
 }
 .timezone-wrap.scrolling{
     backdrop-filter: blur(20px);
@@ -501,11 +507,11 @@ p{
     font-weight: 500;
     color: #a0a0a0;
     border-bottom: 1px solid #fefefe75;
-    scroll-margin-top: 100px;
 }
 .timezone-anchor.scrolling{
     position: sticky;
-    top: 99px;
+    position: -webkit-sticky;
+    top: 100px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     background-color: #53535375;
@@ -513,6 +519,10 @@ p{
     margin: 0 -20px;
     padding: 5px 20px;
 }
+/* .timezone-anchor:first-of-type{
+    transition: padding-top 200ms;
+    transition: background 100ms;
+} */
 .timezone.fade-up .search-icon, .timezone.fade-up #clear-search-input{
     display: none;
 }
@@ -521,10 +531,6 @@ p{
 }
 
 /* STOPWATCH */
-.stopwatch{
-    background: #010101;
-    color: #fff;
-}
 .stopwatch-clock{
     padding: 50px 0;
     width: 100%;
@@ -606,8 +612,13 @@ p{
 
 /* TIMER */
 .timer{
-    background: #010101;    
     line-height: 1;
+    --strokeOffset: 0;
+    visibility: hidden;
+    display: block;
+    min-height: 0;
+    height: 0;
+    max-height: 0;
 }
 
 @-webkit-keyframes fadeIn {
@@ -619,11 +630,11 @@ p{
       to { opacity: 1; }
 }
 @-webkit-keyframes animateProgress {
-    from { stroke-dashoffset: 0; }
+    from { stroke-dashoffset: var(--strokeOffset); }
       to { stroke-dashoffset: 282.78302001953125; }
 }
 @keyframes animateProgress {
-    from { stroke-dashoffset: 0; }
+    from { stroke-dashoffset: var(--strokeOffset); }
       to { stroke-dashoffset: 282.78302001953125; }
 }
 
@@ -674,7 +685,7 @@ p{
     background-color: #010101;
     color: #fff;
     overflow: hidden;
-    padding: 0 5%;
+    margin-top: 20px;
 }
 .shadow{
     background-color: transparent;
@@ -697,7 +708,7 @@ p{
 }
 .selected{
     position: absolute;
-    width: calc(100% - 40px);
+    width: 85%;
     min-height: var(--timerSelectedDivHeight);
     height: var(--timerSelectedDivHeight);
     max-height: var(--timerSelectedDivHeight);
@@ -718,7 +729,8 @@ p{
     display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 33%;
+    width: 33.333%;
+    --hoursText: "hours";
 }
 .wrap:first-of-type{
     padding-left: 0.5%;
@@ -736,8 +748,8 @@ p{
     left: calc(50% + (var(--timerSelectedDivHeight) / 2));
     top: calc(50% - (var(--timerSelectedDivHeight) / 2));
 }
-.wrap:nth-of-type(1)::before{
-    content: "hours";
+.wrap:nth-of-type(1):before{
+    content: var(--hoursText);
 }
 .wrap:nth-of-type(2)::before{
     content: "min";
@@ -767,7 +779,7 @@ p{
 .scroll::-webkit-scrollbar{ 
     display: none;
 }
-.scroll div, .scroll li{
+.scroll li{
     display: flex;
     align-items: center;
     justify-content: center;
@@ -781,44 +793,44 @@ p{
     scroll-snap-align: center;
     transition: opacity 200ms ease-in-out;
 }
-.scroll div:first-of-type, .scroll li:first-of-type{
+.scroll li:first-of-type{
     margin-top: calc((var(--timerContainerHeight) / 2) - (var(--timerSelectedDivHeight) / 2));
     position: relative;
 }
-.scroll div:last-of-type, .scroll li:last-of-type{
+.scroll li:last-of-type{
     margin-bottom: calc((var(--timerContainerHeight) / 2) - (var(--timerSelectedDivHeight) / 2));
 }
 .active{
     font-size: 24px;
     opacity: 0.8;
 }
-.active ~ div, .active ~ li {
+.active ~ li {
     font-size: 22px;
 }
-.active ~ div ~ div, .active ~ li ~ li {
+.active ~ li ~ li {
     font-size: 20px;
 }
-.active ~ div ~ div ~ div, .active ~ li ~ li ~ li {
+.active ~ li ~ li ~ li {
     font-size: 18px;
 }
-.active ~ div ~ div ~ div ~ div, .active ~ li ~ li ~ li ~ li{
+.active ~ li ~ li ~ li ~ li{
     font-size: 16px;
 }
 /* .previous:has(+ next) */
-.scroll div:has(+ .active), .scroll li:has(+ .active){
+.scroll li:has(+ .active){
     font-size: 22px;
 }
-.scroll div:has(+ div + .active), .scroll li:has(+ li + .active){
+.scroll li:has(+ li + .active){
     font-size: 20px;
 }
-.scroll div:has(+ div + div + .active), .scroll li:has(+ li + li + .active){
+.scroll li:has(+ li + li + .active){
     font-size: 18px;
 }
-.scroll div:has(+ div + div  + div + .active), .scroll dliiv:has(+ li + li  + li + .active){
+.scroll li:has(+ li + li  + li + .active){
     font-size: 16px;
     /* transform: perspective(3px) rotateX(5deg); USE SKEWX */
 }
-.scroll div:not(.active), .scroll li:not(.active){
+.scroll li:not(.active){
     opacity: 0.5;
 }
 
@@ -827,7 +839,7 @@ p{
     display: flex;
     justify-content: space-between;
     margin-top: 40px;
-    padding: 0 5%;
+    padding: 0 20px;
 }
 
 #start-pause{
@@ -884,9 +896,6 @@ p{
 
 /* ALARM */
 .alarm{
-    background-color: #010101;
-    color: #fff;
-    position: relative;
     overflow: hidden;
 }
 .alarm h1{
@@ -903,7 +912,7 @@ p{
     fill: #fff;
 }
 .alarm-time{
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.6);
     font-size: 32px;
     margin-right: auto;
 }
@@ -997,7 +1006,6 @@ p{
 }
 .alarm .clone.upper{
     flex-direction: column;
-    margin-bottom: 40px;
     margin-top: 50px;
 }
 .alarm .clone.upper span:first-of-type{
@@ -1020,7 +1028,7 @@ p{
     margin-top: 0;
 }
 .alarm .scroll div:last-of-type, .alarm .scroll li:last-of-type{
-    margin-bottom: 50px;
+    margin-bottom: 10px;
 }
 
 /* MEDIA */
@@ -1031,7 +1039,24 @@ p{
     .add{
         margin-right: -20px;
     }
+    .timezone-navigation{
+        right: calc(((100vw - 1080px) / 2) / 2);
+    }
 }
+
+@media screen and (max-width: 1080px) {
+    .timer{
+        padding: 0;
+    }
+}
+
+@media screen and (max-width: 780px) {
+    .box{
+        width: 90%;
+        margin: 0 auto;
+    }
+}
+
 @media screen and (max-width: 565px) {
     .menu-item{
         width: 25%;
@@ -1047,6 +1072,15 @@ p{
     }
     .menu-item:last-child{
         padding: 0;
+    }
+    .timer-clock{
+        width: 30dvh;
+    }
+    .box{
+        width: 80%;
+    }
+    .selected{
+        width: 90%;
     }
 }
 

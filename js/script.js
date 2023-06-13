@@ -15,10 +15,10 @@ const sectionAlarm     = document.querySelector(".alarm");
 document.body.onload = menu();
 
 function menu() {
-    sectionClock.onload     = clock();
-    sectionStopwatch.onload = stopwatch();
-    sectionTimer.onload     = timer();
-    sectionAlarm.onload     = alarm();
+    clock();
+    stopwatch();
+    timer();
+    alarm();
     // show latest used section when opened an app
     switch (localStorage.getItem("show-content")) {
         case "clock" :
@@ -30,7 +30,10 @@ function menu() {
             menuStopwatch.classList.add("visited");
             break;
         case "timer" :
-            sectionTimer.style.display = "block";
+            sectionTimer.style.visibility = "visible";
+            sectionTimer.style.minHeight = "550px";
+            sectionTimer.style.height = "100dvh";
+            sectionTimer.style.maxHeight = "100vh";
             menuTimer.classList.add("visited");
             break;
         case "alarm" :
@@ -48,6 +51,7 @@ function menu() {
             Array.from(menuItems).forEach(item => { item.classList.remove("visited") }); // remove class from previous menu item
             item.classList.add("visited"); // add class to current clicked menu item
             const menu = document.querySelector("menu");
+            // document.querySelector(".meter").style.setProperty("--strokeOffset", `${parseFloat(localStorage.getItem("timerDashOffset"))}`);
             switch (this) {
                 case menuClock : {
                     hideSection()
@@ -81,7 +85,10 @@ function menu() {
                 }
                 case menuTimer : {
                     hideSection()
-                    sectionTimer.style.display = "block";
+                    sectionTimer.style.visibility = "visible";
+                    sectionTimer.style.minHeight = "550px";
+                    sectionTimer.style.height = "100dvh";
+                    sectionTimer.style.maxHeight = "100vh";
                     localStorage.setItem("show-content", "timer");
                     menu.classList.remove("scrolling");
                     break;
@@ -104,7 +111,14 @@ function menu() {
             }
             function hideSection() {
                 Array.from(document.getElementsByTagName("section")).forEach(section => {
-                    section.style.display = "none";
+                    if (section.className === "timer") {
+                        section.style.visibility = "hidden";
+                        section.style.minHeight = "0";
+                        section.style.height = "0";
+                        section.style.maxHeight = "0";
+                    } else {
+                        section.style.display = "none";
+                    }
                     localStorage.removeItem("show-content");
                 })
             }

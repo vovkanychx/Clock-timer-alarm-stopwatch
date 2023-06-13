@@ -52,29 +52,31 @@
                     <h1>World Clock</h1>
                 </ul>
                 <div class="timezone fade-up">
-                    <div class="timezone-wrap">
-                        <h5>Choose a City</h5>
-                        <div class="timezone-search">
-                            <div class="timezone-search-wrap">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 512 512">
-                                    <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/>
-                                </svg>
-                                <input type="text" 
-                                        name="search" 
-                                        maxlength="30" 
-                                        id="search" 
-                                        placeholder="Search">
-                                <button type="button"id="clear-search-input">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="search-clear-icon" viewBox="0 0 512 512">
-                                        <path d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/>
+                    <div class="container">
+                        <div class="timezone-wrap">
+                            <h5>Choose a City</h5>
+                            <div class="timezone-search">
+                                <div class="timezone-search-wrap">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 512 512">
+                                        <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/>
                                     </svg>
-                                </button>
+                                    <input type="text" 
+                                            name="search" 
+                                            maxlength="30" 
+                                            id="search" 
+                                            placeholder="Search">
+                                    <button type="button"id="clear-search-input">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="search-clear-icon" viewBox="0 0 512 512">
+                                            <path d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <button type="button"id="search-cancel">Cancel</button>
                             </div>
-                            <button type="button"id="search-cancel">Cancel</button>
                         </div>
+                        <ul class="timezone-list"></ul>
+                        <nav class="timezone-navigation"></nav>
                     </div>
-                    <ul class="timezone-list"></ul>
-                    <nav class="timezone-navigation"></nav>
                 </div>
             </div>
         </section>
@@ -108,13 +110,13 @@
                     <div class="selected"></div>
                     <div class="box">
                         <div class="wrap">
-                            <div id="hours" class="scroll"></div>
+                            <ul id="hours" class="scroll"></ul>
                         </div>
                         <div class="wrap">
-                            <div id="minutes" class="scroll"></div>
+                            <ul id="minutes" class="scroll"></ul>
                         </div>
                         <div class="wrap">
-                            <div id="seconds" class="scroll"></div>
+                            <ul id="seconds" class="scroll"></ul>
                         </div>
                     </div>
                 </div>
@@ -162,10 +164,10 @@
     <!-- #hours>div*24>{$} -->
     <script src="HackTimer.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-    <script src="js/script.js"      type="module"></script>
-    <script src="js/clock.js"       type="module"></script>
+    <script src="js/script.js" type="module"></script>
+    <!-- <script src="js/clock.js"       type="module"></script>
     <script src="js/stopwatch.js"   type="module"></script>
     <script src="js/timer.js"       type="module"></script>
-    <script src="js/alarm.js"       type="module"></script>
+    <script src="js/alarm.js"       type="module"></script> -->
 </body>
 </html>
