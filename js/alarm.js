@@ -7,6 +7,7 @@ export function alarm() {
     const alarmList   = document.querySelector(".alarm-list");
     const alarmListHour   = document.getElementById("alarm-select-hour");
     const alarmListMinute = document.getElementById("alarm-select-minute");
+    const alarmInput = document.getElementById("alarm-input");
     let alarmEditEnable = false;
  
     var alarmStorage = localStorage.getItem("alarmStorage");
@@ -24,6 +25,7 @@ export function alarm() {
         }
         showEdit();
         enableToggleAndSaveToStorage();
+        setInterval(startAlarm, 1000);
     });
 
     function enableToggleAndSaveToStorage() {
@@ -88,6 +90,10 @@ export function alarm() {
         let selectedHour = parseInt(document.getElementById("alarm-select-hour").querySelector(".active").innerText); // get hour from list of options
         let selectedMinute = parseInt(document.getElementById("alarm-select-minute").querySelector(".active").innerText); // get minute from list of options
         li.querySelector(".alarm-time").innerText = checkTime(selectedHour) + ":" + checkTime(selectedMinute);
+        alarmStorage.push(li.outerHTML);
+        // add new item to alarmstorage
+        localStorage.removeItem("alarmStorage");
+        localStorage.setItem("alarmStorage", alarmStorage.toString());
     }
 
     function showEdit() {
@@ -260,6 +266,29 @@ export function alarm() {
         }
     }
     
+    function startAlarm() {
+        alarmList.querySelectorAll(".alarm-toggle").forEach((toggle, index) => {
+            const date = new Date();
+            let curHours = date.getHours();
+            let curMinutes = date.getMinutes();
+            let curSeconds = date.getSeconds();
+            let alarmHours = parseInt(toggle.parentElement.querySelector(".alarm-time").innerText.split(":")[0]);
+            let alarmMinutes = parseInt(toggle.parentElement.querySelector(".alarm-time").innerText.split(":")[1]);
+            let alarmSeconds = 0;
+            if (toggle.classList.contains("toggle")) {
+                if (curHours == alarmHours && curMinutes == alarmMinutes && curSeconds == alarmSeconds) {
+                    toggle.classList.remove("toggle");
+                    alarmStorage[index] = alarmList.getElementsByTagName("li")[index].outerHTML;
+                    localStorage.removeItem("alarmStorage");
+                    localStorage.setItem("alarmStorage", alarmStorage.toString());
+                    return alert("Alarm notification!");
+                }
+            } else {
+                return
+            }
+        })
+    }
+
     // open modal
     alarmAdd.addEventListener("click", function () {
         document.querySelector(".alarm-popup").classList.add("opened");
@@ -326,6 +355,26 @@ export function alarm() {
             document.querySelector("menu").classList.remove("scrolling");
         } else {
             document.querySelector("menu").classList.add("scrolling");
+        }
+    })
+    
+    alarmInput.addEventListener("input", function (e) {
+        switch (e.target.value) {
+            case null:
+                e.target.nextElementSibling.style.display = "none";
+                break;
+            case "":
+                e.target.nextElementSibling.style.display = "none";
+                break;
+            default:
+                this.nextElementSibling.style.display = "block";
+                break;
+        }
+    })
+    
+    alarmInput.addEventListener("keydown", e => {
+        if (e.key == " " || e.code == "Space") {
+            return
         }
     })
 }

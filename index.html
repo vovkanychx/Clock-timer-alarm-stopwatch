@@ -65,7 +65,7 @@
                                             maxlength="30" 
                                             id="search" 
                                             placeholder="Search">
-                                    <button type="button"id="clear-search-input">
+                                    <button type="button" id="clear-search-input">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="search-clear-icon" viewBox="0 0 512 512">
                                             <path d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/>
                                         </svg>
@@ -145,17 +145,31 @@
                     </h2>
                 </ul>
                 <div class="alarm-popup fade-up">
-                    <div class="alarm-heading">
-                        <button type="button"id="alarm-cancel">Cancel</button>
-                        <p>Add Alarm</p>
-                        <button type="button"id="alarm-save">Save</button>
-                    </div>
-                    <div class="alarm-select">
-                        <div class="shadow top"></div>
-                        <div class="shadow bottom"></div>
-                        <div class="selected"></div>
-                        <ul id="alarm-select-hour" class="scroll"></ul>
-                        <ul id="alarm-select-minute" class="scroll"></ul>
+                    <div class="container">
+                        <div class="alarm-heading">
+                            <button type="button"id="alarm-cancel">Cancel</button>
+                            <p>Add Alarm</p>
+                            <button type="button"id="alarm-save">Save</button>
+                        </div>
+                        <div class="alarm-select">
+                            <div class="shadow top"></div>
+                            <div class="shadow bottom"></div>
+                            <div class="selected"></div>
+                            <ul id="alarm-select-hour" class="scroll"></ul>
+                            <ul id="alarm-select-minute" class="scroll"></ul>
+                        </div>
+                        <div class="alarm-options">
+                            <form action="" class="alarm-form">  
+                                <label for="alarm-input">Label</label>
+                                <input type="text" id="alarm-input" name="alarm-input" placeholder="Alarm" autocomplete="off" />
+                                <button class="alarm-input-clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> 
+                                        <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-11.414L9.172 7.757 7.757 9.172 10.586 12l-2.829 2.828 1.415 1.415L12 13.414l2.828 2.829 1.415-1.415L13.414 12l2.829-2.828-1.415-1.415L12 10.586z"/> 
+                                    </svg>
+                                </button>
+                            </form>
+                            <button class="alarm-sound">Sound<span>Radar</span></button>
+                        </div>
                     </div>
                 </div>
             </div>

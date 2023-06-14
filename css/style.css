@@ -1030,6 +1030,81 @@ p{
 .alarm .scroll div:last-of-type, .alarm .scroll li:last-of-type{
     margin-bottom: 10px;
 }
+.alarm-options{
+    display: flex;
+    flex-direction: column;
+    background-color: #2C2C2C;
+    margin: 5rem 20px;
+    border-radius: 10px;
+    font-family: 'Roboto', sans-serif;
+}
+.alarm-form{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.alarm-form label{
+    padding-right: 5px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+}
+#alarm-input{
+    width: 100%;
+    background-color: transparent;
+    outline: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 16px;
+    text-align: right;
+    caret-color: #ffa500;
+    font-family: 'Roboto', sans-serif;
+}
+#alarm-input::placeholder{
+    color: rgba(255, 255, 255, 0.3);
+}
+.alarm-input-clear{
+    display: none;
+    align-self: center;
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    background-color: transparent;
+}
+.alarm-input-clear svg{
+    width: 100%;
+    height: 100%;
+}
+.alarm-input-clear svg path{
+    fill: rgba(255, 255, 255, 0.1);
+}
+.alarm-sound{
+    display: flex;
+    justify-content: space-between;
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    padding: 10px;
+}
+.alarm-sound span{
+    color: rgba(255, 255, 255, 0.5);
+    position: relative;
+    padding-right: 10px;
+}
+.alarm-sound span::after{
+    --width: 7px;
+    position: absolute;
+    content: "";
+    width: var(--width);
+    aspect-ratio: 1 / 1;
+    right: 0;
+    top: calc(50% - (var(--width) / 2));
+    border: solid rgba(255, 255, 255, 0.3);
+    border-width: 0 1px 1px 0;
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
 
 /* MEDIA */
 @media screen and (min-width: 1080px) {
