@@ -520,6 +520,7 @@ export function clock() {
             document.querySelectorAll(".timezone-anchor").forEach(anchor => anchor.style.display = "none"); // hide nav anchors
         }
     });
+    
     HTMLElement.prototype.wrapAll = function(elms) {
         var el = elms.length ? elms[0] : elms;
     
