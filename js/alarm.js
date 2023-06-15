@@ -7,8 +7,10 @@ export function alarm() {
     const alarmList   = document.querySelector(".alarm-list");
     const alarmListHour   = document.getElementById("alarm-select-hour");
     const alarmListMinute = document.getElementById("alarm-select-minute");
-    const alarmInput = document.getElementById("alarm-input");
+    const alarmLabelInput = document.getElementById("alarm-input");
+    const alarmClearInputButton = document.querySelector(".alarm-input-clear");
     let alarmEditEnable = false;
+    let inputVal;
  
     var alarmStorage = localStorage.getItem("alarmStorage");
     alarmStorage = alarmStorage ? alarmStorage.split(',') : [];
@@ -60,7 +62,7 @@ export function alarm() {
                 } else {
                     alarmEdit.style.visibility = "hidden";
                 }
-                if (mutation.type === "childList" && targetNode.scrollHeight > targetNode.clientHeight + 60) {
+                if (mutation.type === "childList" && targetNode.scrollHeight > targetNode.clientHeight + document.querySelector("menu").offsetHeight) {
                     menu.classList.add("scrolling");
                 } else {
                     menu.classList.remove("scrolling");
@@ -74,24 +76,20 @@ export function alarm() {
     }
     observeChanges();
 
-    setTimeout(() => {
-        if (alarmList.scrollHeight > alarmList.clientHeight) {document.querySelector("menu").classList.add("scrolling")}
-    }, 20);
-
     // create new alarm and add it to alarm list
     function addToList() {
         let li = alarmList.appendChild(document.createElement("li")); // list item
         let alarmTime = li.appendChild(document.createElement("p")); // list item time
         let createAlarmToggle = li.appendChild(document.createElement("button")); // list item toggle button
-        createAlarmToggle.appendChild(document.createElement("span")).classList.add("circle");
-        li.setAttribute("class", "alarm-item item");
-        alarmTime.setAttribute("class", "alarm-time");
-        createAlarmToggle.setAttribute("class", "alarm-toggle toggle");
+        createAlarmToggle.appendChild(document.createElement("span")).classList.add("circle"); // list item toggle button circle
+        li.setAttribute("class", "alarm-item item"); // list item class
+        alarmTime.setAttribute("class", "alarm-time"); // list item time class
+        createAlarmToggle.setAttribute("class", "alarm-toggle toggle"); // list item toggle class
         let selectedHour = parseInt(document.getElementById("alarm-select-hour").querySelector(".active").innerText); // get hour from list of options
         let selectedMinute = parseInt(document.getElementById("alarm-select-minute").querySelector(".active").innerText); // get minute from list of options
-        li.querySelector(".alarm-time").innerText = checkTime(selectedHour) + ":" + checkTime(selectedMinute);
-        alarmStorage.push(li.outerHTML);
+        alarmTime.innerHTML = checkTime(selectedHour) + ":" + checkTime(selectedMinute) + `<span>${inputVal}</span>`;
         // add new item to alarmstorage
+        alarmStorage.push(li.outerHTML);
         localStorage.removeItem("alarmStorage");
         localStorage.setItem("alarmStorage", alarmStorage.toString());
     }
@@ -169,6 +167,7 @@ export function alarm() {
 
     function loopScroll (startPosition, list, topValue) {
         let counter = startPosition;
+        list.querySelectorAll(".active").forEach(active => { active.classList.remove("active") });
         list.getElementsByTagName("li")[startPosition].classList.add("active");
         const elementHeight = list.getElementsByTagName("li")[0].offsetHeight;
         const cloneUpperDiv = list.querySelector(".clone.upper");
@@ -288,7 +287,6 @@ export function alarm() {
             }
         })
     }
-
     // open modal
     alarmAdd.addEventListener("click", function () {
         document.querySelector(".alarm-popup").classList.add("opened");
@@ -304,6 +302,10 @@ export function alarm() {
         loopScroll(date.getHours(), alarmListHour, 23);
         loopScroll(date.getMinutes(), alarmListMinute, 59);
         enableToggleAndSaveToStorage();
+        alarmLabelInput.value = null;
+        inputVal = "Alarm";
+        document.querySelector(".alarm-input-clear").style.display = "none";
+
     })
     
     alarmEdit.addEventListener("click", function () {
@@ -328,7 +330,6 @@ export function alarm() {
         alarmAdd.style.visibility = "visible";
         document.querySelector(".alarm-popup").classList.remove("opened");
         document.querySelector(".alarm .block-top-title").style.visibility = "visible";
-
     })
 
     // close modal
@@ -344,6 +345,7 @@ export function alarm() {
         document.querySelector(".alarm .block-top-title").style.visibility = "visible";
     })
 
+    // add scrolling classes to menu and block-top
     alarmList.addEventListener("scroll", function () {
         document.querySelector(".alarm .block-top").classList.add("scrolling");
         document.querySelector(".alarm .block-top-title").classList.add("scrolling");
@@ -358,23 +360,39 @@ export function alarm() {
         }
     })
     
-    alarmInput.addEventListener("input", function (e) {
+    // show/hide clear button in alarm-options input
+    alarmLabelInput.addEventListener("input", function (e) {
         switch (e.target.value) {
             case null:
-                e.target.nextElementSibling.style.display = "none";
+                this.nextElementSibling.style.display = "none";
+                inputVal = "Alarm";
                 break;
             case "":
-                e.target.nextElementSibling.style.display = "none";
+                this.nextElementSibling.style.display = "none";
+                inputVal = "Alarm";
+                break;
+            case " ":
+                this.nextElementSibling.style.display = "block";
+                e.target.value = "";
+                inputVal = "Alarm";
                 break;
             default:
                 this.nextElementSibling.style.display = "block";
+                inputVal = e.target.value;
                 break;
         }
     })
     
-    alarmInput.addEventListener("keydown", e => {
-        if (e.key == " " || e.code == "Space") {
-            return
+    //if input value starts with spacebars or was added spacebars to the start
+    alarmLabelInput.addEventListener("keydown", e => {
+        if (e.key == " " || e.code == "Space" || /^\s/.test(e.target.value)) {
+            return e.target.value = e.target.value.trimStart();
         }
+    })
+
+    alarmClearInputButton.addEventListener("click", function () {
+        this.style.display = "none";
+        alarmLabelInput.value = null;
+        alarmLabelInput.focus();
     })
 }

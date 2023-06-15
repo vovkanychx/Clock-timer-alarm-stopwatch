@@ -915,6 +915,12 @@ p{
     color: rgba(255, 255, 255, 0.6);
     font-size: 32px;
     margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+.alarm-time span{
+    font-size: 12px;
 }
 /* .previous:has(+ next) */
 .alarm-time:has(+ .alarm-toggle.toggle) {
