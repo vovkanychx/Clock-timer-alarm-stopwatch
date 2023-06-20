@@ -64,6 +64,7 @@ button{
     outline: none;
     border: none;
     cursor: pointer;
+    background: none;
 }
 p{
     margin: 0;
@@ -347,6 +348,7 @@ p{
 }
 .timezone{
     background-color: #171717;
+    --timezone-wrap-height: 100px;
 }
 .timezone-wrap{
     padding: 20px;
@@ -354,7 +356,7 @@ p{
     z-index: 5;
     width: 100%;
     max-width: 1080px;
-    height: 100px;
+    height: var(--timezone-wrap-height);
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
     background-color: #171717;
@@ -395,6 +397,7 @@ p{
     background: rgba(255, 255, 255, 0.50);
     color: #fff;
     font-size: 14px;
+    caret-color: #ffa500;
 }
 #search::placeholder{
     color: #c9c9c9;
@@ -435,6 +438,7 @@ p{
     padding: 0 20px 20px;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    margin-top: var(--timezone-wrap-height);
 }
 .timezone-list::-webkit-scrollbar{ 
     display: none;
@@ -455,10 +459,13 @@ p{
 }
 .timezone-item{
     text-align: left;
-    /* text-transform: capitalize; */
     padding: 10px 0;
     border-bottom: 1px solid #fefefe75;
     cursor: pointer;
+    width: 100%;
+    color: #fff;
+    font-size: 16px;
+    font-family: "Roboto", sans-serif;
 }
 .timezone .separator{
     display: block;
@@ -498,8 +505,6 @@ p{
     line-height: 1.15;
 }
 .timezone-anchor{
-    display: flex;
-    align-items: flex-end;
     padding-top: 25px;
     padding-bottom: 5px;
     text-align: left;
@@ -507,11 +512,11 @@ p{
     font-weight: 500;
     color: #a0a0a0;
     border-bottom: 1px solid #fefefe75;
+    top: 0;
 }
 .timezone-anchor.scrolling{
     position: sticky;
     position: -webkit-sticky;
-    top: 100px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     background-color: #53535375;
@@ -1047,6 +1052,7 @@ p{
 .alarm-form{
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -1065,6 +1071,7 @@ p{
     text-align: right;
     caret-color: #ffa500;
     font-family: 'Roboto', sans-serif;
+    padding: 0;
 }
 #alarm-input::placeholder{
     color: rgba(255, 255, 255, 0.3);

@@ -338,6 +338,9 @@ export function alarm() {
         if (alarmList.childElementCount > 2) {
             alarmEdit.style.visibility = "visible";
             alarmAdd.style.visibility = "visible";
+        } else if (alarmList.childElementCount === 2) {
+            alarmEdit.style.visibility = "hidden";
+            alarmAdd.style.visibility = "visible";
         } else {
             alarmEdit.style.visibility = "hidden";
             alarmAdd.style.visibility = "hidden";

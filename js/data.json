@@ -2020,6 +2020,11 @@
     "offset": -600
   },
   {
+    "country": "Ukraine",
+    "city": "Irshava",
+    "offset": 120
+  },
+  {
     "country": "United States Minor Outlying Islands",
     "city": "Midway",
     "offset": -660
