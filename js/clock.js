@@ -5,8 +5,11 @@ export function clock() {
     const clockPopUp = document.querySelector(".timezone")
     const clockCancelButton = document.getElementById("search-cancel")
     const timezoneList = document.querySelector(".timezone-list")
+    const timezoneSearch = document.getElementById("search")
+    const clearSearch = document.getElementById("clear-search-input")
     var jsonData
     const lettersArray = [...Array(26).keys()].map(i => String.fromCharCode(i + 65))
+    let isNavigation = false
 
     function hideButton(button) {
         button.style.visibility = "hidden"
@@ -24,6 +27,7 @@ export function clock() {
 
     function showJSONdata() {
         createTimezoneListItems(timezoneList);
+        createTimezoneNavigation()
     }
 
     function removeTimezoneListChildren(list) {
@@ -80,52 +84,123 @@ export function clock() {
             })
             // if data.json has no city starting as some alphabet letter do not display wrapper
             if (wrapper.contains(wrapper.firstChild) && wrapper.childElementCount === 1) {
-                wrapper.style.display = "none"
+                wrapper.style.cssText = "visibility: hidden; max-height: 0; padding: 0;"
             }
         })
     }
 
-    // https://stackoverflow.com/a/13169465/8122390
-    HTMLElement.prototype.wrapAllElements = function(elms) {
-        var el = elms.length ? elms[0] : elms;
-        // Cache the current parent and sibling of the first element.
-        var parent  = el.parentNode;
-        var sibling = el.nextSibling;
-        // Wrap the first element (is automatically removed from its
-        // current parent).
-        this.appendChild(el);
-        // Wrap all other elements (if applicable). Each element is
-        // automatically removed from its current parent and from the elms
-        // array.
-        while (elms.length) {
-            this.appendChild(elms[0]);
-        }
-        // If the first element had a sibling, insert the wrapper before the
-        // sibling to maintain the HTML structure; otherwise, just append it
-        // to the parent.
-        if (sibling) {
-            parent.insertBefore(this, sibling);
+    function createTimezoneNavigation() {
+        if (!isNavigation) {
+            const timezoneNav = document.querySelector(".timezone-navigation")
+            let navList = document.createElement("ul")
+            navList.setAttribute("class", "timezone-navigation-list")
+            timezoneNav.appendChild(navList)
+            lettersArray.forEach(letter => {
+                let li = document.createElement("li")
+                navList.appendChild(li)
+                let anchor = document.createElement("a")
+                anchor.setAttribute("href", `#${letter}`)
+                anchor.textContent = `${letter}`
+                li.appendChild(anchor)
+            })
+            isNavigation = true
         } else {
-            parent.appendChild(this);
+            return
         }
-    };
+    }
+    
+    function showAnchorNav() {
+        document.querySelector(".timezone-fixed-header").style.visibility = "visible"
+        document.querySelectorAll(".timezone-navigation a").forEach(a => a.style.display = "initial") // show nav
+        document.querySelectorAll(".timezone-anchor").forEach(anchor => anchor.style.display = "flex") // show nav anchors
+        document.querySelectorAll(".timezone-wrapper").forEach(wrapper => wrapper.style.marginBottom = "15px")
+    }
 
-    timezoneList.addEventListener("scroll", function () {
-        document.querySelectorAll(".timezone-anchor").forEach(anchor => {
-            anchor.classList.add("scrolling")
-        })
-    })
+    function hideAnchorNav() {
+        document.querySelector(".timezone-fixed-header").style.visibility = "hidden"
+        document.querySelectorAll(".timezone-navigation a").forEach(a => a.style.display = "none") // hide nav
+        document.querySelectorAll(".timezone-anchor").forEach(anchor => anchor.style.display = "none") // hide nav anchors
+        document.querySelectorAll(".timezone-wrapper").forEach(wrapper => wrapper.style.marginBottom = "0")
+    }
 
     clockAddButton.addEventListener("click", function (e) {
         clockPopUp.classList.add("opened")
         hideButton(e.target)
         loadJSONdata().then(showJSONdata)
+        timezoneList.classList.remove("no-match")
     })
-
+    
     clockCancelButton.addEventListener("click", function (e) {
         clockPopUp.classList.remove("opened")
         showButton(clockAddButton)
         removeTimezoneListChildren(timezoneList)
+        timezoneSearch.value = null
+        clearSearch.style.display = "none"
+    })
+
+    timezoneList.addEventListener("scroll", function (e) {
+        let list = e.target
+        const anchors = document.querySelectorAll(".timezone-anchor")
+        const listTop = document.querySelector(".timezone-wrap")
+        const fixedHeader = document.querySelector(".timezone-fixed-header")
+        anchors.forEach(anchor => {
+            if (list.scrollTop >= anchor.offsetTop) {
+                fixedHeader.style.display = "block"
+                fixedHeader.textContent = anchor.textContent
+            } else {
+                anchor.classList.remove("scrolling")
+            }
+        })
+        // add/remove styling to search box in timezone list when scrolling
+        if (list.scrollTop > 0) {
+            listTop.classList.add("scrolling")
+        } else if (list.scrollTop === 0 || list.scrollTop < 0) {
+            listTop.classList.remove("scrolling")
+            fixedHeader.style.display = "none"
+        }
+    }, false)
+
+    timezoneSearch.addEventListener("keyup", function (e) {
+        const timezoneItems = document.querySelectorAll(".timezone-item")
+        let hasAnyMatch = false
+        for (let i = 0; i < timezoneItems.length; i++) { 
+            // case insensitive search
+            if (!timezoneItems[i].innerHTML.toLowerCase().match(new RegExp(e.target.value, "i"))) { 
+                // if no match
+                timezoneItems[i].style.display = "none"
+            } else { 
+                // if any match
+                hasAnyMatch = true
+                timezoneItems[i].style.display = "block"
+                timezoneList.classList.remove("no-match")
+                hideAnchorNav()
+            }
+        }
+        if (e.target.value == null || e.target.value == "") { 
+            // show/hide clear search button
+            clearSearch.style.visibility = "hidden"
+            showAnchorNav()
+        } else if (e.target.value === " ") {
+            hasAnyMatch = false
+            timezoneList.classList.add("no-match")
+            timezoneItems.forEach(item => item.style.display = "none")
+            hideAnchorNav()
+        } else {
+            clearSearch.style.visibility = "visible"
+            clearSearch.addEventListener("click",  function () {
+                e.target.value = null
+                clearSearch.style.visibility = "hidden"
+                timezoneList.classList.remove("no-match")
+                timezoneItems.forEach(item => item.style.display = "block") 
+                // show list items after click on button to clear search value
+                showAnchorNav()
+            })
+        }
+        //if searching result has no matches show user that nothing is found
+        if (!hasAnyMatch) {
+            timezoneList.classList.add("no-match")
+            hideAnchorNav()
+        }
     })
 }
 
@@ -138,7 +213,7 @@ export function clock() {
 //     const cancelSearch  = document.getElementById("search-cancel");
 //     const clearSearch   = document.getElementById("clear-search-input");
 //     const timeZoneList  = document.querySelector(".timezone-list");
-//     const timeZoneItem  = document.getElementsByClassName("timezone-item");
+//     const timezoneItems  = document.getElementsByClassName("timezone-item");
 //     const timeZoneNav   = document.querySelector(".timezone-navigation");
 //     const clockList     = document.querySelector(".clock-list");
 //     let GMToffsetArray        = [];
@@ -397,9 +472,9 @@ export function clock() {
 //         let clockLabelOffset;
 //         let res;
 //         //create formatted dynamic clock list item
-//         for (let i = 0; i < timeZoneItem.length; i++) {
+//         for (let i = 0; i < timezoneItems.length; i++) {
 //             //add clock items when user select city from timezone list
-//             timeZoneItem[i].addEventListener("click", function () {
+//             timezoneItems[i].addEventListener("click", function () {
 //                 formatClockLabel();
 //                 let item = clockList.appendChild(document.createElement("li"));
 //                 item.className = "clock-item item";

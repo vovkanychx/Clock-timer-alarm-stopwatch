@@ -504,30 +504,33 @@ p{
     text-decoration: none;
     line-height: 1.15;
 }
+.timezone-wrapper{
+    margin-bottom: 15px;
+}
 .timezone-anchor{
-    padding-top: 25px;
-    padding-bottom: 5px;
+    padding: 5px 0;
     text-align: left;
     font-size: 15px;
     font-weight: 500;
     color: #a0a0a0;
     border-bottom: 1px solid #fefefe75;
-    top: 0;
 }
-.timezone-anchor.scrolling{
-    position: sticky;
-    position: -webkit-sticky;
+.timezone-fixed-header{
+    display: none;
+    position: fixed;
+    /* position: -webkit-sticky; */
+    top: 146px;
+    width: 100%;
+    padding: 5px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #a0a0a0;
+    text-align: left;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     background-color: #53535375;
     border-bottom: 1px solid transparent;
-    margin: 0 -20px;
-    padding: 5px 20px;
 }
-/* .timezone-anchor:first-of-type{
-    transition: padding-top 200ms;
-    transition: background 100ms;
-} */
 .timezone.fade-up .search-icon, .timezone.fade-up #clear-search-input{
     display: none;
 }
