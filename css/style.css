@@ -331,7 +331,7 @@ p{
     justify-content: space-between;
     margin-right: auto;
 }
-.clock-label{
+.clock-offset{
     color: #c9c9c9;
     font-size: 14px;
     display: inherit;
@@ -435,7 +435,7 @@ p{
 .timezone-list{
     position: relative;
     height: 100%;
-    padding: 0 20px 20px;
+    padding: 0 20px;
     -ms-overflow-style: none;
     scrollbar-width: none;
     margin-top: var(--timezone-wrap-height);
@@ -466,10 +466,6 @@ p{
     color: #fff;
     font-size: 16px;
     font-family: "Roboto", sans-serif;
-}
-.timezone .separator{
-    display: block;
-    margin-top: 100px;
 }
 .timezone-navigation{
     position: absolute;
@@ -518,7 +514,6 @@ p{
 .timezone-fixed-header{
     display: none;
     position: fixed;
-    /* position: -webkit-sticky; */
     top: 146px;
     width: 100%;
     padding: 5px 20px;
