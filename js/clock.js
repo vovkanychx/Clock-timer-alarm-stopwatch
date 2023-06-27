@@ -133,9 +133,11 @@ export function clock() {
         removeTimezoneListChildren(timezoneList)
         timezoneSearch.value = null
         clearSearch.style.display = "none"
+        timezoneFixedHeader.style.cssText = "display: none; visibility: hidden"
     }
 
     function addNewClock() {
+        const date = new Date()
         const timezoneItems = document.querySelectorAll(".timezone-item")
         for (let i = 0; i < timezoneItems.length; i++) {
             const item = timezoneItems[i];
@@ -149,7 +151,7 @@ export function clock() {
                 // new item offset
                 let clockItemOffset = document.createElement("span")
                 clockItemOffset.setAttribute("class", "clock-offset")
-                clockItemOffset.innerText = formatClockItemOffset(item)
+                clockItemOffset.innerText = `${formatClockItemDay(item, date)}, ${formatClockItemOffset(item, date)}`
                 // new item city
                 let clockItemCity = document.createElement("p")
                 clockItemCity.setAttribute("class", "clock-city")
@@ -157,7 +159,7 @@ export function clock() {
                 // new item time
                 let clockItemTime = document.createElement("p")
                 clockItemTime.setAttribute("class", "clock-time")
-                clockItemTime.innerText = formatClockItemTime(item)
+                clockItemTime.innerText = formatClockItemTime(item, date)
                 // appending
                 clockItemWrap.appendChild(clockItemOffset)
                 clockItemWrap.appendChild(clockItemCity)
@@ -171,25 +173,43 @@ export function clock() {
         }
     }
     
-    function formatClockItemTime(item) {
-        // let itemOffset = 
-        
+    function formatClockItemDay(item, date) {
+        let itemOffset =  item.getAttribute("data-offset")
+        let calculated = parseInt(itemOffset) + (date.getUTCHours() * 60)
+        if (calculated >= 0 && calculated <= 24 * 60) {
+            return "Today"
+        } else if (calculated < 0) {
+            return "Yesterday"
+        } else if (calculated > 24 * 60) {
+            return "Tomorrow"
+        } else {
+            return "No data"
+        }
     }
 
-    function formatClockItemOffset(item) {
-        const date = new Date()
+    function formatClockItemOffset(item, date) {
         // let itemOffset = (date.getHours() - date.getUTCHours()) * 60 - item.getAttribute("data-offset")
-        let itemOffset = item.getAttribute("data-offset")
+        let itemOffset = parseInt(item.getAttribute("data-offset"))
         let hour = Math.floor(itemOffset / 60)
         let minute = Math.floor(itemOffset % 60) === 0 ? '' : checkTime(Math.floor(itemOffset % 60))
         let singularOrPlural 
-        hour == 1 || hour == -1 ? singularOrPlural = "HR" : singularOrPlural = "HRS"
-        hour > 0 ? hour = `+${hour}` : hour = `-${hour}`
+        hour == 1 || hour == -1 || hour == 0 ? singularOrPlural = "HR" : singularOrPlural = "HRS"
+        hour >= 0 ? hour = `+${hour}` : hour = `${hour}`
         if (Math.floor(itemOffset % 60) === 0) {
             return `${hour}${singularOrPlural}`
         } else {
             return `${hour}:${minute}${singularOrPlural}`
         }
+    }
+
+    function formatClockItemTime(item, date) {
+        let itemOffset = parseInt(item.getAttribute("data-offset"))
+        let hour = date.getUTCHours() + Math.floor(itemOffset / 60)
+        let minute = date.getUTCMinutes() + Math.floor(itemOffset % 60)
+        hour >= 23 ? hour = Math.abs(24 - hour) : hour = Math.abs(hour)
+        minute >= 60 ? minute = Math.abs(60 - minute) : minute = Math.abs(minute)
+        let time = `${checkTime(hour)}:${checkTime(minute)}`
+        return time
     }
 
     clockAddButton.addEventListener("click", function (e) {
@@ -199,6 +219,7 @@ export function clock() {
         loadJSONdata().then(showJSONdata).then(addNewClock)
         timezoneList.classList.remove("no-match")
         timezoneFixedHeader.style.visibility = "visible"
+        timezoneList.scrollTop = 0
     })
     
     clockCancelButton.addEventListener("click", function (e) {
@@ -207,11 +228,10 @@ export function clock() {
     })
 
     timezoneList.addEventListener("scroll", function (e) {
-        let list = e.target
         const anchors = document.querySelectorAll(".timezone-anchor")
         const listTop = document.querySelector(".timezone-wrap")
         anchors.forEach(anchor => {
-            if (list.scrollTop >= anchor.offsetTop) {
+            if (e.target.scrollTop >= anchor.offsetTop) {
                 timezoneFixedHeader.style.display = "block"
                 timezoneFixedHeader.textContent = anchor.textContent
             } else {
@@ -219,9 +239,9 @@ export function clock() {
             }
         })
         // add/remove styling to search box in timezone list when scrolling
-        if (list.scrollTop > 0) {
+        if (e.target.scrollTop > 0) {
             listTop.classList.add("scrolling")
-        } else if (list.scrollTop === 0 || list.scrollTop < 0) {
+        } else if (e.target.scrollTop === 0 || e.target.scrollTop < 0) {
             listTop.classList.remove("scrolling")
             timezoneFixedHeader.style.display = "none"
         }
