@@ -13,6 +13,8 @@ export function clock() {
     var jsonData
     const lettersArray = [...Array(26).keys()].map(i => String.fromCharCode(i + 65))
     let isNavigation = false
+    let clockStorage = localStorage.getItem("clockStorage")
+    clockStorage = clockStorage ? JSON.parse(clockStorage.split(',')) : []
 
     function hideButton(button) {
         button.style.visibility = "hidden"
@@ -142,17 +144,18 @@ export function clock() {
         for (let i = 0; i < timezoneItems.length; i++) {
             const item = timezoneItems[i];
             item.addEventListener("click", function () {
+                let itemOffset = item.getAttribute("data-offset")
                 // new item
                 let clockItem = document.createElement("li")
                 clockItem.setAttribute("class", "clock-item item")
-                clockItem.setAttribute("data-offset", `${item.getAttribute("data-offset")}`)
+                clockItem.setAttribute("data-offset", `${itemOffset}`)
                 // new item wrapper for offset and city
                 let clockItemWrap = document.createElement("div")
                 clockItemWrap.setAttribute("class", "clock-box")
                 // new item offset
                 let clockItemOffset = document.createElement("span")
                 clockItemOffset.setAttribute("class", "clock-offset")
-                clockItemOffset.innerText = `${formatClockItemDay(item, date)}, ${formatClockItemOffset(item, date)}`
+                clockItemOffset.innerText = `${formatClockItemDay(item, date, itemOffset)}, ${formatClockItemOffset(item, date, itemOffset)}`
                 // new item city
                 let clockItemCity = document.createElement("p")
                 clockItemCity.setAttribute("class", "clock-city")
@@ -160,14 +163,22 @@ export function clock() {
                 // new item time
                 let clockItemTime = document.createElement("p")
                 clockItemTime.setAttribute("class", "clock-time")
-                clockItemTime.innerText = formatClockItemTime(item, date)
+                clockItemTime.innerText = formatClockItemTime(item, date, itemOffset)
                 // appending
                 clockItemWrap.appendChild(clockItemOffset)
                 clockItemWrap.appendChild(clockItemCity)
                 clockItem.appendChild(clockItemWrap)
                 clockItem.appendChild(clockItemTime)
                 clockList.appendChild(clockItem)
-
+                // adding data to localstorage
+                let object = {
+                    offset: itemOffset,
+                    city: item.textContent.split(",")[0]
+                }
+                clockStorage.push(object)
+                console.log(clockStorage)
+                localStorage.setItem("clockStorage", JSON.stringify(clockStorage))
+                // actions after added new item
                 addOrCancelSameActions()
                 showButton(clockEditButton)
             })
@@ -175,22 +186,26 @@ export function clock() {
     }
     
     function formatClockItemDay(item, date, offset) {
-        offset = item.getAttribute("data-offset")
         let calculated = parseInt(offset) + (date.getUTCHours() * 60)
-        if (calculated >= 0 && calculated <= 24 * 60) {
+        if (calculated >= 0 && calculated < 24 * 60) {
             return "Today"
         } else if (calculated < 0) {
             return "Yesterday"
-        } else if (calculated > 24 * 60) {
+        } else if (calculated >= 24 * 60) {
             return "Tomorrow"
         } else {
             return "No data"
         }
     }
 
+    document.addEventListener("keypress", (e) => {
+        if (e.code == "KeyR") {
+            localStorage.removeItem("clockStorage")
+        } else { return false }
+    })
+
     function formatClockItemOffset(item, date, offset) {
         // let itemOffset = (date.getHours() - date.getUTCHours()) * 60 - item.getAttribute("data-offset")
-        offset = parseInt(item.getAttribute("data-offset"))
         let hour = Math.floor(offset / 60)
         let minute = Math.floor(offset % 60) === 0 ? '' : checkTime(Math.floor(offset % 60))
         let singularOrPlural 
@@ -204,7 +219,6 @@ export function clock() {
     }
 
     function formatClockItemTime(item, date, offset) {
-        offset = parseInt(item.getAttribute("data-offset"))
         let hour = date.getUTCHours() + Math.floor(offset / 60)
         let minute = date.getUTCMinutes() + Math.floor(offset % 60)
         hour >= 23 ? hour = Math.abs(24 - hour) : hour = Math.abs(hour)
@@ -242,6 +256,13 @@ export function clock() {
     clockCancelButton.addEventListener("click", function (e) {
         clockList.childElementCount > 1 ? showButton(clockEditButton) : hideButton(clockEditButton)
         addOrCancelSameActions()
+    })
+
+    clockEditButton.addEventListener("click", function (e) {
+        const clockItems = document.querySelectorAll(".clock-item")
+        clockItems.forEach(item => {
+            item.classList.toggle("test")
+        })
     })
 
     timezoneList.addEventListener("scroll", function (e) {
@@ -309,4 +330,25 @@ export function clock() {
             hideAnchorNav()
         }
     })
+
+    // store clock items in localstorage
+    if ((clockStorage != null || undefined) || clockStorage.length > 0) {
+        let storage = JSON.parse(localStorage.getItem("clockStorage"))
+        if (storage == null) return
+        const date = new Date()
+        storage.forEach(item => {
+            let li = document.createElement("li")
+            li.setAttribute("data-offset", `${item.offset}`)
+            li.classList.add("clock-item", "item")
+            li.innerHTML = `
+            <div class="clock-box">
+            <span class="clock-offset">${`${formatClockItemDay(item, date, item.offset)}, ${formatClockItemOffset(item, date, item.offset)}`}</span>
+            <p class="clock-city">${item.city}</p>
+            </div>
+            <p class="clock-time">${formatClockItemTime(item, date, item.offset)}</p>
+            `
+            clockList.appendChild(li)
+        })
+        clockList.childElementCount > 0 ? showButton(clockEditButton) : hideButton(clockEditButton)
+    }
 }
