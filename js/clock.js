@@ -145,6 +145,7 @@ export function clock() {
                 // new item
                 let clockItem = document.createElement("li")
                 clockItem.setAttribute("class", "clock-item item")
+                clockItem.setAttribute("data-offset", `${item.getAttribute("data-offset")}`)
                 // new item wrapper for offset and city
                 let clockItemWrap = document.createElement("div")
                 clockItemWrap.setAttribute("class", "clock-box")
@@ -173,9 +174,9 @@ export function clock() {
         }
     }
     
-    function formatClockItemDay(item, date) {
-        let itemOffset =  item.getAttribute("data-offset")
-        let calculated = parseInt(itemOffset) + (date.getUTCHours() * 60)
+    function formatClockItemDay(item, date, offset) {
+        offset = item.getAttribute("data-offset")
+        let calculated = parseInt(offset) + (date.getUTCHours() * 60)
         if (calculated >= 0 && calculated <= 24 * 60) {
             return "Today"
         } else if (calculated < 0) {
@@ -187,30 +188,45 @@ export function clock() {
         }
     }
 
-    function formatClockItemOffset(item, date) {
+    function formatClockItemOffset(item, date, offset) {
         // let itemOffset = (date.getHours() - date.getUTCHours()) * 60 - item.getAttribute("data-offset")
-        let itemOffset = parseInt(item.getAttribute("data-offset"))
-        let hour = Math.floor(itemOffset / 60)
-        let minute = Math.floor(itemOffset % 60) === 0 ? '' : checkTime(Math.floor(itemOffset % 60))
+        offset = parseInt(item.getAttribute("data-offset"))
+        let hour = Math.floor(offset / 60)
+        let minute = Math.floor(offset % 60) === 0 ? '' : checkTime(Math.floor(offset % 60))
         let singularOrPlural 
         hour == 1 || hour == -1 || hour == 0 ? singularOrPlural = "HR" : singularOrPlural = "HRS"
         hour >= 0 ? hour = `+${hour}` : hour = `${hour}`
-        if (Math.floor(itemOffset % 60) === 0) {
+        if (Math.floor(offset % 60) === 0) {
             return `${hour}${singularOrPlural}`
         } else {
             return `${hour}:${minute}${singularOrPlural}`
         }
     }
 
-    function formatClockItemTime(item, date) {
-        let itemOffset = parseInt(item.getAttribute("data-offset"))
-        let hour = date.getUTCHours() + Math.floor(itemOffset / 60)
-        let minute = date.getUTCMinutes() + Math.floor(itemOffset % 60)
+    function formatClockItemTime(item, date, offset) {
+        offset = parseInt(item.getAttribute("data-offset"))
+        let hour = date.getUTCHours() + Math.floor(offset / 60)
+        let minute = date.getUTCMinutes() + Math.floor(offset % 60)
         hour >= 23 ? hour = Math.abs(24 - hour) : hour = Math.abs(hour)
         minute >= 60 ? minute = Math.abs(60 - minute) : minute = Math.abs(minute)
         let time = `${checkTime(hour)}:${checkTime(minute)}`
         return time
     }
+
+    function updateTime() {
+        const date = new Date()
+        const items = document.querySelectorAll(".clock-item")
+        if (items.length <= 0) { return }
+        items.forEach(item => {
+            const offset = parseInt(item.getAttribute("data-offset"))
+            item.querySelector(".clock-offset").innerText = `${formatClockItemDay(item, date, offset)}, ${formatClockItemOffset(item, date, offset)}`
+            item.querySelector(".clock-time").innerText = formatClockItemTime(item, date, offset)
+        })
+    }
+
+    setInterval(() => {
+        updateTime()
+    }, 1000);
 
     clockAddButton.addEventListener("click", function (e) {
         clockPopUp.classList.add("opened")
