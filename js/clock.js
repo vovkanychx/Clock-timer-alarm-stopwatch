@@ -217,6 +217,7 @@ export function clock() {
         hideButton(e.target)
         hideButton(clockEditButton)
         loadJSONdata().then(showJSONdata).then(addNewClock)
+        showAnchorNav()
         timezoneList.classList.remove("no-match")
         timezoneFixedHeader.style.visibility = "visible"
         timezoneList.scrollTop = 0
@@ -231,7 +232,7 @@ export function clock() {
         const anchors = document.querySelectorAll(".timezone-anchor")
         const listTop = document.querySelector(".timezone-wrap")
         anchors.forEach(anchor => {
-            if (e.target.scrollTop >= anchor.offsetTop) {
+            if (e.target.scrollTop >= (anchor.offsetTop - listTop.offsetHeight)) {
                 timezoneFixedHeader.style.display = "block"
                 timezoneFixedHeader.textContent = anchor.textContent
             } else {

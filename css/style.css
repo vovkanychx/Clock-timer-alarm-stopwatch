@@ -247,7 +247,7 @@ p{
 /* MAIN  */
 .main{
     position: relative;
-    min-height: 550px;
+    min-height: 600px;
     height: 100dvh;
     max-height: 100vh;
     overflow: hidden;
@@ -395,7 +395,7 @@ p{
     border-radius: 8px;
     border: none;
     outline: none;
-    background: rgba(255, 255, 255, 0.50);
+    background: #fefefe30;
     color: #fff;
     font-size: 14px;
     caret-color: #ffa500;
@@ -439,7 +439,8 @@ p{
     padding: 0;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    margin-top: var(--timezone-wrap-height);
+    scroll-padding-top: var(--timezone-wrap-height);
+    padding-top: var(--timezone-wrap-height);
 }
 .timezone-list::-webkit-scrollbar{ 
     display: none;
@@ -459,27 +460,19 @@ p{
     font-size: 22px;
 }
 .timezone-item{
-    text-align: left;
-    padding: 10px 20px;
-    cursor: pointer;
-    width: 100%;
-    color: #fff;
-    font-size: 16px;
-    font-family: "Roboto", sans-serif;
-    transition: background-color 100ms;
-    background-color: none;
+    display: flex;
+    align-items: center;
     position: relative;
-}
-.timezone-item::after{
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 20px;
-    margin: 0 auto;
-    max-width: 1080px;
-    width: calc(100% - 40px);
-    height: 1px;
-    background: #fefefe75;
+    width: 100%;
+    padding: 10px calc((100vw - 1080px) / 2 + 20px);
+    font-family: "Roboto", sans-serif;
+    font-size: 16px;
+    line-height: 1;
+    text-align: left;
+    color: #fff;
+    background-color: none;
+    transition: background-color 100ms;
+    cursor: pointer;
 }
 .timezone-item:active{
     background-color: #fefefe30;
@@ -527,21 +520,20 @@ p{
     margin-bottom: 15px;
 }
 .timezone-anchor{
-    padding: 5px 20px;
+    padding: 5px calc((100vw - 1080px) / 2 + 20px);;
     text-align: left;
     font-size: 15px;
     font-weight: 500;
     color: #a0a0a0;
     position: relative;
 }
-.timezone-anchor::after{
+.timezone-item::after, .timezone-anchor::after{
     content: '';
     position: absolute;
     bottom: 0;
-    left: 20px;
-    margin: 0 auto;
+    left: calc((100vw - 1080px) / 2 + 20px);
     max-width: 1080px;
-    width: calc(100% - 40px);
+    width: calc(100% - ((100% - 1080px) + 40px));
     height: 1px;
     background: #fefefe75;
 }
@@ -1174,6 +1166,16 @@ p{
     }
     .timezone-fixed-header{
         padding: 5px 20px;
+    }
+    .timezone-item{
+        padding: 10px 20px;
+    }
+    .timezone-anchor{
+        padding: 5px 20px;
+    }
+    .timezone-item::after, .timezone-anchor::after{
+        left: 20px;
+        width: calc(100% - 40px);
     }
 }
 

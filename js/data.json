@@ -1880,6 +1880,16 @@
     "offset": -600
   },
   {
+    "country": "Ukraine",
+    "city": "Poliana",
+    "offset": 120
+  },
+  {
+    "country": "Ukraine",
+    "city": "Uzhhorod",
+    "offset": 120
+  },
+  {
     "country": "United States",
     "city": "Anchorage",
     "offset": -540
