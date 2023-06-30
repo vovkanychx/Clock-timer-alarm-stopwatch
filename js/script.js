@@ -3,6 +3,7 @@ import { stopwatch } from "../js/stopwatch.js";
 import { timer } from "../js/timer.js";
 import { alarm } from "../js/alarm.js";
 
+const menu             = document.querySelector("menu")
 const menuClock        = document.getElementById("clock");
 const menuStopwatch    = document.getElementById("stopwatch");
 const menuTimer        = document.getElementById("timer");
@@ -12,9 +13,9 @@ const sectionStopwatch = document.querySelector(".stopwatch");
 const sectionTimer     = document.querySelector(".timer");
 const sectionAlarm     = document.querySelector(".alarm");
 
-document.body.onload = menu();
+document.body.onload = main();
 
-function menu() {
+function main() {
     clock();
     stopwatch();
     timer();
@@ -58,14 +59,7 @@ function menu() {
                     sectionClock.style.display = "block";
                     localStorage.setItem("show-content", "clock");
                     let list = document.querySelector(".clock-list");
-                    if (list.scrollHeight > list.clientHeight) {
-                        menu.classList.add("scrolling");
-                        if (list.scrollTop >= (list.scrollHeight - list.offsetHeight)) {
-                            menu.classList.remove("scrolling");
-                        }
-                    } else {
-                        menu.classList.remove("scrolling");
-                    }
+                    menuAddScrollingClass(list)
                     break;
                 }
                 case menuStopwatch : {
@@ -73,14 +67,7 @@ function menu() {
                     sectionStopwatch.style.display = "block";
                     localStorage.setItem("show-content", "stopwatch");
                     let list = document.querySelector(".laps");
-                    if (list.scrollHeight > list.clientHeight) {
-                        menu.classList.add("scrolling");
-                        if (list.scrollTop >= (list.scrollHeight - list.offsetHeight)) {
-                            menu.classList.remove("scrolling");
-                        }
-                    } else {
-                        menu.classList.remove("scrolling");
-                    }
+                    menuAddScrollingClass(list)
                     break;
                 }
                 case menuTimer : {
@@ -98,14 +85,7 @@ function menu() {
                     sectionAlarm.style.display = "block";
                     localStorage.setItem("show-content", "alarm");
                     let list = document.querySelector(".alarm-list");
-                    if (list.scrollHeight > list.clientHeight) {
-                        menu.classList.add("scrolling");
-                        if (list.scrollTop >= (list.scrollHeight - list.offsetHeight)) {
-                            menu.classList.remove("scrolling");
-                        }
-                    } else {
-                        menu.classList.remove("scrolling");
-                    }
+                    menuAddScrollingClass(list)
                     break;
                 }
             }
@@ -132,5 +112,15 @@ export function checkTime(i) { //add a zero to have 2 digits in clock
 }
 // Q/A: https://stackoverflow.com/a/29956714/8122390
 export function isScrollable(element) {
-    return element.scrollHeight > element.clientHeight;
-};
+    return element.scrollHeight > element.clientHeight
+}
+
+function menuAddScrollingClass(list) {
+    if (isScrollable(list)) {
+        setInterval(() => {
+            menu.classList.add("scrolling");
+        }, 0)
+    } else {
+        menu.classList.remove("scrolling");
+    }
+}
