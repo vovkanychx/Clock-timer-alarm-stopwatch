@@ -1,4 +1,5 @@
-import { checkTime } from "../js/script.js";
+import { checkTime, menu as menu } from "../js/script.js";
+
 export function stopwatch() {
     const stopwatchClock  = document.querySelector(".stopwatch-clock");
     const startButton     = document.getElementById("start");
@@ -34,8 +35,8 @@ export function stopwatch() {
     })
 
     setTimeout(() => {
-        if (listLaps.scrollHeight > listLaps.clientHeight) {document.querySelector("menu").classList.add("scrolling")}
-    }, 20);
+        (listLaps.scrollHeight > listLaps.clientHeight) ? menu.classList.add("scrolling") : menu.classList.remove("scrolling")
+    }, 0);
     
     function addLap() { // Add lap on startButton click when list of laps is empty and clock was started yet
         let li = document.createElement("li");
@@ -117,9 +118,9 @@ export function stopwatch() {
     
     listLaps.addEventListener("scroll", function () {
         if (this.scrollTop >= (this.scrollHeight - this.offsetHeight)) {
-            document.querySelector("menu").classList.remove("scrolling");
+            menu.classList.remove("scrolling");
         } else {
-            document.querySelector("menu").classList.add("scrolling");
+            menu.classList.add("scrolling");
         }
     })
 
@@ -130,7 +131,6 @@ export function stopwatch() {
         const config = { attributes: false, childList: true, subtree: false };
         // Callback function to execute when mutations are observed
         const callback = (mutationList, observer) => {
-            const menu = document.querySelector("menu");
             for (const mutation of mutationList) {
                 if (mutation.type === "childList" && targetNode.scrollHeight > targetNode.clientHeight) {
                     menu.classList.add("scrolling");

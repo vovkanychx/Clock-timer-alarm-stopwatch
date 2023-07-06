@@ -2,6 +2,9 @@
 *{
     box-sizing: border-box;
 }
+*, *::before, *::after{
+    touch-action: manipulation; /* disable double touch zoom on touch device */
+}
 :root{
     --buttonStopwatchStart: #0c5600;
     --buttonStopwatchStartActive: #073300;
@@ -403,7 +406,8 @@ p{
     border-top: 1px solid #fefefe75;
     border-bottom: 1px solid #fefefe75;
     margin-right: 0;
-    transition: opacity var(--delete-transition);
+    transition: opacity var(--delete-transition), margin var(--delete-transition);
+    cursor: pointer;
 }
 .clock-move::after{
     position: absolute;
@@ -414,6 +418,13 @@ p{
     left: 0;
     background-color: #fefefe75;
     transform: translateY(-50%);
+    cursor: pointer;
+}
+.clock-item.item.remove-item .clock.move{
+    margin-right: 0;
+}
+.clock-item.remove-item.removing .clock-move{
+    margin-right: calc(var(--remove-confirm-width) + 50px);
 }
 .clock-item.remove-item .clock-move{
     visibility: visible;

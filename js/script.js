@@ -3,7 +3,7 @@ import { stopwatch } from "../js/stopwatch.js";
 import { timer } from "../js/timer.js";
 import { alarm } from "../js/alarm.js";
 
-const menu             = document.querySelector("menu")
+export const menu      = document.querySelector("menu")
 const menuClock        = document.getElementById("clock");
 const menuStopwatch    = document.getElementById("stopwatch");
 const menuTimer        = document.getElementById("timer");
@@ -48,12 +48,12 @@ function main() {
     // show/hide section on menu button click; styles for section's list scrolling (top and bottom)
     let menuItems = document.getElementsByClassName("menu-item");
     Array.from(menuItems).forEach(item => {
-        item.addEventListener("click", function (event) {
+        item.addEventListener("click", function (e) {
             Array.from(menuItems).forEach(item => { item.classList.remove("visited") }); // remove class from previous menu item
             item.classList.add("visited"); // add class to current clicked menu item
             const menu = document.querySelector("menu");
             // document.querySelector(".meter").style.setProperty("--strokeOffset", `${parseFloat(localStorage.getItem("timerDashOffset"))}`);
-            switch (this) {
+            switch (e.currentTarget) {
                 case menuClock : {
                     hideSection()
                     sectionClock.style.display = "block";
@@ -117,9 +117,10 @@ export function isScrollable(element) {
 
 function menuAddScrollingClass(list) {
     if (isScrollable(list)) {
-        setInterval(() => {
-            menu.classList.add("scrolling");
-        }, 0)
+        menu.classList.add("scrolling");
+        if (Math.floor(list.scrollTop) === Math.floor(list.scrollHeight - list.offsetHeight)) {
+            menu.classList.remove("scrolling");
+        }
     } else {
         menu.classList.remove("scrolling");
     }

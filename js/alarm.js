@@ -1,4 +1,5 @@
-import { checkTime } from "../js/script.js";
+import { checkTime, menu as menu } from "../js/script.js";
+
 export function alarm() {
     const alarmAdd  = document.getElementById("alarm-add");
     const alarmEdit = document.getElementById("alarm-edit");
@@ -48,7 +49,6 @@ export function alarm() {
         const config = { attributes: false, childList: true, subtree: false };
         // Callback function to execute when mutations are observed
         const callback = (mutationList, observer) => {
-            const menu = document.querySelector("menu");
             for (const mutation of mutationList) {
                 if (mutation.type === "childList") {
                     enableToggleAndSaveToStorage();
@@ -62,7 +62,7 @@ export function alarm() {
                 } else {
                     alarmEdit.style.visibility = "hidden";
                 }
-                if (mutation.type === "childList" && targetNode.scrollHeight > targetNode.clientHeight + document.querySelector("menu").offsetHeight) {
+                if (mutation.type === "childList" && targetNode.scrollHeight > (targetNode.clientHeight - menu.offsetHeight)) {
                     menu.classList.add("scrolling");
                 } else {
                     menu.classList.remove("scrolling");
@@ -357,9 +357,9 @@ export function alarm() {
             document.querySelector(".alarm .block-top-title").classList.remove("scrolling");
         } 
         if (this.scrollTop >= (this.scrollHeight - this.offsetHeight)) {
-            document.querySelector("menu").classList.remove("scrolling");
+            menu.classList.remove("scrolling");
         } else {
-            document.querySelector("menu").classList.add("scrolling");
+            menu.classList.add("scrolling");
         }
     })
     

@@ -1,16 +1,17 @@
-import { checkTime, isScrollable } from "../js/script.js"
+import { checkTime, isScrollable, menu as menu } from "../js/script.js"
 
 export function clock() {
-    const sectionClock     = document.querySelector(".clock");
-    const clockAddButton = document.getElementById("clock-add")
-    const clockEditButton = document.getElementById("clock-edit")
-    const clockPopUp = document.querySelector(".timezone")
-    const clockCancelButton = document.getElementById("search-cancel")
-    const timezoneList = document.querySelector(".timezone-list")
-    const timezoneSearch = document.getElementById("search")
-    const clearSearch = document.getElementById("clear-search-input")
-    const clockList = document.querySelector(".clock-list")
+    const sectionClock        = document.querySelector(".clock");
+    const clockAddButton      = document.getElementById("clock-add")
+    const clockEditButton     = document.getElementById("clock-edit")
+    const clockPopUp          = document.querySelector(".timezone")
+    const clockCancelButton   = document.getElementById("search-cancel")
+    const timezoneList        = document.querySelector(".timezone-list")
+    const timezoneSearch      = document.getElementById("search")
+    const clearSearch         = document.getElementById("clear-search-input")
+    const clockList           = document.querySelector(".clock-list")
     const timezoneFixedHeader = document.querySelector(".timezone-fixed-header")
+
     const lettersArray = [...Array(26).keys()].map(i => String.fromCharCode(i + 65))
     var jsonData
     let isNavigation = false
@@ -140,49 +141,54 @@ export function clock() {
         timezoneFixedHeader.style.cssText = "display: none; visibility: hidden"
     }
 
+    function createClockItem(list, item, city, date, offset) {
+        // new item
+        let clockItem = document.createElement("li")
+        clockItem.setAttribute("class", "clock-item item")
+        clockItem.setAttribute("data-offset", `${offset}`)
+        // new item delete button
+        let clockDeleteButton = document.createElement("button")
+        clockDeleteButton.setAttribute("class", "remove-button")
+        // new item wrapper for offset and city
+        let clockItemWrap = document.createElement("div")
+        clockItemWrap.setAttribute("class", "clock-box")
+        // new item offset
+        let clockItemOffset = document.createElement("span")
+        clockItemOffset.setAttribute("class", "clock-offset")
+        clockItemOffset.innerText = `${formatClockItemDay(item, date, offset)}, ${formatClockItemOffset(item, date, offset)}`
+        // new item city
+        let clockItemCity = document.createElement("p")
+        clockItemCity.setAttribute("class", "clock-city")
+        clockItemCity.innerText = `${city}`
+        // new item time
+        let clockItemTime = document.createElement("p")
+        clockItemTime.setAttribute("class", "clock-time")
+        clockItemTime.innerText = formatClockItemTime(item, date, offset)
+        // new item move button
+        let clockItemMove = document.createElement("div")
+        clockItemMove.setAttribute("class", "clock-move")
+        // appending
+        clockItemWrap.appendChild(clockItemOffset)
+        clockItemWrap.appendChild(clockItemCity)
+        clockItem.appendChild(clockDeleteButton)
+        clockItem.appendChild(clockItemWrap)
+        clockItem.appendChild(clockItemTime)
+        clockItem.appendChild(clockItemMove)
+        list.appendChild(clockItem)
+    }
+
     function addNewClock() {
         const date = new Date()
         const timezoneItems = document.querySelectorAll(".timezone-item")
         for (let i = 0; i < timezoneItems.length; i++) {
             const item = timezoneItems[i];
             item.addEventListener("click", function () {
-                let itemOffset = item.getAttribute("data-offset")
-                // new item
-                let clockItem = document.createElement("li")
-                clockItem.setAttribute("class", "clock-item item")
-                clockItem.setAttribute("data-offset", `${itemOffset}`)
-                // new item delete button
-                let clockDeleteButton = document.createElement("button")
-                clockDeleteButton.setAttribute("class", "remove-button")
-                // new item wrapper for offset and city
-                let clockItemWrap = document.createElement("div")
-                clockItemWrap.setAttribute("class", "clock-box")
-                // new item offset
-                let clockItemOffset = document.createElement("span")
-                clockItemOffset.setAttribute("class", "clock-offset")
-                clockItemOffset.innerText = `${formatClockItemDay(item, date, itemOffset)}, ${formatClockItemOffset(item, date, itemOffset)}`
-                // new item city
-                let clockItemCity = document.createElement("p")
-                clockItemCity.setAttribute("class", "clock-city")
-                clockItemCity.innerText = `${item.textContent.split(",")[0]}`
-                // new item time
-                let clockItemTime = document.createElement("p")
-                clockItemTime.setAttribute("class", "clock-time")
-                clockItemTime.innerText = formatClockItemTime(item, date, itemOffset)
-                // new item move button
-                let clockItemMove = document.createElement("div")
-                clockItemMove.setAttribute("class", "clock-move")
-                // appending
-                clockItemWrap.appendChild(clockItemOffset)
-                clockItemWrap.appendChild(clockItemCity)
-                clockItem.appendChild(clockDeleteButton)
-                clockItem.appendChild(clockItemWrap)
-                clockItem.appendChild(clockItemTime)
-                clockItem.appendChild(clockItemMove)
-                clockList.appendChild(clockItem)
+                let city = item.textContent.split(",")[0]
+                let offset = item.getAttribute("data-offset")
+                createClockItem(clockList, item, city, date, offset)
                 // adding data to localstorage
                 let object = {
-                    offset: itemOffset,
+                    offset: item.getAttribute("data-offset"),
                     city: item.textContent.split(",")[0]
                 }
                 clockStorage.push(object)
@@ -244,6 +250,49 @@ export function clock() {
     setInterval(() => {
         updateTime()
     }, 1000);
+    
+    // store clock items in localstorage
+    function appendSavedClocks() {
+        if ((clockStorage != null || undefined) || clockStorage.length > 0) {
+            let storage = JSON.parse(localStorage.getItem("clockStorage"))
+            if (storage == null) return
+            const date = new Date()
+            storage.forEach(item => {
+                createClockItem(clockList, item, item.city, date, item.offset)
+            })
+        clockList.childElementCount > 1 ? showButton(clockEditButton) : hideButton(clockEditButton)
+        }
+    }
+    appendSavedClocks()
+
+    // add scrolling class to menu if clocklist is scrollable
+    setTimeout(() => {
+        if (clockList.scrollHeight > clockList.clientHeight) {
+            menu.classList.add("scrolling")
+        }
+    }, 0)
+
+    function observeChanges() {
+        // code here used from MDN Web Docs https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+        const targetNode = clockList
+        // Options for the observer (which mutations to observe)
+        const config = { attributes: false, childList: true, subtree: false }
+        // Callback function to execute when mutations are observed
+        const callback = (mutationList, observer) => {
+            for (const mutation of mutationList) {
+                if (mutation.type === "childList" && isScrollable(targetNode, menu)) {
+                    menu.classList.add("scrolling")
+                } else {
+                    menu.classList.remove("scrolling")
+                }
+            }
+        };
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback)
+        // Start observing the target node for configured mutations
+        observer.observe(targetNode, config)
+    }
+    observeChanges()
 
     document.addEventListener("keypress", (e) => {
         if (e.code == "KeyR") {
@@ -271,23 +320,26 @@ export function clock() {
         e.target.classList.toggle("edit-toggle")
         e.target.classList.contains("edit-toggle") ? e.target.innerText = "Done" : e.target.innerText = "Edit"
         const clockItems = document.querySelectorAll(".clock-item")
-        clockItems.forEach(item => {
+        clockItems.forEach((item, index) => {
             item.classList.toggle("remove-item")
             item.querySelector(".remove-button").addEventListener("click", function (e) {
-                const removeConfirmBtn = document.querySelector(".remove-confirm")
-                item.classList.toggle("confirm")
-                if (clockList.contains(removeConfirmBtn)) {
+                if (clockList.contains(document.querySelector(".remove-confirm"))) {
                     return
                 } else {
                     const removeConfirmBtn = document.createElement("button")
                     removeConfirmBtn.setAttribute("class", "remove-confirm")
                     removeConfirmBtn.innerText = "Delete"
-                    item.appendChild(removeConfirmBtn)                        
+                    item.appendChild(removeConfirmBtn)
+                    this.parentElement.classList.add("removing")
                     removeConfirmBtn.addEventListener("click", function (e) {
                         this.classList.add("removing")
                         this.parentElement.classList.add("removed")
+                        console.log(clockStorage)
                         setTimeout(() => {
                             this.parentElement.remove()
+                            clockStorage.splice(index, 1)
+                            localStorage.setItem("clockStorage", JSON.stringify(clockStorage))
+                            console.log(clockStorage)
                             clockList.childElementCount > 1 ? showButton(clockEditButton) : hideButton(clockEditButton)
                             clickCount = 0
                             // reset clickCount to instantly acces new confirmDelete button
@@ -301,8 +353,8 @@ export function clock() {
             window.addEventListener("click", e => {
                 let menuItem = e.target.closest(".menu-item")
                 if (e.target === clockAddButton || menuItem && menuItem !== document.querySelector("#clock.menu-item")) {
-                    clockItems.forEach(item => { 
-                        item.classList.remove("remove-item")
+                    clockItems.forEach(item => {
+                        item.classList.remove("remove-item", "removing")
                         clockEditButton.classList.remove("edit-toggle")
                         clockEditButton.innerText = "Edit"
                     })
@@ -380,20 +432,20 @@ export function clock() {
     clockList.addEventListener("scroll", function () {
         const clockHeader =  document.querySelector(".clock .block-top")
         const clockHeaderTitle = document.querySelector(".clock .block-top-title")
-        const menu = document.querySelector("menu")
-        clockHeader.classList.add("scrolling");
-        clockHeaderTitle.classList.add("scrolling");
+        clockHeader.classList.add("scrolling")
+        clockHeaderTitle.classList.add("scrolling")
         if (this.scrollTop <= 0) {
-            clockHeader.classList.remove("scrolling");
-            clockHeaderTitle.classList.remove("scrolling");
+            clockHeader.classList.remove("scrolling")
+            clockHeaderTitle.classList.remove("scrolling")
         }
         if (this.scrollTop >= (this.scrollHeight - this.offsetHeight)) {
-            menu.classList.remove("scrolling");
+            menu.classList.remove("scrolling")
         } else {
-            menu.classList.add("scrolling");
+            menu.classList.add("scrolling")
         }
     })
 
+    // hide confirm-delete button if not clicked on this button
     window.addEventListener("click", function (e) {
         const removeConfirm = document.querySelector(".remove-confirm")
         let isShown = sectionClock.contains(removeConfirm)
@@ -403,6 +455,7 @@ export function clock() {
             // add 1 to clickCount
             if (clickCount > 1) {
                 // if clickCount > 1 and not clicked on deleteConfirm then remove it
+                removeConfirm.parentElement.classList.remove("removing")
                 removeConfirm.classList.add("hide-remove-confirm")
                 setTimeout(() => {
                     removeConfirm.remove()
@@ -412,58 +465,4 @@ export function clock() {
             }
         }
     })
-
-    // store clock items in localstorage
-    if ((clockStorage != null || undefined) || clockStorage.length > 0) {
-        let storage = JSON.parse(localStorage.getItem("clockStorage"))
-        if (storage == null) return
-        const date = new Date()
-        storage.forEach(item => {
-            let li = document.createElement("li")
-            li.setAttribute("data-offset", `${item.offset}`)
-            li.classList.add("clock-item", "item")
-            li.innerHTML = `
-            <button class="remove-button"></button>
-            <div class="clock-box">
-                <span class="clock-offset">${`${formatClockItemDay(item, date, item.offset)}, ${formatClockItemOffset(item, date, item.offset)}`}</span>
-                <p class="clock-city">${item.city}</p>
-            </div>
-            <p class="clock-time">${formatClockItemTime(item, date, item.offset)}</p>
-            <div class="clock-move"></div>
-            `
-            clockList.appendChild(li)
-
-        })
-        clockList.childElementCount > 0 ? showButton(clockEditButton) : hideButton(clockEditButton)
-    }
-
-    function observeChanges() {
-        // code here used from MDN Web Docs https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-        const targetNode = clockList;
-        // Options for the observer (which mutations to observe)
-        const config = { attributes: false, childList: true, subtree: false };
-        // Callback function to execute when mutations are observed
-        const callback = (mutationList, observer) => {
-            const menu = document.querySelector("menu");
-            for (const mutation of mutationList) {
-                if (mutation.type === "childList" && isScrollable(targetNode)) {
-                    menu.classList.add("scrolling");
-                } else {
-                    menu.classList.remove("scrolling");
-                }
-            }
-        };
-        // Create an observer instance linked to the callback function
-        const observer = new MutationObserver(callback);
-        // Start observing the target node for configured mutations
-        observer.observe(targetNode, config);
-    }
-    observeChanges();
-
-    setTimeout(() => {
-        if (isScrollable(clockList)) {
-            const menu = document.querySelector("menu")
-            menu.classList.add("scrolling")
-        }
-    }, 0);
 }
