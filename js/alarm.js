@@ -10,6 +10,8 @@ export function alarm() {
     const alarmListMinute = document.getElementById("alarm-select-minute");
     const alarmLabelInput = document.getElementById("alarm-input");
     const alarmClearInputButton = document.querySelector(".alarm-input-clear");
+    const alarmSetSoundButton = document.querySelector(".alarm-sound");
+    const alarmRingtonesList = document.querySelector(".alarm .set_sound-ringtones")
     let alarmEditEnable = false;
     let inputVal;
  
@@ -397,5 +399,19 @@ export function alarm() {
         this.style.display = "none";
         alarmLabelInput.value = null;
         alarmLabelInput.focus();
+    })
+
+    alarmSetSoundButton.addEventListener("click", function (e) {
+        e.preventDefault();
+        const alarmSetSoundSection = document.querySelector(".set_sound");
+        alarmSetSoundSection.style.left = "0";
+        document.getElementById("back_button").addEventListener("click", function (e) {
+            alarmSetSoundSection.style.left = "100%";
+        })
+    })
+    
+    alarmRingtonesList.addEventListener("wheel", function (e) {
+        const setSoundHeader = document.querySelector(".set_sound-buttons");
+        this.scrollTop <= 0 ? setSoundHeader.classList.remove("scrolling") : setSoundHeader.classList.add("scrolling");
     })
 }

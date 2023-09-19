@@ -265,6 +265,33 @@ export function clock() {
     }
     appendSavedClocks()
 
+    function dragAndDrop() {
+        let down = false
+        let moveBtnIndex = 0
+        const moveButtons = document.querySelectorAll(".clock-move")
+        moveButtons.forEach((button, index) => {
+            moveButtons[index].addEventListener("mousedown", e => {
+                down = true
+                moveBtnIndex = index
+            })
+        })
+
+        sectionClock.addEventListener("mousemove", e => {
+            e.preventDefault()
+            if (down) {
+                let button = moveButtons[moveBtnIndex]
+                let parent = button.parentElement
+                let box = parent.getBoundingClientRect().top
+                parent.style.top = `${e.clientY - e.pageY}px`
+            }
+        })
+
+        window.addEventListener("mouseup", e => {
+            down = false
+        })
+    }
+    dragAndDrop()
+    
     // add scrolling class to menu if clocklist is scrollable
     setTimeout(() => {
         if (clockList.scrollHeight > clockList.clientHeight) {
