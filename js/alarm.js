@@ -10,8 +10,8 @@ export function alarm() {
     const alarmListMinute = document.getElementById("alarm-select-minute");
     const alarmLabelInput = document.getElementById("alarm-input");
     const alarmClearInputButton = document.querySelector(".alarm-input-clear");
+    const alarmSetSoundModal = document.querySelector(".alarm .set_sound")
     const alarmSetSoundButton = document.querySelector(".alarm-sound");
-    const alarmRingtonesList = document.querySelector(".alarm .set_sound-ringtones")
     let alarmEditEnable = false;
     let inputVal;
  
@@ -403,15 +403,37 @@ export function alarm() {
 
     alarmSetSoundButton.addEventListener("click", function (e) {
         e.preventDefault();
-        const alarmSetSoundSection = document.querySelector(".set_sound");
-        alarmSetSoundSection.style.left = "0";
+        alarmSetSoundModal.style.left = "0";
         document.getElementById("back_button").addEventListener("click", function (e) {
-            alarmSetSoundSection.style.left = "100%";
+            alarmSetSoundModal.style.left = "100%";
         })
+        function getRingtonesList() {
+ 
+            // Creating Our XMLHttpRequest object
+            let call = new XMLHttpRequest();
+         
+            // Making our connection 
+            let url = '../ringtones/';
+            call.open("GET", url, true);
+         
+            // function execute after request is successful
+            call.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this.responseText);
+                }
+            }
+            // Sending our request
+            call.send();
+        }
+        getRingtonesList();
     })
     
-    alarmRingtonesList.addEventListener("wheel", function (e) {
-        const setSoundHeader = document.querySelector(".set_sound-buttons");
-        this.scrollTop <= 0 ? setSoundHeader.classList.remove("scrolling") : setSoundHeader.classList.add("scrolling");
+    alarmSetSoundModal.addEventListener("scroll", function (e) {
+        const alarmSetSoundHeader = document.querySelector(".alarm .set_sound-buttons");
+        if (e.target.scrollTop > 0) {
+            alarmSetSoundHeader.classList.add("scrolling");
+        } else if (e.target.scrollTop <= 0) {
+            alarmSetSoundHeader.classList.remove("scrolling");
+        } 
     })
 }
