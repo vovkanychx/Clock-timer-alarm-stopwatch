@@ -12,8 +12,11 @@ export function alarm() {
     const alarmClearInputButton = document.querySelector(".alarm-input-clear");
     const alarmSetSoundModal = document.querySelector(".alarm .set_sound")
     const alarmSetSoundButton = document.querySelector(".alarm-sound");
+    const alarmRingtonesList = document.querySelector(".alarm .set_sound-ringtones")
     let alarmEditEnable = false;
     let inputVal;
+    let selectedSound;
+    let defaultSelectedSound = "Alarm";
  
     var alarmStorage = localStorage.getItem("alarmStorage");
     alarmStorage = alarmStorage ? alarmStorage.split(',') : [];
@@ -306,7 +309,8 @@ export function alarm() {
         enableToggleAndSaveToStorage();
         alarmLabelInput.value = null;
         inputVal = "Alarm";
-        document.querySelector(".alarm-input-clear").style.display = "none";
+        alarmClearInputButton.style.display = "none";
+        alarmSetSoundButton.querySelector("span").innerText = defaultSelectedSound;
 
     })
     
@@ -388,7 +392,7 @@ export function alarm() {
         }
     })
     
-    //if input value starts with spacebars or was added spacebars to the start
+    // if input value starts with spacebars or was added spacebars to the start
     alarmLabelInput.addEventListener("keydown", e => {
         if (e.key == " " || e.code == "Space" || /^\s/.test(e.target.value)) {
             return e.target.value = e.target.value.trimStart();
@@ -401,28 +405,50 @@ export function alarm() {
         alarmLabelInput.focus();
     })
 
+    // dynamically create list of ringtones
     alarmSetSoundButton.addEventListener("click", function (e) {
         e.preventDefault();
         alarmSetSoundModal.style.left = "0";
+        // back button
         document.getElementById("back_button").addEventListener("click", function (e) {
             alarmSetSoundModal.style.left = "100%";
+            alarmRingtonesList.querySelectorAll("audio").forEach(audio => {audio.pause(); audio.currentTime = 0});
         })
         function getRingtonesList() {
- 
-            // Creating Our XMLHttpRequest object
             let call = new XMLHttpRequest();
-         
-            // Making our connection 
-            let url = '../ringtones/';
+            let url = 'ringtones/';
             call.open("GET", url, true);
-         
-            // function execute after request is successful
             call.onreadystatechange = function () {
+                // status 200 - "OK"
+                // readyState 4 - request is finished and repsonse is ready
                 if (this.readyState == 4 && this.status == 200) {
-                    console.log(this.responseText);
+                    let str = this.responseText.match(/.*<li>.*>([\s\S]*)<\/li>.*/)[1];
+                    alarmRingtonesList.innerHTML = str;
+                    alarmRingtonesList.querySelectorAll("li").forEach(item => {
+                        let ringtoneName = item.innerText.split(".")[0].toLowerCase()
+                        const svg = '<svg xmlns="http://www.w3.org/2000/svg" class="set_sound-check_icon" viewBox="0 0 16 16"> <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" fill="#ffa500"></path></svg>'
+                        const audioElement = `<audio id=${ringtoneName}-ringtone><source src="../ringtones/${ringtoneName}.mp3" type="audio/mp3"></audio>`
+                        item.innerHTML = `${svg}${audioElement}<button>${ringtoneName}</button>`;
+                        item.addEventListener("click", function (e) {
+                            e.preventDefault();
+                            // add check icon to selected list item
+                            item.parentElement.querySelectorAll("svg").forEach(svg => svg.style.visibility = "hidden");
+                            item.querySelector("svg").style.visibility = "visible";
+                            selectedSound = item.innerText;
+                            // play/stop ringtone
+                            let audio = alarmRingtonesList.querySelector(`#${ringtoneName}-ringtone`);
+                            if (audio.paused) {
+                                audio.play();
+                            } else {
+                                audio.pause();
+                                audio.currentTime = 0;
+                            }
+                            // change ringtone name for alarm-sound button
+                            alarmSetSoundButton.querySelector("span").innerText = selectedSound;
+                        });
+                    });
                 }
             }
-            // Sending our request
             call.send();
         }
         getRingtonesList();

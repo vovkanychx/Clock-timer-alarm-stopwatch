@@ -1362,13 +1362,19 @@ p{
     align-items: center;
 }
 .set_sound-check_icon{
-    margin-left: 15px;
     width: 30px;
     height: 30px;
-    /* visibility: hidden; */
+    margin: 0 5px;
+    visibility: hidden;
+}
+.set_sound-ringtones li:first-child .set_sound-check_icon{
+    visibility: visible;
 }
 .set_sound-ringtones li button{
-    padding: 15px 0 15px 20px;
+    width: 100%;
+    text-transform: capitalize;
+    text-align: left;
+    padding: 15px 0 15px 0;
     color: rgba(255, 255, 255, 0.8);
     font-family: "Roboto", sans-serif;
     font-size: 16px;
@@ -1384,7 +1390,6 @@ p{
     padding: 15px 0 15px 40px;
     width: calc(100% - 40px);
     margin: 10px 20px;
-    margin-right: 40px;
     text-align: left;
     border-radius: 10px;
 }
