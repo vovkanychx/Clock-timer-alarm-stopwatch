@@ -416,7 +416,7 @@ export function alarm() {
         })
         function getRingtonesList() {
             let call = new XMLHttpRequest();
-            let url = 'ringtones/';
+            let url = 'https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/';
             call.open("GET", url, true);
             call.onreadystatechange = function () {
                 // status 200 - "OK"
