@@ -30,7 +30,7 @@ export function clock() {
     async function loadJSONdata() {
         // fetching the data
         // let response = await fetch("../js/data.json") local
-        let response = await fetch("https://vovkanychx.github.io/Clock-timer-alarm-stopwatch//js/data.json") //github page
+        let response = await fetch("https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/js/data.json") //github page
         jsonData = await response.json()
     }
 
