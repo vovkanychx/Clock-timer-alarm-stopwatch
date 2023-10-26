@@ -6,7 +6,7 @@ Interesting practices used:
 - BEM methodology;
 - XMLHttpRequests;
 - Adaptive design;
-- JS modules.
+- JS modules. <br />
 [Check in live demo version](https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/)
 
 Todo list:
