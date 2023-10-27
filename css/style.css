@@ -23,6 +23,9 @@
     --toggleHeight: 20px;
     --searchHeight: 30px;
 }
+html{
+    overscroll-behavior-y: none;
+}
 body{
     font-family: 'Roboto', sans-serif;
     margin: 0;

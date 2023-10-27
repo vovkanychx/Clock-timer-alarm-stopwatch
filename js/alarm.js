@@ -392,6 +392,7 @@ export function alarm() {
                 removeDeleteButtons(alarmEdit, delButtonsClass);
             }, 300);
         }
+        alarmAdd.style.visibility = "hidden";
         const date = new Date();
         loopScroll(date.getHours(), alarmListHour, 23);
         loopScroll(date.getMinutes(), alarmListMinute, 59);
