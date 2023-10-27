@@ -336,7 +336,7 @@ export function alarm() {
             button.innerText = item;
             let audioElement = document.createElement("audio");
             li.appendChild(audioElement);
-            audioElement.outerHTML = `<audio id=${item}-ringtone><source src="../ringtones/${item}.mp3" type="audio/mp3"></audio>`;
+            audioElement.outerHTML = `<audio id=${item}-ringtone><source src="https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${item}.mp3" type="audio/mp3"></audio>`;
             list.appendChild(li);
         })
         handleRingtoneClick();
