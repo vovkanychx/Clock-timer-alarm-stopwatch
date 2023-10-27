@@ -9,7 +9,7 @@ Interesting practices used:
 - Fetch API;
 - GitHub API;
 - JS modules;
-- Asynchronous functions <br />
+- Asynchronous functions. <br />
 
 Todo list:
 - check if Daylight Saving Time is in effect and it's offset
