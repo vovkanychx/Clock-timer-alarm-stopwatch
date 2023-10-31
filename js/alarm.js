@@ -14,6 +14,8 @@ export function alarm() {
     const alarmSetSoundButton = document.querySelector(".alarm-sound");
     const alarmSetSoundBackButton = document.getElementById("back_button");
     const alarmRingtonesList = document.querySelector(".alarm .set_sound-ringtones");
+    const popup = document.getElementById("alarm_complete");
+    const closeButton = document.getElementById("alarm_complete-close_button");
     let alarmEditEnable = false;
     let inputVal;
     let selectedSound;
@@ -84,16 +86,21 @@ export function alarm() {
 
     // create new alarm and add it to alarm list
     function addToList() {
-        let li = alarmList.appendChild(document.createElement("li")); // list item
-        let alarmTime = li.appendChild(document.createElement("p")); // list item time
-        let createAlarmToggle = li.appendChild(document.createElement("button")); // list item toggle button
-        createAlarmToggle.appendChild(document.createElement("span")).classList.add("circle"); // list item toggle button circle
+        let li = alarmList.appendChild(document.createElement("li")); // list item (alarm)
+        let alarmTime = li.appendChild(document.createElement("p")); // alarm time
+        let createAlarmToggle = li.appendChild(document.createElement("button")); // alarm toggle button
+        let alarmLabel = document.createElement("span"); // list item ringtone name
+        createAlarmToggle.appendChild(document.createElement("span")).classList.add("circle"); // toggle button circle
         li.setAttribute("class", "alarm-item item"); // list item class
-        alarmTime.setAttribute("class", "alarm-time"); // list item time class
-        createAlarmToggle.setAttribute("class", "alarm-toggle toggle"); // list item toggle class
+        li.setAttribute("ringtone-name", selectedSound.toLowerCase()); // set alarm selected sound to acces and play it when alarm is complete
+        alarmTime.setAttribute("class", "alarm-time"); // alarm time class
+        createAlarmToggle.setAttribute("class", "alarm-toggle toggle"); // alarm toggle button class
         let selectedHour = parseInt(document.getElementById("alarm-select-hour").querySelector(".active").innerText); // get hour from list of options
         let selectedMinute = parseInt(document.getElementById("alarm-select-minute").querySelector(".active").innerText); // get minute from list of options
-        alarmTime.innerHTML = checkTime(selectedHour) + ":" + checkTime(selectedMinute) + `<span>${inputVal}</span>`;
+        alarmTime.innerText = checkTime(selectedHour) + ":" + checkTime(selectedMinute); // show time
+        alarmLabel.classList.add("ringtone-name");
+        alarmLabel.innerText = inputVal; // show label set for alarm
+        alarmTime.appendChild(alarmLabel);
         // add new item to alarmstorage
         alarmStorage.push(li.outerHTML);
         localStorage.removeItem("alarmStorage");
@@ -270,6 +277,41 @@ export function alarm() {
             });
         }
     }
+
+    // play sound when alarm is completed
+    function completePlaySound (alarmItem, audioElement) {
+        let soundName = alarmItem.getAttribute("ringtone-name");
+        audioElement.src = `../ringtones/${soundName}.mp3`;
+        audioElement.loop = true;
+        audioElement.play();
+    }
+
+    // show popup
+    function showCompletePopup(alarmItem) {
+        const popupHeading = document.getElementById("alarm_complete-heading");
+        const popupLabel = document.getElementById("alarm_complete-label");
+        popupHeading.innerText = "Alarm";
+        popupLabel.innerText = alarmItem.querySelector(".ringtone-name").innerText;
+        popup.style.top = "0";
+    }
+
+    // close popup handler
+    function closeCompletePopup(popupEl, audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        const styleValue = getComputedStyle(popupEl).getPropertyValue("--completeHiddenValue");
+        popupEl.style.top = styleValue;
+    }
+
+    // execute when alarm is completed
+    function alarmComplete(alarmItem) {
+        let audio = new Audio();
+        completePlaySound (alarmItem, audio);
+        showCompletePopup(alarmItem);
+        closeButton.addEventListener("click", () => {
+            return closeCompletePopup(popup, audio);
+        });
+    }
     
     function startAlarm() {
         alarmList.querySelectorAll(".alarm-toggle").forEach((toggle, index) => {
@@ -280,14 +322,14 @@ export function alarm() {
             let alarmHours = parseInt(toggle.parentElement.querySelector(".alarm-time").innerText.split(":")[0]);
             let alarmMinutes = parseInt(toggle.parentElement.querySelector(".alarm-time").innerText.split(":")[1]);
             let alarmSeconds = 0;
-            if (toggle.classList.contains("toggle")) {
-                if (curHours == alarmHours && curMinutes == alarmMinutes && curSeconds == alarmSeconds) {
-                    toggle.classList.remove("toggle");
-                    alarmStorage[index] = alarmList.getElementsByTagName("li")[index].outerHTML;
-                    localStorage.removeItem("alarmStorage");
-                    localStorage.setItem("alarmStorage", alarmStorage.toString());
-                    return alert("Alarm notification!");
-                }
+            const isAlarmOff = (curHours == alarmHours && curMinutes == alarmMinutes && curSeconds == alarmSeconds);
+            if (toggle.classList.contains("toggle") && isAlarmOff) {
+                toggle.classList.remove("toggle");
+                alarmStorage[index] = alarmList.getElementsByTagName("li")[index].outerHTML;
+                localStorage.removeItem("alarmStorage");
+                localStorage.setItem("alarmStorage", alarmStorage.toString());
+                // return alert("Alarm notification!");
+                return alarmComplete(toggle.parentElement);
             } else {
                 return
             }
@@ -327,25 +369,44 @@ export function alarm() {
         arr.forEach(item => {
             let li = document.createElement("li");
             // li.setAttribute("checked", false);
-            let svg = document.createElement("svg");
-            li.appendChild(svg);
-            svg.outerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="set_sound-check_icon" viewBox="0 0 16 16"> <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" fill="#ffa500"></path></svg>';
+            let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.classList.add("set_sound-check_icon");
+            svg.setAttribute("viewBox", "0 0 16 16");
+            let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", "M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z");
+            path.setAttribute("fill", "#ffa500"); 
+            svg.appendChild(path);
             let button = document.createElement("button");
             li.appendChild(svg);
             li.appendChild(button);
             button.innerText = item;
-            let audioElement = document.createElement("audio");
-            li.appendChild(audioElement);
-            audioElement.outerHTML = `<audio id=${item}-ringtone><source src="https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${item}.mp3" type="audio/mp3"></audio>`;
             list.appendChild(li);
         })
         handleRingtoneClick();
     }
 
+    // play/pause audio element (works on IOS aswell)
+    function playAudio(htmlElement, soundName) {
+        let ringtoneName = soundName.toLowerCase();
+        let audioElement = document.createElement("audio");
+        audioElement.setAttribute("id", `${ringtoneName}-ringtone`);
+        let audioElementSource = document.createElement("source");
+        audioElementSource.setAttribute("src", `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${ringtoneName}.mp3`);
+        audioElementSource.setAttribute("type", "audio/mp3");
+        audioElement.appendChild(audioElementSource);
+        htmlElement.appendChild(audioElement);
+        if (audioElement.paused) {
+            alarmRingtonesList.querySelectorAll("audio").forEach(audio => {audio.pause(); audio.currentTime = 0;});
+            audioElement.play();
+        } else {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+        }
+    }
+
     // execute code when clicked on ringtone in ringtones list
     function handleRingtoneClick() {
         alarmRingtonesList.querySelectorAll("li").forEach(li => {
-            let ringtoneName = li.innerText.toLowerCase()
             li.addEventListener("click", function (e) {
                 e.preventDefault();
                 // add checked attribute for li that was clicked
@@ -355,18 +416,12 @@ export function alarm() {
                 li.parentElement.querySelectorAll("svg").forEach(svg => svg.style.visibility = "hidden");
                 li.querySelector("svg").style.visibility = "visible";
                 selectedSound = li.innerText;
-                // play/stop ringtone
-                let audio = alarmRingtonesList.querySelector(`#${ringtoneName}-ringtone`);
-                if (audio.paused) {
-                    alarmRingtonesList.querySelectorAll("audio").forEach(audio => {audio.pause(); audio.currentTime = 0;});
-                    audio.play();
-                } else {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }
-                // change ringtone name for alarm-sound button
                 alarmSetSoundButton.querySelector("span").innerText = selectedSound;
             });
+            li.onclick = () => {
+                let soundName = li.innerText;
+                return playAudio(li, soundName);
+            }
         })
     }
 
@@ -402,6 +457,7 @@ export function alarm() {
         alarmClearInputButton.style.display = "none";
         alarmSetSoundButton.querySelector("span").innerText = defaultSelectedSound;
         resetCheckedRingtone();
+        selectedSound = defaultSelectedSound;
     })
     
     alarmEdit.addEventListener("click", function () {
@@ -442,6 +498,7 @@ export function alarm() {
             alarmAdd.style.visibility = "hidden";
         }
         document.querySelector(".alarm .block-top-title").style.visibility = "visible";
+        selectedSound = defaultSelectedSound;
     })
 
     // add scrolling classes to menu and block-top
