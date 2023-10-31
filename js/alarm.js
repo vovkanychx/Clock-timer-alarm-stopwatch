@@ -279,9 +279,9 @@ export function alarm() {
     }
 
     // play sound when alarm is completed
-    function completePlaySound (alarmItem, audioElement) {
+    function completePopupPlaySound (alarmItem, audioElement) {
         let soundName = alarmItem.getAttribute("ringtone-name");
-        audioElement.src = `../ringtones/${soundName}.mp3`;
+        audioElement.src = `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${soundName}.mp3`;
         audioElement.loop = true;
         audioElement.play();
     }
@@ -306,7 +306,7 @@ export function alarm() {
     // execute when alarm is completed
     function alarmComplete(alarmItem) {
         let audio = new Audio();
-        completePlaySound (alarmItem, audio);
+        completePopupPlaySound (alarmItem, audio);
         showCompletePopup(alarmItem);
         closeButton.addEventListener("click", () => {
             return closeCompletePopup(popup, audio);
