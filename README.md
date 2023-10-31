@@ -15,7 +15,7 @@ Todo list:
 - check if Daylight Saving Time is in effect and it's offset
 - drag and drop;
 - adapt for mobile devices;
-- finish ringtones for timer and alarm;
+- finish ringtones for timer;
 - fix addition of "scrolling" class to menu when lists scrollHeight are not overlapping clientHeight. <br />
 
 
