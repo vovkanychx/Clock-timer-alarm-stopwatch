@@ -16,6 +16,7 @@ export function alarm() {
     const alarmRingtonesList = document.querySelector(".alarm .set_sound-ringtones");
     const popup = document.getElementById("alarm_complete");
     const closeButton = document.getElementById("alarm_complete-close_button");
+    const noRingtoneButton = document.getElementById("button_none");
     let alarmEditEnable = false;
     let inputVal;
     let selectedSound;
@@ -280,6 +281,7 @@ export function alarm() {
 
     // play sound when alarm is completed
     function completePopupPlaySound (alarmItem, audioElement) {
+        if (selectedSound.toLowerCase() == noRingtoneButton.innerText.toLowerCase()) { return }
         let soundName = alarmItem.getAttribute("ringtone-name");
         audioElement.src = `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${soundName}.mp3`;
         audioElement.loop = true;
@@ -328,7 +330,6 @@ export function alarm() {
                 alarmStorage[index] = alarmList.getElementsByTagName("li")[index].outerHTML;
                 localStorage.removeItem("alarmStorage");
                 localStorage.setItem("alarmStorage", alarmStorage.toString());
-                // return alert("Alarm notification!");
                 return alarmComplete(toggle.parentElement);
             } else {
                 return
@@ -413,6 +414,7 @@ export function alarm() {
                 li.parentElement.querySelectorAll("li").forEach(li => li.setAttribute("checked", false));
                 li.setAttribute("checked", true);
                 // add check icon to selected list item
+                noRingtoneButton.querySelector("svg").style.visibility = "hidden";
                 li.parentElement.querySelectorAll("svg").forEach(svg => svg.style.visibility = "hidden");
                 li.querySelector("svg").style.visibility = "visible";
                 selectedSound = li.innerText;
@@ -482,6 +484,7 @@ export function alarm() {
         alarmAdd.style.visibility = "visible";
         document.querySelector(".alarm-popup").classList.remove("opened");
         document.querySelector(".alarm .block-top-title").style.visibility = "visible";
+        noRingtoneButton.querySelector("svg").style.visibility = "hidden";
     })
 
     // close modal
@@ -499,6 +502,7 @@ export function alarm() {
         }
         document.querySelector(".alarm .block-top-title").style.visibility = "visible";
         selectedSound = defaultSelectedSound;
+        noRingtoneButton.querySelector("svg").style.visibility = "hidden";
     })
 
     // add scrolling classes to menu and block-top
@@ -552,15 +556,22 @@ export function alarm() {
         alarmLabelInput.focus();
     })
 
-    // dynamically create list of ringtones
     alarmSetSoundButton.addEventListener("click", function (e) {
         e.preventDefault();
         alarmSetSoundModal.style.left = "0";
     })
 
+    noRingtoneButton.addEventListener("click", function (e) {
+        alarmRingtonesList.querySelectorAll("svg").forEach( svg => svg.style.visibility = "hidden" );
+        this.querySelector("svg").style.visibility = "visible";
+        selectedSound = e.target.innerText;
+        alarmSetSoundButton.querySelector("span").innerText = selectedSound;
+    })
+
     alarmSetSoundBackButton.addEventListener("click", function (e) {
         alarmSetSoundModal.style.left = "100%";
         alarmRingtonesList.querySelectorAll("audio").forEach(audio => {audio.pause(); audio.currentTime = 0});
+        console.log(selectedSound)
     })
     
     alarmSetSoundModal.addEventListener("scroll", function (e) {
