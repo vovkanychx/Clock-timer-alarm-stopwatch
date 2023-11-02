@@ -308,11 +308,6 @@ export function timer () {
         });
     }
 
-    function setSoundButtonsHandler() {
-        setSoundPopup.style.top = "100%";
-        resetOnClick(setSoundList);
-    }
-
     function resetOnClick(list) {
         list.querySelectorAll("li").forEach(li => {
             if (li.contains(li.querySelector("audio"))) {
@@ -320,6 +315,12 @@ export function timer () {
                 li.querySelector("audio").currentTime = 0;
             }
         });
+        noRingtoneBtn.querySelector("svg").style.visibility = "hidden";
+    }
+
+    function setSoundButtonsHandler() {
+        setSoundPopup.style.top = "100%";
+        resetOnClick(setSoundList);
     }
 
     startButton.addEventListener("click", function () {
@@ -386,6 +387,9 @@ export function timer () {
     timerActionBtn.addEventListener("click", (e) => {
         setSoundPopup.style.top = "5%";
         selectedSecond = localStorage.getItem("selectedSound");
+        if (!setSoundList.contains(setSoundList.querySelector('[selected="true"]'))) {
+            setSoundList.querySelector("li").setAttribute("selected", true);
+        }
         if (setSoundList.querySelector('[selected="true"]').innerText.toLowerCase() !== localStorage.getItem("selectedSound").toLowerCase()) {
             setSoundList.querySelectorAll("li").forEach(li => {
                 li.setAttribute("selected", false);
@@ -395,16 +399,29 @@ export function timer () {
                     li.querySelector("svg").style.visibility = "visible";
                 }
             })
-        } else {
+        } else if (localStorage.getItem("selectedSound").toLowerCase() === noRingtoneBtn.innerText.toLowerCase()) {
+            resetOnClick();
+            timerActionLabel.innerText = localStorage.getItem("selectedSound");
+        }
+        else {
             setSoundList.querySelectorAll("svg").forEach(svg => svg.style.visibility = "hidden");
             setSoundList.querySelector('[selected="true"').querySelector("svg").style.visibility = "visible";
+        }
+        if (localStorage.getItem("selectedSound").toLowerCase() === noRingtoneBtn.innerText.toLowerCase()) {
+            // have no clue why the same code is not working in the same else if statement
+            noRingtoneBtn.querySelector("svg").style.visibility = "visible";
         }
     })
 
     setSoundSetBtn.addEventListener("click", (e) => {
         setSoundButtonsHandler();
-        localStorage.setItem("selectedSound", setSoundList.querySelectorAll('[selected="true"]')[0].innerText);
-        timerActionLabel.innerText = setSoundList.querySelectorAll('[selected="true"]')[0].innerText;
+        if (setSoundList.contains(setSoundList.querySelector('[selected="true"'))) {
+            localStorage.setItem("selectedSound", setSoundList.querySelectorAll('[selected="true"]')[0].innerText);
+            timerActionLabel.innerText = setSoundList.querySelectorAll('[selected="true"]')[0].innerText;
+        } else {
+            localStorage.setItem("selectedSound", noRingtoneBtn.innerText.toLowerCase());
+            timerActionLabel.innerText = noRingtoneBtn.innerText;
+        }
     })
 
     setSoundCancelBtn.addEventListener("click", (e) => { 
@@ -414,6 +431,10 @@ export function timer () {
 
     noRingtoneBtn.addEventListener("click", (e) => {
         resetOnClick(setSoundList);
+        setSoundList.querySelectorAll("li").forEach(li => {
+            li.querySelector("svg").style.visibility = "hidden";
+            li.setAttribute("selected", false);
+        })
         e.target.querySelector("svg").style.visibility = "visible";
         selectedSound = e.target.innerText;
         timerActionLabel.innerText = selectedSound;
