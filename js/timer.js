@@ -1,17 +1,28 @@
 import { checkTime } from "../js/script.js";
 export function timer () {
-    const hoursList        = document.getElementById("hours");
-    const minutesList      = document.getElementById("minutes");
-    const secondsList      = document.getElementById("seconds");
-    const showHour         = document.querySelector(".timer-clock .hour");
-    const showMinute       = document.querySelector(".timer-clock .minute");
-    const showSecond       = document.querySelector(".timer-clock .second");
-    const showMilSec       = document.querySelector(".timer-clock .millisecond")
-    const startButton      = document.getElementById("start-pause");
-    const cancelButton     = document.getElementById("cancel");
-    const circleColor      = document.querySelector(".meter");
+    const hoursList         = document.getElementById("hours");
+    const minutesList       = document.getElementById("minutes");
+    const secondsList       = document.getElementById("seconds");
+    const showHour          = document.querySelector(".timer-clock .hour");
+    const showMinute        = document.querySelector(".timer-clock .minute");
+    const showSecond        = document.querySelector(".timer-clock .second");
+    const showMilSec        = document.querySelector(".timer-clock .millisecond")
+    const startButton       = document.getElementById("start-pause");
+    const cancelButton      = document.getElementById("cancel");
+    const circleColor       = document.querySelector(".meter");
+    const timerActionBtn    = document.getElementById("timer_action");
+    const timerActionLabel  = document.querySelector(".timer_action-label");
+    const setSoundPopup     = document.querySelector(".timer .set_sound");
+    const setSoundSetBtn    = document.querySelector(".timer #set_button");
+    const setSoundCancelBtn = document.querySelector(".timer #cancel_button");
+    const setSoundList      = document.querySelector(".timer .set_sound-ringtones");
+    const noRingtoneBtn     = document.querySelector(".timer #button_none");
+
+    const RINGTONES_URL = "https://api.github.com/repos/vovkanychx/Clock-timer-alarm-stopwatch/git/trees/master?recursive=1";
     let timerInterval;
     let timerStarted = false;
+    let soundNames = [];
+    let selectedSound;
     
     let selectedMilSec, selectedSecond, selectedMinute, selectedHour;
     selectedMilSec = selectedSecond = selectedMinute = selectedHour = 0;
@@ -21,14 +32,29 @@ export function timer () {
     activeMinute = parseInt(localStorage.getItem("timerMinute"))
     activeSecond = parseInt(localStorage.getItem("timerSecond"))
 
+    async function selectedSoundLocalStorage(list) {
+        if (localStorage.getItem("selectedSound") === null) {
+            timerActionLabel.innerText = "Alarm";
+            list.querySelector("li").setAttribute("selected", true);
+            localStorage.setItem("selectedSound", list.querySelector('[selected="true"').innerText.toLowerCase());
+        } else {
+            timerActionLabel.innerText = localStorage.getItem("selectedSound");
+            list.querySelectorAll("li").forEach(li => {
+                if (localStorage.getItem("selectedSound").toLowerCase() === li.innerText.toLowerCase()) {
+                    li.setAttribute("selected", true);
+                }
+            })
+        }
+    }
+
     if (activeHour === undefined || activeMinute === undefined || activeSecond === undefined ||
         activeHour === null || activeMinute === null || activeSecond === null ||
         isNaN(activeHour) || isNaN(activeMinute) || isNaN(activeSecond)) 
     {
         activeHour = activeMinute = activeSecond = 0;
-        callMuliple();
+        callMultiple();
     } 
-    else { callMuliple() }
+    else { callMultiple() }
 
     function scrollToActiveElement(list, active) {
         list.scrollTop = list.querySelector("li").offsetHeight * active;
@@ -76,7 +102,7 @@ export function timer () {
         return
     }
 
-    function callMuliple() {
+    function callMultiple() {
         createListItems(hoursList, 24)
         createListItems(minutesList, 60); 
         createListItems(secondsList, 60);
@@ -205,6 +231,97 @@ export function timer () {
         localStorage.setItem("timerInterval", timerInterval);
     }
 
+    async function callAPI(url, list) {
+        const response = await fetch(url);
+        const responseData = await response.json();
+        await getSoundNames(responseData);
+        await renderArrToList(list);
+        await handleSoundItemClick(list);
+        await selectedSoundLocalStorage(list)
+    }
+    callAPI(RINGTONES_URL, setSoundList);
+
+    async function getSoundNames(data) {
+        if (data?.tree) {
+            for (let key in data.tree) {
+                if (data.tree[key].path.includes("ringtones/")) {
+                    let soundNameNoFormat = data.tree[key].path; // output: "ringtones/soundname.mp3"
+                    let soundName = soundNameNoFormat.split("/")[1].split(".")[0]; // output: "soundname.mp3" -> "soundname"
+                    soundNames.push(soundName);
+                }
+            }
+            return soundNames;
+        } else {
+            return;
+        }
+    }
+
+    async function renderArrToList(list) {
+        const svg = `<svg class="set_sound-check_icon" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" fill="#ffa500"></path></svg>`;
+        const mappedList = soundNames.map(soundName => {
+            return `<li selected="false">${svg}<button>${soundName}</button></li>`;
+        }).join("");
+        list.innerHTML = mappedList;        
+        // list.querySelector("li").setAttribute("selected", true);
+        localStorage.getItem("selectedSound") === null ? timerActionLabel.innerText = list.querySelector("li").innerText : timerActionLabel.innerText = localStorage.getItem("selectedSound");
+    }
+
+    function playAudio(htmlElement, soundName, list) {
+        soundName = soundName.toLowerCase();
+        let audioElement;
+        function createAudioAndAppend(soundName) {
+            audioElement = document.createElement("audio");
+            audioElement.setAttribute("id", `${soundName}-ringtone`);
+            let audioElementSource = document.createElement("source");
+            audioElementSource.setAttribute("src", `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${soundName}.mp3`);
+            audioElementSource.setAttribute("type", "audio/mp3");
+            audioElement.appendChild(audioElementSource);
+            htmlElement.appendChild(audioElement);
+        }
+        htmlElement.querySelectorAll("audio").length === 0 ? createAudioAndAppend(soundName) : audioElement = htmlElement.querySelector(`#${soundName}-ringtone`);
+        if (audioElement.paused) {
+            list.querySelectorAll("audio").forEach(audio => {audio.pause()});
+            audioElement.play();
+        } else {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+        }
+    }
+
+    async function handleSoundItemClick (list) {
+        list.querySelectorAll("li").forEach(li => {
+            li.addEventListener("click", (e) => {
+                e.preventDefault();
+                // add check icon to selected list item
+                noRingtoneBtn.querySelector("svg").style.visibility = "hidden";
+                li.parentElement.querySelectorAll("svg").forEach(svg => svg.style.visibility = "hidden");
+                list.querySelectorAll("li").forEach(li => li.setAttribute("selected", false));
+                li.setAttribute("selected", true);
+                li.querySelector("svg").style.visibility = "visible";
+                selectedSound = li.innerText.toLowerCase();
+                timerActionLabel.innerText = selectedSound;
+            });
+            li.onclick = () => {
+                let soundName = li.innerText;
+                return playAudio(li, soundName, list);
+            }
+        });
+    }
+
+    function setSoundButtonsHandler() {
+        setSoundPopup.style.top = "100%";
+        resetOnClick(setSoundList);
+    }
+
+    function resetOnClick(list) {
+        list.querySelectorAll("li").forEach(li => {
+            if (li.contains(li.querySelector("audio"))) {
+                li.querySelector("audio").pause();
+                li.querySelector("audio").currentTime = 0;
+            }
+        });
+    }
+
     startButton.addEventListener("click", function () {
         clearInterval(timerInterval);
         if (parseInt(hoursList.querySelector(".active").textContent) == 0 && 
@@ -264,5 +381,41 @@ export function timer () {
         localStorage.setItem("timerStarted", timerStarted);
         selectedMilSec = 0;
         circleColor.style.setProperty("--strokeOffset", "0");
+    })
+
+    timerActionBtn.addEventListener("click", (e) => {
+        setSoundPopup.style.top = "5%";
+        selectedSecond = localStorage.getItem("selectedSound");
+        if (setSoundList.querySelector('[selected="true"]').innerText.toLowerCase() !== localStorage.getItem("selectedSound").toLowerCase()) {
+            setSoundList.querySelectorAll("li").forEach(li => {
+                li.setAttribute("selected", false);
+                li.querySelector("svg").style.visibility = "hidden";
+                if (li.innerText.toLowerCase() == localStorage.getItem("selectedSound").toLocaleLowerCase()) {
+                    li.setAttribute("selected", true);
+                    li.querySelector("svg").style.visibility = "visible";
+                }
+            })
+        } else {
+            setSoundList.querySelectorAll("svg").forEach(svg => svg.style.visibility = "hidden");
+            setSoundList.querySelector('[selected="true"').querySelector("svg").style.visibility = "visible";
+        }
+    })
+
+    setSoundSetBtn.addEventListener("click", (e) => {
+        setSoundButtonsHandler();
+        localStorage.setItem("selectedSound", setSoundList.querySelectorAll('[selected="true"]')[0].innerText);
+        timerActionLabel.innerText = setSoundList.querySelectorAll('[selected="true"]')[0].innerText;
+    })
+
+    setSoundCancelBtn.addEventListener("click", (e) => { 
+        setSoundButtonsHandler();
+        timerActionLabel.innerText = localStorage.getItem("selectedSound");
+    })
+
+    noRingtoneBtn.addEventListener("click", (e) => {
+        resetOnClick(setSoundList);
+        e.target.querySelector("svg").style.visibility = "visible";
+        selectedSound = e.target.innerText;
+        timerActionLabel.innerText = selectedSound;
     })
 }
