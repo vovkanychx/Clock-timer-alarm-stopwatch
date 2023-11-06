@@ -231,13 +231,13 @@ export function timer () {
         localStorage.setItem("timerInterval", timerInterval);
     }
 
-    navigator.serviceWorker.register('../sw.js');
+    navigator.serviceWorker.register('sw.js');
     Notification.requestPermission(function(result) {
-    if (result === 'granted') {
-        navigator.serviceWorker.ready.then(function(registration) {
-        registration.showNotification('Notification with ServiceWorker');
-        });
-    }
+        if (result === 'granted') {
+            navigator.serviceWorker.ready.then(function(registration) {
+                registration.showNotification('Notification with ServiceWorker');
+            });
+        }
     });
 
     async function callAPI(url, list) {
