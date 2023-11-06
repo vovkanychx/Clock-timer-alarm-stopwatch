@@ -796,14 +796,14 @@ p{
     position: relative;
     justify-content: center;
     align-items: center;
-    width: 50dvh;
+    height: 100%;
     aspect-ratio: 1 / 1;
     min-width: 250px;
-    /* height: 35vw; */
+    max-height: 300px;
     min-height: 250px;
     font-size: 32px;
     color: #fff;
-    margin: 20px auto;    
+    margin: 20px auto 0;    
     -webkit-animation: fadeIn 0.5s;
     animation: fadeIn 0.5s;
 }
