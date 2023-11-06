@@ -56,8 +56,8 @@ export function timer () {
     } 
     else { callMultiple() }
 
-    function scrollToActiveElement(list, active) {
-        list.scrollTop = list.querySelector("li").offsetHeight * active;
+    function scrollToActiveElement(list) {
+        list.scrollTo({ top: list.querySelector("li").offsetHeight * Number(list.querySelector(".active").innerText) });
     }
 
     if (localStorage.getItem("timerStarted") === "true") {
@@ -122,7 +122,7 @@ export function timer () {
     function scrollClick (list, active) {
         list.getElementsByTagName("li")[Math.abs(active)].classList.add("active");
         setTimeout(() => {
-            scrollToActiveElement(list, active);
+            scrollToActiveElement(list);
         }, 0);
         list.addEventListener("wheel", (e) => {
             // e.preventDefault(); //disable scrolling
@@ -188,9 +188,9 @@ export function timer () {
             document.querySelector(".timer-clock").style.display = "none";
             document.querySelector(".timer-container").style.display = "block";
             displaySelected();
-            scrollToActiveElement(hoursList, activeHour);
-            scrollToActiveElement(minutesList, activeMinute);
-            scrollToActiveElement(secondsList, activeSecond);
+            scrollToActiveElement(hoursList);
+            scrollToActiveElement(minutesList);
+            scrollToActiveElement(secondsList);
             timerStarted = false;
             localStorage.setItem("timerStarted", timerStarted);
             circleColor.style.setProperty("--strokeOffset", '0');
@@ -231,6 +231,37 @@ export function timer () {
         localStorage.setItem("timerInterval", timerInterval);
     }
 
+    navigator.serviceWorker.register('sw.js');
+    Notification.requestPermission(function(result) {
+    if (result === 'granted') {
+        navigator.serviceWorker.ready.then(function(registration) {
+        registration.showNotification('Notification with ServiceWorker');
+        });
+    }
+    });
+
+    if ('Notification' in window) {
+        Notification.requestPermission();
+      }
+    // Check if the browser supports notifications
+    if (!("Notification" in window)) {
+        alert("This browser does not support desktop notification");
+    }
+    // Let's check whether notification permissions have already been granted
+    else if (Notification.permission === "granted") {
+        // If it's okay let's create a notification
+        var notification = new Notification("Hi there!");
+    }
+    // Otherwise, we need to ask the user for permission
+    else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(function (permission) {
+        // If the user accepts, let's create a notification
+        if (permission === "granted") {
+            var notification = new Notification("Hi there!");
+        }
+        });
+    }
+
     async function callAPI(url, list) {
         const response = await fetch(url);
         const responseData = await response.json();
@@ -239,7 +270,7 @@ export function timer () {
         await handleSoundItemClick(list);
         await selectedSoundLocalStorage(list)
     }
-    callAPI(RINGTONES_URL, setSoundList);
+    // callAPI(RINGTONES_URL, setSoundList);
 
     async function getSoundNames(data) {
         if (data?.tree) {
