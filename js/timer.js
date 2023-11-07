@@ -231,15 +231,6 @@ export function timer () {
         localStorage.setItem("timerInterval", timerInterval);
     }
 
-    navigator.serviceWorker.register('/sw.js');
-    Notification.requestPermission(function(result) {
-        if (result === 'granted') {
-            navigator.serviceWorker.ready.then(function(registration) {
-                registration.showNotification('Notification with ServiceWorker');
-            });
-        }
-    });
-
     async function callAPI(url, list) {
         const response = await fetch(url);
         const responseData = await response.json();
@@ -248,7 +239,7 @@ export function timer () {
         await handleSoundItemClick(list);
         await selectedSoundLocalStorage(list)
     }
-    // callAPI(RINGTONES_URL, setSoundList);
+    callAPI(RINGTONES_URL, setSoundList);
 
     async function getSoundNames(data) {
         if (data?.tree) {
@@ -449,3 +440,17 @@ export function timer () {
         timerActionLabel.innerText = selectedSound;
     })
 }
+
+function testSupport(APIName, location, HTMLElement) {
+    if (`${APIName}` in location) {
+        HTMLElement.style.backgroundColor = "green";
+        HTMLElement.innerText = `${APIName} is supported in this browser`;
+    } else {
+        HTMLElement.style.backgroundColor = "red";
+        HTMLElement.innerText = `${APIName} is not supported in this browser`;
+    }
+}
+
+testSupport("Notification", window, document.querySelector("#notificationBtn1"));
+testSupport("PushManager", window, document.querySelector("#notificationBtn2"));
+testSupport("serviceWorker", navigator, document.querySelector("#notificationBtn3"));
