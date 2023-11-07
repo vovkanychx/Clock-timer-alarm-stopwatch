@@ -800,3 +800,24 @@
 //     //     }
 //     // };
 // }
+
+
+// TESTING BROWSER SUPPORT 
+
+// function testSupport(APIName, location, HTMLElement) {
+//     if (`${APIName}` in location) {
+//         HTMLElement.style.backgroundColor = "green";
+//         HTMLElement.innerText = `${APIName} is supported in this browser`;
+//     } else {
+//         HTMLElement.style.backgroundColor = "red";
+//         HTMLElement.innerText = `${APIName} is not supported in this browser`;
+//     }
+// }
+
+// testSupport("Notification", window, document.querySelector("#notificationBtn1"));
+// testSupport("PushManager", window, document.querySelector("#notificationBtn2"));
+// testSupport("serviceWorker", navigator, document.querySelector("#notificationBtn3"));
+
+// Tested with Secure connection.
+// Browsers: Chrome IOS, Safari, Firefox IOS, Opera IOS, Edge IOS. SUPPORTED: ServiceWorker. NOT SUPPORTED: Notification, PushManager. Tested on IOS 16.6.1
+// Browsers: Chrome Desktop, Edge Desktop. SUPPORTED: ServiceWorker, Notification, PushManager. NOT SUPPORTED: -.
