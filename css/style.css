@@ -1314,7 +1314,7 @@ p{
     transform: rotate(-45deg);
     -webkit-transform: rotate(-45deg);
 }
-#alarm_complete{
+#popup_complete{
     --completeHiddenValue: -300px;
     position: fixed;
     z-index: 15;
@@ -1334,26 +1334,26 @@ p{
     align-items: center;
     transition: top 0.25s ease-in-out;
 }
-#alarm_complete img{
+#popup_complete img{
     width: 30px;
     aspect-ratio: 1 / 1;
     margin-left: 2vmin;
 }
-.alarm_complete-text_wrapper{
+.popup_complete-text_wrapper{
     display: flex;
     flex-direction: column;
     margin-left: 3vmin;
     text-align: left;
 }
-#alarm_complete-heading{
+#popup_complete-heading{
     margin-bottom: 2px;
     text-transform: capitalize;
 }
-#alarm_complete-label{
+#popup_complete-label{
     font-size: 12px;
     text-transform: capitalize;
 }
-#alarm_complete-close_button{
+#popup_complete-close_button{
     margin-left: auto;
     height: 100%;
     padding: 5px;
