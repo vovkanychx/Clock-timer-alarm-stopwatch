@@ -23,6 +23,7 @@ export function timer () {
     let timerStarted = false;
     let soundNames = [];
     let selectedSound;
+    let isTimerPlaying = false;
     
     let selectedMilSec, selectedSecond, selectedMinute, selectedHour;
     selectedMilSec = selectedSecond = selectedMinute = selectedHour = 0;
@@ -33,7 +34,7 @@ export function timer () {
     activeSecond = parseInt(localStorage.getItem("timerSecond"))
 
     async function selectedSoundLocalStorage(list) {
-        if (localStorage.getItem("selectedSound") === null) {
+        if (localStorage.getItem("selectedSound") === null || localStorage.getItem("selectedSound") === "") {
             timerActionLabel.innerText = "Alarm";
             list.querySelector("li").setAttribute("selected", true);
             localStorage.setItem("selectedSound", list.querySelector('[selected="true"').innerText.toLowerCase());
@@ -47,14 +48,18 @@ export function timer () {
         }
     }
 
-    if (activeHour === undefined || activeMinute === undefined || activeSecond === undefined ||
+    const isUndefined = 
+        activeHour === undefined || activeMinute === undefined || activeSecond === undefined ||
         activeHour === null || activeMinute === null || activeSecond === null ||
-        isNaN(activeHour) || isNaN(activeMinute) || isNaN(activeSecond)) 
-    {
+        isNaN(activeHour) || isNaN(activeMinute) || isNaN(activeSecond);
+
+    if (isUndefined) {
         activeHour = activeMinute = activeSecond = 0;
         callMultiple();
     } 
-    else { callMultiple() }
+    else { 
+        callMultiple() 
+    }
 
     function scrollToActiveElement(list) {
         list.scrollTo({ top: list.querySelector("li").offsetHeight * Number(list.querySelector(".active").innerText) });
@@ -84,7 +89,7 @@ export function timer () {
     }
     
     // disable default scroll when scrolling on container
-    document.querySelector(".timer-container").addEventListener("wheel", (e) => { e.preventDefault(); })
+    document.querySelector(".timer-container").addEventListener("wheel", (e) => { e.preventDefault(); });
 
     //create list select options (list items 0-23h 0-59m/s)
     function createListItems(list, lastItem) {
@@ -194,7 +199,7 @@ export function timer () {
             timerStarted = false;
             localStorage.setItem("timerStarted", timerStarted);
             circleColor.style.setProperty("--strokeOffset", '0');
-            return
+            return handleTimerCompletion();
         }
         if (selectedMilSec < 0) {
             selectedMilSec = 99;
@@ -321,6 +326,45 @@ export function timer () {
     function setSoundButtonsHandler() {
         setSoundPopup.style.top = "100%";
         resetOnClick(setSoundList);
+    }
+
+    function showPopup(popUp) {
+        const popUpHeading = document.getElementById("popup_complete-heading");
+        const popUpLabel = document.getElementById("popup_complete-label");
+        popUpHeading.innerText = "Timer";
+        popUpLabel.innerText = localStorage.getItem("selectedSound");
+        popUp.style.top = "0";
+    }
+
+    function playAudioOnCompletion(audio, isAudioSelected) {
+        isTimerPlaying = true;
+        if (isAudioSelected) { return };
+        audio.src = `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${localStorage.getItem("selectedSound").toLocaleLowerCase()}.mp3`;
+        audio.loop = true;
+        audio.play();
+    }
+
+    function stopAudio(audio, popUp, isAudioSelected) {
+        const styleValue = getComputedStyle(popUp).getPropertyValue("--completeHiddenValue");
+        if (isAudioSelected) { 
+            popUp.style.top = styleValue;
+        } else {
+            popUp.style.top = styleValue;
+            audio.currentTime = 0;
+            audio.pause();
+        }
+    }
+
+    function handleTimerCompletion() {
+        const popUp = document.getElementById("popup_complete");
+        let isAudioSelected = localStorage.getItem("selectedSound") == noRingtoneBtn.innerText.toLowerCase();
+        let audio = new Audio();
+        showPopup(popUp);
+        playAudioOnCompletion(audio, isAudioSelected)
+        const closeButton = document.getElementById("popup_complete-close_button");
+        closeButton.addEventListener("click", (e) => {
+            stopAudio(audio, popUp, isAudioSelected);
+        });
     }
 
     startButton.addEventListener("click", function () {
