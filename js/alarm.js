@@ -12,15 +12,16 @@ export function alarm() {
     const alarmClearInputButton = document.querySelector(".alarm-input-clear");
     const alarmSetSoundModal = document.querySelector(".alarm .set_sound")
     const alarmSetSoundButton = document.querySelector(".alarm-sound");
-    const alarmSetSoundBackButton = document.getElementById("back_button");
+    const alarmSetSoundBackButton = document.querySelector(".alarm #back_button");
     const alarmRingtonesList = document.querySelector(".alarm .set_sound-ringtones");
-    const popup = document.getElementById("alarm_complete");
-    const closeButton = document.getElementById("alarm_complete-close_button");
-    const noRingtoneButton = document.getElementById("button_none");
+    const popUp = document.getElementById("popup_complete");
+    const closePopUpButton = document.getElementById("popup_complete-close_button");
+    const noRingtoneButton = document.querySelector(".alarm #button_none");
     let alarmEditEnable = false;
     let inputVal;
     let selectedSound;
     let defaultSelectedSound = "Alarm";
+    let isAlarmPlaying = false;
  
     var alarmStorage = localStorage.getItem("alarmStorage");
     alarmStorage = alarmStorage ? alarmStorage.split(',') : [];
@@ -280,9 +281,10 @@ export function alarm() {
     }
 
     // play sound when alarm is completed
-    function completePopupPlaySound (alarmItem, audioElement) {
-        if (selectedSound.toLowerCase() == noRingtoneButton.innerText.toLowerCase()) { return }
+    function completePopupPlaySound(alarmItem, audioElement) {
+        isAlarmPlaying = true;
         let soundName = alarmItem.getAttribute("ringtone-name");
+        if (soundName == noRingtoneButton.innerText.toLowerCase()) { return }
         audioElement.src = `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${soundName}.mp3`;
         audioElement.loop = true;
         audioElement.play();
@@ -290,28 +292,32 @@ export function alarm() {
 
     // show popup
     function showCompletePopup(alarmItem) {
-        const popupHeading = document.getElementById("alarm_complete-heading");
-        const popupLabel = document.getElementById("alarm_complete-label");
+        const popupHeading = document.getElementById("popup_complete-heading");
+        const popupLabel = document.getElementById("popup_complete-label");
         popupHeading.innerText = "Alarm";
         popupLabel.innerText = alarmItem.querySelector(".ringtone-name").innerText;
-        popup.style.top = "0";
+        popUp.style.top = "0";
     }
 
     // close popup handler
-    function closeCompletePopup(popupEl, audioElement) {
-        audioElement.pause();
-        audioElement.currentTime = 0;
+    function closeCompletePopup(popupEl, audioElement, alarmItem) {
         const styleValue = getComputedStyle(popupEl).getPropertyValue("--completeHiddenValue");
-        popupEl.style.top = styleValue;
+        if (alarmItem.getAttribute("ringtone-name").toLowerCase() == noRingtoneButton.innerText.toLowerCase()) { 
+            popupEl.style.top = styleValue;
+        } else {
+            popupEl.style.top = styleValue;
+            audioElement.currentTime = 0;
+            audioElement.pause();
+        }
     }
 
     // execute when alarm is completed
     function alarmComplete(alarmItem) {
         let audio = new Audio();
-        completePopupPlaySound (alarmItem, audio);
+        completePopupPlaySound(alarmItem, audio);
         showCompletePopup(alarmItem);
-        closeButton.addEventListener("click", () => {
-            return closeCompletePopup(popup, audio);
+        closePopUpButton.addEventListener("click", () => {
+            closeCompletePopup(popUp, audio, alarmItem);
         });
     }
     
@@ -341,7 +347,7 @@ export function alarm() {
     function getRingtonesList() {
         var ringtonesNamesArray = [];
         let call = new XMLHttpRequest();
-        let url = 'https://api.github.com/repos/vovkanychx/Clock-timer-alarm-stopwatch/git/trees/master?recursive=1' // github API
+        let url = "https://api.github.com/repos/vovkanychx/Clock-timer-alarm-stopwatch/git/trees/master?recursive=1" // github API
         call.open("GET", url, true);
         call.onreadystatechange = function () {
             // status 200 - "OK", readyState 4 - request is finished and repsonse is ready
@@ -388,16 +394,20 @@ export function alarm() {
 
     // play/pause audio element (works on IOS aswell)
     function playAudio(htmlElement, soundName) {
-        let ringtoneName = soundName.toLowerCase();
-        let audioElement = document.createElement("audio");
-        audioElement.setAttribute("id", `${ringtoneName}-ringtone`);
-        let audioElementSource = document.createElement("source");
-        audioElementSource.setAttribute("src", `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${ringtoneName}.mp3`);
-        audioElementSource.setAttribute("type", "audio/mp3");
-        audioElement.appendChild(audioElementSource);
-        htmlElement.appendChild(audioElement);
+        soundName = soundName.toLowerCase();
+        let audioElement;
+        function createAudioAndAppend(soundName) {
+            audioElement = document.createElement("audio");
+            audioElement.setAttribute("id", `${soundName}-ringtone`);
+            let audioElementSource = document.createElement("source");
+            audioElementSource.setAttribute("src", `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${soundName}.mp3`);
+            audioElementSource.setAttribute("type", "audio/mp3");
+            audioElement.appendChild(audioElementSource);
+            htmlElement.appendChild(audioElement);
+        }
+        htmlElement.querySelectorAll("audio").length === 0 ? createAudioAndAppend(soundName) : audioElement = htmlElement.querySelector(`#${soundName}-ringtone`);
         if (audioElement.paused) {
-            alarmRingtonesList.querySelectorAll("audio").forEach(audio => {audio.pause(); audio.currentTime = 0;});
+            alarmRingtonesList.querySelectorAll("audio").forEach(audio => {audio.pause()});
             audioElement.play();
         } else {
             audioElement.pause();
@@ -571,7 +581,6 @@ export function alarm() {
     alarmSetSoundBackButton.addEventListener("click", function (e) {
         alarmSetSoundModal.style.left = "100%";
         alarmRingtonesList.querySelectorAll("audio").forEach(audio => {audio.pause(); audio.currentTime = 0});
-        console.log(selectedSound)
     })
     
     alarmSetSoundModal.addEventListener("scroll", function (e) {
