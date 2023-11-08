@@ -861,7 +861,7 @@ p{
 }
 .selected{
     position: absolute;
-    width: 85%;
+    width: calc(100% - 40px);
     min-height: var(--timerSelectedDivHeight);
     height: var(--timerSelectedDivHeight);
     max-height: var(--timerSelectedDivHeight);
@@ -1347,9 +1347,11 @@ p{
 }
 #alarm_complete-heading{
     margin-bottom: 2px;
+    text-transform: capitalize;
 }
 #alarm_complete-label{
     font-size: 12px;
+    text-transform: capitalize;
 }
 #alarm_complete-close_button{
     margin-left: auto;
