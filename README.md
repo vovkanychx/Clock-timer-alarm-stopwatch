@@ -6,6 +6,7 @@ Interesting practices used:
 - DOM manipulations;
 - BEM methodology;
 - XMLHttpRequests;
+- localStorage;
 - MutationObserver API;
 - Asynchronous functions;
 - Fetch API;
