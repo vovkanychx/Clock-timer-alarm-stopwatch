@@ -1,8 +1,14 @@
 {
     "name": "Clock, timer, alarm, stopwatch",
     "short_name": "Clock",
-    "icons": ["./favicon.ico"],
-    "theme_color": "#000",
-    "background_color": "#171717",
+    "icons": [
+        {
+            "src": "./favicon.png",
+            "size": "96x96",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#010101",
+    "background_color": "#010101",
     "display": "standalone"
 }
