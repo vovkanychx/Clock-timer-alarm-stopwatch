@@ -13,10 +13,10 @@ Interesting practices used:
 - JS modules. <br />
 
 Todo list:
-- check if Daylight Saving Time is in effect and it's offset
-- drag and drop;
+- check if Daylight Saving Time is in effect and it's chamge time depending on that;
+- drag and drop for clockList and alarmList;
 - adapt for mobile devices;
-- fix addition of "scrolling" class to menu when lists scrollHeight are not overlapping clientHeight. <br />
+- fix addition of "scrolling" class to menu when lists' scrollHeight are not overlapping clientHeight. <br />
 
 
 [Check live demo version](https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/)
