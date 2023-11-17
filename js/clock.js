@@ -29,7 +29,6 @@ export function clock() {
 
     async function loadJSONdata() {
         // fetching the data
-        // let response = await fetch("../js/data.json") local
         let response = await fetch("https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/js/data.json") //github page
         jsonData = await response.json()
     }
@@ -176,6 +175,8 @@ export function clock() {
         clockItem.appendChild(clockItemTime)
         clockItem.appendChild(clockItemMove)
         list.appendChild(clockItem)
+        clockItem.style.transition = "top none"
+        clockItem.style.top = (document.querySelectorAll(".clock-item").length - 1) * clockItem.offsetHeight + list.querySelector("h1").offsetHeight + "px"
     }
 
     function addNewClock() {
@@ -189,7 +190,7 @@ export function clock() {
                 createClockItem(clockList, item, city, date, offset)
                 // adding data to localstorage
                 let object = {
-                    offset: item.getAttribute("data-offset"),
+                    offset: Number(item.getAttribute("data-offset")),
                     city: item.textContent.split(",")[0]
                 }
                 clockStorage.push(object)
@@ -261,43 +262,23 @@ export function clock() {
             storage.forEach(item => {
                 createClockItem(clockList, item, item.city, date, item.offset)
             })
-        clockList.childElementCount > 1 ? showButton(clockEditButton) : hideButton(clockEditButton)
+            clockList.childElementCount > 1 ? showButton(clockEditButton) : hideButton(clockEditButton)
+            clockList.querySelectorAll("li").forEach(li => li.style.transition = "top 0s")
         }
     }
     appendSavedClocks()
 
-    function dragAndDrop() {
-        let down = false
-        let moveBtnIndex = 0
-        const moveButtons = document.querySelectorAll(".clock-move")
-        moveButtons.forEach((button, index) => {
-            moveButtons[index].addEventListener("mousedown", e => {
-                down = true
-                moveBtnIndex = index
-            })
-        })
-
-        sectionClock.addEventListener("mousemove", e => {
-            e.preventDefault()
-            if (down) {
-                let button = moveButtons[moveBtnIndex]
-                let parent = button.parentElement
-                let box = parent.getBoundingClientRect().top
-                parent.style.top = `${e.clientY - e.pageY}px`
-            }
-        })
-
-        window.addEventListener("mouseup", e => {
-            down = false
-        })
-    }
-    dragAndDrop()
-    
-    // add scrolling class to menu if clocklist is scrollable
-    setTimeout(() => {
-        if (clockList.scrollHeight > clockList.clientHeight) {
+    function addMenuClass() {
+        let isContentVisible = localStorage.getItem("show-content") == "clock";
+        if (clockList.scrollHeight < (clockList.clientHeight - menu.offsetHeight) && isContentVisible) {
+            menu.classList.remove("scrolling")
+        } else {      
             menu.classList.add("scrolling")
         }
+    }
+
+    setTimeout(() => {
+        addMenuClass()
     }, 0)
 
     function observeChanges() {
@@ -322,11 +303,131 @@ export function clock() {
     }
     observeChanges()
 
-    document.addEventListener("keypress", (e) => {
-        if (e.code == "KeyR") {
-            localStorage.removeItem("clockStorage")
-        } else { return false }
-    })
+    function dragAndDrop() {
+        let posY = null //Mouse coordinates
+        let diffY = null //So that mouse can drag item on the correct spot
+
+        let mouseDown = false
+        let selectedItem = null
+        let resetTransition = false //Cooldown to prevent position errors
+        let transitionTime = 250 //In milliseconds
+
+        const myList = document.querySelector(".clock-list")
+        const myListItems = document.querySelectorAll(".clock-item")
+        const myListHeading = document.querySelector(".clock-list h1")
+        const myListDraggables = document.querySelectorAll(".clock-move ")
+
+        //Set fixed height of items container
+        setTimeout(() => {
+            if (clockStorage.length > 0) {
+                myList.style.height = (myListItems.length * myListItems[0].offsetHeight) + myListHeading.offsetHeight + "px"
+            }
+        }, 0)
+
+        function positionItems(insertIndex = null) {
+            let itemsList = document.querySelectorAll(".clock-item")
+            itemsList = Array.prototype.slice.call(itemsList)
+            itemsList = itemsList.filter(item => item.getAttribute("selected") !== "yes")
+            let indexCounter = 0
+            itemsList.forEach(item => {
+                if (insertIndex === indexCounter + 1) {
+                    indexCounter++
+                }
+                item.style.top = (item.offsetHeight * indexCounter) + myListHeading.offsetHeight + "px"
+                item.setAttribute("order", indexCounter + 1)
+                indexCounter++
+            })
+        }
+        setTimeout(() => {
+            positionItems() 
+        }, 0)
+
+        function positionItemsInOrder() {
+            let itemsList = document.querySelectorAll(".clock-item")
+            itemsList = Array.from(itemsList).sort((a, b) => {
+                return Number(a.getAttribute("order")) > Number(b.getAttribute("order")) ? 1 : -1
+            })
+            itemsList.forEach((item, index) => {
+                if (item.getAttribute("selected") === "yes") {
+                    item.removeAttribute("selected")
+                    setTimeout(() => {
+                        item.style.zIndex = "0"
+                    }, transitionTime)
+                }
+                item.style.top = (item.offsetHeight * index) + myListHeading.offsetHeight + "px"
+                item.setAttribute("order", index + 1)
+            });
+            resetTransition = true
+            //When transition is over
+            setTimeout(() => {
+                while (myList.querySelector("li")) {
+                    myList.removeChild(myList.lastChild)
+                }
+                itemsList.forEach((item) => {
+                    myList.append(item)
+                })
+                resetTransition = false
+            }, transitionTime)
+        }
+
+        myListDraggables.forEach(draggable => {
+            draggable.addEventListener("mousedown", e => {
+                if(!posY || resetTransition) return
+                mouseDown = true
+                selectedItem = e.target.parentElement
+                diffY = posY - selectedItem.offsetTop
+                let offsetY = posY - diffY
+                selectedItem.style.top = offsetY + "px"
+                selectedItem.style.zIndex = "1000"
+                selectedItem.setAttribute("selected", "yes")
+            })
+            draggable.parentElement.addEventListener("mouseup", e => {
+                mouseDown = false
+                e.target.parentElement.style.removeProperty("z-index")
+                positionItemsInOrder()
+                setTimeout(() => {
+                    clockStorage = []
+                    document.querySelectorAll(".clock-item").forEach(item => {
+                        let data = {
+                            offset: Number(item.getAttribute("data-offet")), 
+                            city: item.querySelector(".clock-city").innerText
+                        }
+                        clockStorage.push(data)
+                    })
+                    console.log(clockStorage)
+                    localStorage.setItem("clockStorage", JSON.stringify(clockStorage))
+                }, transitionTime)
+            })
+        })
+
+        sectionClock.addEventListener("mousemove", e => {
+            posY = e.clientY - ((myList.offsetTop - myList.scrollTop) - window.scrollY) //ScrollY, so that a vertical scroll bar does not mess everything up
+            if (!mouseDown) return
+            let offsetY = posY - diffY
+            selectedItem.style.top = offsetY + "px"
+            let orderOfSelectedItem = Number(selectedItem.getAttribute("order"))
+            //Test for new position
+            if (orderOfSelectedItem !== 1) {
+                let beforeItem = document.querySelector(`.clock-item[order*="${orderOfSelectedItem - 1}"]`)
+                let beforeMiddle = posY < beforeItem.offsetTop + beforeItem.offsetHeight
+                if (beforeMiddle) {
+                    positionItems(orderOfSelectedItem - 1)
+                    selectedItem.setAttribute("order", orderOfSelectedItem - 1)
+                    return
+                }
+            }
+            if (orderOfSelectedItem !== document.querySelectorAll(".clock-item").length) {
+                let afterItem = document.querySelector(`.clock-item[order*="${orderOfSelectedItem + 1}"]`)
+                let afterMiddle = posY >= afterItem.offsetTop + (afterItem.offsetHeight / 2) - (afterItem.offsetHeight / 2) 
+                if (afterMiddle) {
+                    positionItems(orderOfSelectedItem + 1)
+                    selectedItem.setAttribute("order", orderOfSelectedItem + 1)
+                    return
+                }
+            }
+        })
+    }
+    dragAndDrop()
     
     clockAddButton.addEventListener("click", function (e) {
         clockPopUp.classList.add("opened")
@@ -367,7 +468,9 @@ export function clock() {
                             this.parentElement.remove()
                             clockStorage.splice(index, 1)
                             localStorage.setItem("clockStorage", JSON.stringify(clockStorage))
-                            console.log(clockStorage)
+                            clockList.querySelectorAll("li").forEach((li, index) => {
+                                li.style.top = (li.offsetHeight * index) + clockList.querySelector("h1").offsetHeight + 'px'
+                            })
                             clockList.childElementCount > 1 ? showButton(clockEditButton) : hideButton(clockEditButton)
                             clickCount = 0
                             // reset clickCount to instantly acces new confirmDelete button
