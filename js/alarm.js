@@ -1,5 +1,5 @@
 import { checkTime, menu as menu } from "../js/script.js";
-
+export let alarmPlaying = false;
 export function alarm() {
     const alarmAdd  = document.getElementById("alarm-add");
     const alarmEdit = document.getElementById("alarm-edit");
@@ -17,11 +17,13 @@ export function alarm() {
     const popUp = document.getElementById("popup_complete");
     const closePopUpButton = document.getElementById("popup_complete-close_button");
     const noRingtoneButton = document.querySelector(".alarm #button_none");
+    const timerAudio = document.querySelector("#timerAudioComplete");
+    const alarmAudio = document.querySelector("#alarmAudioComplete");
+
     let alarmEditEnable = false;
     let inputVal;
     let selectedSound;
     let defaultSelectedSound = "Alarm";
-    let isAlarmPlaying = false;
  
     var alarmStorage = localStorage.getItem("alarmStorage");
     alarmStorage = alarmStorage ? alarmStorage.split(',') : [];
@@ -72,11 +74,6 @@ export function alarm() {
                 } else {
                     alarmEdit.style.visibility = "hidden";
                 }
-                if (mutation.type === "childList" && targetNode.scrollHeight > (targetNode.clientHeight - menu.offsetHeight)) {
-                    menu.classList.add("scrolling");
-                } else {
-                    menu.classList.remove("scrolling");
-                }
             }
         };
         // Create an observer instance linked to the callback function
@@ -85,6 +82,18 @@ export function alarm() {
         observer.observe(targetNode, config);
     }
     observeChanges();
+
+    function addMenuClass(scrollablElement, menuElement) {
+        let isContentVisible = localStorage.getItem("show-content") == "alarm";
+        if (isContentVisible) {
+            if (scrollablElement.scrollHeight - menu.offsetHeight > scrollablElement.clientHeight - menu.offsetHeight) {
+                menuElement.classList.add("scrolling");
+            } else {
+                menuElement.classList.remove("scrolling");
+            }
+        }
+    }
+    addMenuClass(alarmList, menu)
 
     // create new alarm and add it to alarm list
     function addToList() {
@@ -282,7 +291,6 @@ export function alarm() {
 
     // play sound when alarm is completed
     function completePopupPlaySound(alarmItem, audioElement) {
-        isAlarmPlaying = true;
         let soundName = alarmItem.getAttribute("ringtone-name");
         if (soundName == noRingtoneButton.innerText.toLowerCase()) { return }
         audioElement.src = `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${soundName}.mp3`;
@@ -309,13 +317,23 @@ export function alarm() {
             audioElement.currentTime = 0;
             audioElement.pause();
         }
+        alarmPlaying = false
     }
 
     // execute when alarm is completed
     function alarmComplete(alarmItem) {
-        let audio = new Audio();
-        completePopupPlaySound(alarmItem, audio);
-        showCompletePopup(alarmItem);
+        let audio = document.querySelector("#alarmAudioComplete")
+        if (timerAudio) {
+            const transitionDuration = getComputedStyle(popUp).getPropertyValue("--completeTransitionDuration");
+            closeCompletePopup(popUp, timerAudio, alarmItem)
+            setTimeout(() => {
+                showCompletePopup(alarmItem)
+                completePopupPlaySound(alarmItem, audio)
+            }, parseInt(transitionDuration));
+        } else {
+            completePopupPlaySound(alarmItem, audio);
+            showCompletePopup(alarmItem);
+        }     
         closePopUpButton.addEventListener("click", () => {
             closeCompletePopup(popUp, audio, alarmItem);
         });
@@ -365,6 +383,8 @@ export function alarm() {
                     } else {
                         return;
                     }
+                } else {
+                    document.querySelector(".alarm .error_message").style.display = "block";
                 }
             }
         call.send();
@@ -590,5 +610,13 @@ export function alarm() {
         } else if (e.target.scrollTop <= 0) {
             alarmSetSoundHeader.classList.remove("scrolling");
         } 
+    })
+
+    alarmAudio.addEventListener("play", (e) => {
+        alarmPlaying = true
+    })
+
+    alarmAudio.addEventListener("pause", (e) => {
+        alarmPlaying = false
     })
 }
