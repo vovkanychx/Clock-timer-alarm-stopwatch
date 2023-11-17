@@ -137,6 +137,9 @@
                         <button id="set_button">Set</button>
                     </div>
                     <h3>Ringtones</h3>
+                    <p class="error_message">Sorry, an error occured while trying to get sounds. Please try again later. <br> 
+                        <small>Note, you can set sound to none, otherwise default or latest used sound will be played.</small>
+                    </p>
                     <ul class="set_sound-ringtones"></ul>
                     <button id="button_none">
                         <svg class="set_sound-check_icon" viewBox="0 0 16 16">
@@ -200,6 +203,9 @@
                         <h2>Sound</h2>
                     </div>
                     <h3>Ringtones</h3>
+                    <p class="error_message">Sorry, an error occured while trying to get sounds. Please try again later. <br> 
+                        <small>Note, you can set sound to none, otherwise default or latest used sound will be played.</small>
+                    </p>
                     <ul class="set_sound-ringtones"></ul>
                     <button id="button_none">
                         <svg class="set_sound-check_icon" viewBox="0 0 16 16">
@@ -219,6 +225,8 @@
             <span id="popup_complete-label">My alarm label / Stopwatch complete</span>
         </p>
         <button id="popup_complete-close_button">&times;</button>
+        <audio id="timerAudioComplete"></audio>
+        <audio id="alarmAudioComplete"></audio>
     </div>
     <!-- #hours>div*24>{$} -->
     <script src="HackTimer.js"></script>
