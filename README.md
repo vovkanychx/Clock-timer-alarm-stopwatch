@@ -1,8 +1,8 @@
 # Clock-timer-alarm-stopwatch
-Project in JS, HTML, CSS. <br />
-Using vanilla Javascript (ES6). Best HTML5 practices and CSS3 stylings. <br />
+## Project in JS, HTML, CSS. <br />
+### Using vanilla Javascript (ES6). Best HTML5 practices and CSS3 stylings. <br />
 
-Interesting practices used:
+### Interesting practices used:
 - DOM manipulations;
 - BEM methodology;
 - XMLHttpRequests;
@@ -13,11 +13,12 @@ Interesting practices used:
 - GitHub API;
 - JS modules. <br />
 
-Todo list:
-- check if Daylight Saving Time is in effect and it's chamge time depending on that;
-- drag and drop for clockList and alarmList;
-- adapt for mobile devices;
-- fix addition of "scrolling" class to menu when lists' scrollHeight are not overlapping clientHeight. <br />
+[!NOTE]
+NOTE! This build is not finished.**
+
+### Todo list:
+1. [ ] check if Daylight Saving Time is in effect and it's chamge time depending on that;
+1. [ ] adapt for mobile devices. <br />
 
 
 [Check live demo version](https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/)
