@@ -1,6 +1,7 @@
 # Clock-timer-alarm-stopwatch
-### Project in JS, HTML, CSS. <br />
-### Using vanilla Javascript (ES6). Best HTML5 practices and CSS3 stylings. <br />
+
+Project in JS, HTML, CSS. <br />
+Using vanilla Javascript (ES6). Best HTML5 practices and CSS3 stylings. <br />
 
 ### Interesting practices used:
 - DOM manipulations;
