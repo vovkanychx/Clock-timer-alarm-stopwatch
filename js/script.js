@@ -60,6 +60,12 @@ function main() {
                     localStorage.setItem("show-content", "clock");
                     let list = document.querySelector(".clock-list");
                     menuAddScrollingClass(list)
+                    if (list.childElementCount > 1) {
+                        list.querySelectorAll("li").forEach((li, index) => {
+                            li.style.top = (li.offsetHeight * index) + list.querySelector("h1").offsetHeight + "px";
+                            li.style.transition = "top 0s";
+                        })
+                    }
                     break;
                 }
                 case menuStopwatch : {
@@ -78,6 +84,9 @@ function main() {
                     sectionTimer.style.maxHeight = "100vh";
                     localStorage.setItem("show-content", "timer");
                     menu.classList.remove("scrolling");
+                    sectionTimer.querySelector("#hours").scrollTop = Number(sectionTimer.querySelector("#hours .active").innerText) * sectionTimer.querySelector("#hours .active").offsetHeight
+                    sectionTimer.querySelector("#minutes").scrollTop = Number(sectionTimer.querySelector("#minutes .active").innerText) * sectionTimer.querySelector("#minutes .active").offsetHeight
+                    sectionTimer.querySelector("#seconds").scrollTop = Number(sectionTimer.querySelector("#seconds .active").innerText) * sectionTimer.querySelector("#seconds .active").offsetHeight
                     break;
                 }
                 case menuAlarm : {
