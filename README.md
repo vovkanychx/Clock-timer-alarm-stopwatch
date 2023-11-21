@@ -19,7 +19,7 @@ Using vanilla Javascript (ES6). Best HTML5 practices and CSS3 stylings. <br />
 
 ### Todo list:
 - As soon as possible:
-    - [ ] 1. Fix clock items transitiong when removing;
+    - [x] 1. Fix clock items transitiong when removing;
     - [ ] 2. Fix alarm items array/localStorage after removing item.
 - Later:
     - [ ] 1. Check if Daylight Saving Time is in effect and it's chamge time depending on that;
