@@ -15,7 +15,6 @@ export function clock() {
     const lettersArray = [...Array(26).keys()].map(i => String.fromCharCode(i + 65))
     var jsonData
     let isNavigation = false
-    let clickCount = 0
     let clockStorage = localStorage.getItem("clockStorage")
     clockStorage = clockStorage ? JSON.parse(clockStorage.split(',')) : []
 
@@ -111,6 +110,10 @@ export function clock() {
                 anchor.setAttribute("href", `#${letter}`)
                 anchor.textContent = `${letter}`
                 li.appendChild(anchor)
+                anchor.addEventListener("click", e => {
+                    e.preventDefault()
+                    timezoneList.scrollTop = timezoneList.querySelector(`#${letter.toUpperCase()}`).offsetTop - document.querySelector(".timezone-wrap").offsetHeight
+                })
             })
             isNavigation = true
         } else {
@@ -167,6 +170,10 @@ export function clock() {
         // new item move button
         let clockItemMove = document.createElement("div")
         clockItemMove.setAttribute("class", "clock-move")
+        // new item remove confirm button
+        let clockItemConfirm = document.createElement("button")
+        clockItemConfirm.classList.add("remove-confirm")
+        clockItemConfirm.innerText = "Delete"           
         // appending
         clockItemWrap.appendChild(clockItemOffset)
         clockItemWrap.appendChild(clockItemCity)
@@ -174,8 +181,9 @@ export function clock() {
         clockItem.appendChild(clockItemWrap)
         clockItem.appendChild(clockItemTime)
         clockItem.appendChild(clockItemMove)
+        clockItem.appendChild(clockItemConfirm)
         list.appendChild(clockItem)
-        clockItem.style.transition = "top none"
+        clockItem.style.transition = "top none, transform 200ms ease-in-out"
         clockItem.style.top = (document.querySelectorAll(".clock-item").length - 1) * clockItem.offsetHeight + list.querySelector("h1").offsetHeight + "px"
     }
 
@@ -263,7 +271,7 @@ export function clock() {
                 createClockItem(clockList, item, item.city, date, item.offset)
             })
             clockList.childElementCount > 1 ? showButton(clockEditButton) : hideButton(clockEditButton)
-            clockList.querySelectorAll("li").forEach(li => li.style.transition = "top 0s")
+            clockList.querySelectorAll("li").forEach(li => li.style.transition = "top 0s, transform 200ms ease-in-out")
         }
     }
     appendSavedClocks()
@@ -394,7 +402,6 @@ export function clock() {
                         }
                         clockStorage.push(data)
                     })
-                    console.log(clockStorage)
                     localStorage.setItem("clockStorage", JSON.stringify(clockStorage))
                 }, transitionTime)
             })
@@ -450,31 +457,27 @@ export function clock() {
         e.target.classList.contains("edit-toggle") ? e.target.innerText = "Done" : e.target.innerText = "Edit"
         const clockItems = document.querySelectorAll(".clock-item")
         clockItems.forEach((item, index) => {
+            if (e.target.classList.contains("edit-toggle")) item.classList.remove("removing", "remove-confirm")
             item.classList.toggle("remove-item")
             item.querySelector(".remove-button").addEventListener("click", function (e) {
-                if (clockList.contains(document.querySelector(".remove-confirm"))) {
+                if (clockList.contains(document.querySelector(".clock-item.remove-confirm.removing"))) {
                     return
                 } else {
-                    const removeConfirmBtn = document.createElement("button")
-                    removeConfirmBtn.setAttribute("class", "remove-confirm")
-                    removeConfirmBtn.innerText = "Delete"
-                    item.appendChild(removeConfirmBtn)
-                    this.parentElement.classList.add("removing")
+                    const removeConfirmBtn = e.target.parentElement.querySelector(".remove-confirm")
+                    e.target.parentElement.classList.add("removing")
                     removeConfirmBtn.addEventListener("click", function (e) {
-                        this.classList.add("removing")
-                        this.parentElement.classList.add("removed")
-                        console.log(clockStorage)
+                        let transitionDuration = parseInt(window.getComputedStyle(document.querySelector(".clock")).getPropertyValue("--delete-transition"))
+                        e.target.classList.add("removing")
+                        e.target.parentElement.classList.add("removed")
                         setTimeout(() => {
-                            this.parentElement.remove()
+                            e.target.parentElement.remove()
                             clockStorage.splice(index, 1)
                             localStorage.setItem("clockStorage", JSON.stringify(clockStorage))
                             clockList.querySelectorAll("li").forEach((li, index) => {
                                 li.style.top = (li.offsetHeight * index) + clockList.querySelector("h1").offsetHeight + 'px'
                             })
                             clockList.childElementCount > 1 ? showButton(clockEditButton) : hideButton(clockEditButton)
-                            clickCount = 0
-                            // reset clickCount to instantly acces new confirmDelete button
-                        }, 500);
+                        }, transitionDuration + 50)
                     })
                 }
             })
@@ -578,22 +581,12 @@ export function clock() {
 
     // hide confirm-delete button if not clicked on this button
     window.addEventListener("click", function (e) {
-        const removeConfirm = document.querySelector(".remove-confirm")
-        let isShown = sectionClock.contains(removeConfirm)
-        // if deleteConfirm is shown on page
-        if (isShown && e.target !== removeConfirm) {
-            clickCount++
-            // add 1 to clickCount
-            if (clickCount > 1) {
-                // if clickCount > 1 and not clicked on deleteConfirm then remove it
-                removeConfirm.parentElement.classList.remove("removing")
-                removeConfirm.classList.add("hide-remove-confirm")
-                setTimeout(() => {
-                    removeConfirm.remove()
-                }, 500);
-                // reset clickCount to be able instantly call removeConfirm button
-                return clickCount = 0
+        this.document.querySelectorAll(".clock-item").forEach(item => {
+            if (item.classList.contains("removing")) {
+                if (e.target !== item.querySelector(".remove-button")) {
+                    item.classList.remove("removing")
+                }
             }
-        }
+        })
     })
 }
