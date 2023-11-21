@@ -342,7 +342,7 @@ p{
 /* CLOCK */
 .clock{
     overflow: hidden;
-    --delete-transition: 200ms ease-in-out;
+    --delete-transition: 300ms ease-in-out;
     --remove-confirm-width: 80px;
 }
 .clock .item{
@@ -387,13 +387,14 @@ p{
 .clock-item.removed .clock-offset,
 .clock-item.removed .clock-city,
 .clock-item.removed .clock-time,
-.clock-item.removed .remove-button{
-    transition: all 500ms, font-size 0ms;
-    opacity: 0;
+.clock-item.removed .remove-button, 
+.clock-item.removed .remove-button:after{
+    transition: all var(--delete-transition), font-size 0ms;
     height: 0;
     padding: 0;
-    margin: 0;
     font-size: 0;
+    color: transparent;
+    background-color: transparent;
 }
 .clock-box{
     display: flex;
@@ -482,36 +483,35 @@ p{
     margin-right: 30px;
 }
 .remove-confirm{
-    position: absolute;
-    right: 0;
-    width: var(--remove-confirm-width);
+    width: 0;
     height: 100%;
-    margin-right: 30px;
     font-family: 'Roboto', sans-serif;
     color: #fff;
     background-color: #f72f2f;
-    animation: animateConfirmBtn 500ms;
+    margin-right: 0;
     transition: width var(--delete-transition), margin var(--delete-transition);
     z-index: 1;
 }
 .remove-confirm.removing{
     width: 100%;
+    position: fixed;
+    right: 0;
+    z-index: 2;
     color: transparent;
 }
-
-.remove-confirm.hide-remove-confirm{
-    width: 0;
+.clock-item.remove-item.removing .remove-confirm{
+    width: var(--remove-confirm-width);
+}
+.clock-item.remove-item .clock-move{
     margin-right: 0;
-    color: transparent;
 }
-@-webkit-keyframes animateConfirmBtn {
-    from {transform: translateX(200%);}
-    to {transform: translateX(0);}
+.clock-item.remove-item.removing .clock-move{
+    margin-right: 20px;
 }
-@keyframes animateConfirmBtn {
-    from {transform: translateX(200%);}
-    to {transform: translateX(0);}
+.clock-item.remove-item .remove-confirm {
+    margin-right: 30px;
 }
+/* Timezone popup */
 .timezone{
     background-color: #171717;
     --timezone-wrap-height: 100px;
