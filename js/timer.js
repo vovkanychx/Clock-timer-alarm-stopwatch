@@ -1,4 +1,5 @@
 import { checkTime } from "../js/script.js";
+export let timerPlaying = false;
 export function timer () {
     const hoursList         = document.getElementById("hours");
     const minutesList       = document.getElementById("minutes");
@@ -17,13 +18,14 @@ export function timer () {
     const setSoundCancelBtn = document.querySelector(".timer #cancel_button");
     const setSoundList      = document.querySelector(".timer .set_sound-ringtones");
     const noRingtoneBtn     = document.querySelector(".timer #button_none");
+    const timerAudio        = document.querySelector("#timerAudioComplete");
+    const alarmAudio        = document.querySelector("#alarmAudioComplete");
 
     const RINGTONES_URL = "https://api.github.com/repos/vovkanychx/Clock-timer-alarm-stopwatch/git/trees/master?recursive=1";
     let timerInterval;
     let timerStarted = false;
     let soundNames = [];
     let selectedSound;
-    let isTimerPlaying = false;
     
     let selectedMilSec, selectedSecond, selectedMinute, selectedHour;
     selectedMilSec = selectedSecond = selectedMinute = selectedHour = 0;
@@ -237,7 +239,15 @@ export function timer () {
     }
 
     async function callAPI(url, list) {
-        const response = await fetch(url);
+        let response;
+        try {
+            response = await fetch(url);
+            if (!response.ok) {
+                document.querySelector(".timer .error_message").style.display = "block";
+            }
+        } catch (error) {
+            throw new Error(error)
+        }
         const responseData = await response.json();
         await getSoundNames(responseData);
         await renderArrToList(list);
@@ -268,7 +278,7 @@ export function timer () {
         }).join("");
         list.innerHTML = mappedList;        
         // list.querySelector("li").setAttribute("selected", true);
-        localStorage.getItem("selectedSound") === null ? timerActionLabel.innerText = list.querySelector("li").innerText : timerActionLabel.innerText = localStorage.getItem("selectedSound");
+        localStorage.getItem("selectedSound") === null ? timerActionLabel.innerText = "Alarm" : timerActionLabel.innerText = localStorage.getItem("selectedSound");
     }
 
     function playAudio(htmlElement, soundName, list) {
@@ -337,7 +347,6 @@ export function timer () {
     }
 
     function playAudioOnCompletion(audio, isAudioSelected) {
-        isTimerPlaying = true;
         if (isAudioSelected) { return };
         audio.src = `https://vovkanychx.github.io/Clock-timer-alarm-stopwatch/ringtones/${localStorage.getItem("selectedSound").toLocaleLowerCase()}.mp3`;
         audio.loop = true;
@@ -353,14 +362,24 @@ export function timer () {
             audio.currentTime = 0;
             audio.pause();
         }
+        timerPlaying = false;
     }
 
     function handleTimerCompletion() {
         const popUp = document.getElementById("popup_complete");
         let isAudioSelected = localStorage.getItem("selectedSound") == noRingtoneBtn.innerText.toLowerCase();
-        let audio = new Audio();
-        showPopup(popUp);
-        playAudioOnCompletion(audio, isAudioSelected)
+        let audio = document.querySelector("#timerAudioComplete");
+        if (alarmAudio) {
+            const transitionDuration = getComputedStyle(popUp).getPropertyValue("--completeTransitionDuration");
+            stopAudio(alarmAudio, popUp, isAudioSelected);
+            setTimeout(() => {
+                showPopup(popUp);
+                playAudioOnCompletion(audio, isAudioSelected);
+            }, parseInt(transitionDuration));
+        } else {
+            showPopup(popUp);
+            playAudioOnCompletion(audio, isAudioSelected);
+        }
         const closeButton = document.getElementById("popup_complete-close_button");
         closeButton.addEventListener("click", (e) => {
             stopAudio(audio, popUp, isAudioSelected);
@@ -430,31 +449,24 @@ export function timer () {
 
     timerActionBtn.addEventListener("click", (e) => {
         setSoundPopup.style.top = "5%";
-        selectedSecond = localStorage.getItem("selectedSound");
-        if (!setSoundList.contains(setSoundList.querySelector('[selected="true"]'))) {
-            setSoundList.querySelector("li").setAttribute("selected", true);
-        }
-        if (setSoundList.querySelector('[selected="true"]').innerText.toLowerCase() !== localStorage.getItem("selectedSound").toLowerCase()) {
-            setSoundList.querySelectorAll("li").forEach(li => {
-                li.setAttribute("selected", false);
-                li.querySelector("svg").style.visibility = "hidden";
-                if (li.innerText.toLowerCase() == localStorage.getItem("selectedSound").toLocaleLowerCase()) {
-                    li.setAttribute("selected", true);
-                    li.querySelector("svg").style.visibility = "visible";
-                }
-            })
-        } else if (localStorage.getItem("selectedSound").toLowerCase() === noRingtoneBtn.innerText.toLowerCase()) {
-            resetOnClick();
-            timerActionLabel.innerText = localStorage.getItem("selectedSound");
-        }
-        else {
-            setSoundList.querySelectorAll("svg").forEach(svg => svg.style.visibility = "hidden");
-            setSoundList.querySelector('[selected="true"').querySelector("svg").style.visibility = "visible";
-        }
-        if (localStorage.getItem("selectedSound").toLowerCase() === noRingtoneBtn.innerText.toLowerCase()) {
-            // have no clue why the same code is not working in the same else if statement
-            noRingtoneBtn.querySelector("svg").style.visibility = "visible";
-        }
+        selectedSound = localStorage.getItem("selectedSound");
+        setSoundList.querySelectorAll("li").forEach(item => {
+            if (selectedSound == null || undefined || "") {
+                setSoundList.firstElementChild.setAttribute("selected", true)
+                localStorage.setItem("selectedSound", setSoundList.querySelector('[selected="true"]').innerText.toLowerCase());
+            }
+            if (selectedSound.toLowerCase() == item.innerText.toLowerCase()) {
+                item.setAttribute("selected", true)
+                setSoundList.querySelector("li svg").style.visibility = "hidden";
+                item.querySelector("svg").style.visibility = "visible";
+            }
+            if (selectedSound.toLowerCase() == noRingtoneBtn.innerText.toLowerCase()) {
+                noRingtoneBtn.querySelector("svg").style.visibility = "visible";
+            }
+            if (selectedSound.toLowerCase() !== item.innerText.toLowerCase()) {
+                item.querySelector("svg").style.visibility = "hidden";
+            }
+        })
     })
 
     setSoundSetBtn.addEventListener("click", (e) => {
@@ -482,5 +494,22 @@ export function timer () {
         e.target.querySelector("svg").style.visibility = "visible";
         selectedSound = e.target.innerText;
         timerActionLabel.innerText = selectedSound;
+    })
+
+    setSoundPopup.addEventListener("scroll", (e) => {
+        const popUpHeading = e.target.querySelector(".timer .set_sound-buttons");
+        if (e.target.scrollTop > 0) {
+            popUpHeading.classList.add("scrolling");
+        } else {
+            popUpHeading.classList.remove("scrolling");
+        }
+    }, false)
+
+    timerAudio.addEventListener("play", (e) => {
+        timerPlaying = true
+    })
+
+    timerAudio.addEventListener("pause", (e) => {
+        timerPlaying = false
     })
 }
